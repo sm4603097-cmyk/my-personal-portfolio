@@ -32,8 +32,8 @@ export const siteConfig: SiteConfig = {
   telegramHandle: '@salama_83_77',
   telegramDisplay: '@salama_83_77 / +20 107 047 1954',
   telegramLink: 'https://t.me/+201070471954',
-  email: 'contact@alhassanmohamed.dev',
-  emailLink: 'mailto:contact@alhassanmohamed.dev?subject=Project%20Inquiry',
+  email: 'sm4603097@gmail.com',
+  emailLink: 'mailto:sm4603097@gmail.com',
   github: 'https://github.com',
   socials: [
     {

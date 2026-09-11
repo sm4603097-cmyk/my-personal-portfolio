@@ -208,6 +208,9 @@ export interface TranslationContent {
     ctaTelegram: string;
     ctaCall: string;
     submitLabel: string;
+    submittingLabel: string;
+    submitError: string;
+    rateLimit: string;
     whatsappInstant: string;
     telegramDirect: string;
     directCall: string;
@@ -536,7 +539,7 @@ export const translations: Record<Language, TranslationContent> = {
       sendWhatsapp: "WhatsApp Direct: 01070471954",
       sendEmail: "Send Direct Email",
       nameLabel: "Your Name",
-      emailLabel: "Your Email / Phone",
+      emailLabel: "Your Email",
       messageLabel: "Project Brief / Details",
       socialTitle: "CONNECT ACROSS PLATFORMS",
       inquiryTitle: "INQUIRY GENERATED",
@@ -544,7 +547,10 @@ export const translations: Record<Language, TranslationContent> = {
       ctaWhatsapp: "WhatsApp",
       ctaTelegram: "Telegram",
       ctaCall: "Direct Call",
-      submitLabel: "Generate Inquiry & Continue",
+      submitLabel: "Send Message",
+      submittingLabel: "Sending...",
+      submitError: "Something went wrong. Please try again.",
+      rateLimit: "Too many messages sent. Please try again later.",
       whatsappInstant: "WhatsApp Instant",
       telegramDirect: "Telegram Direct",
       directCall: "Direct Phone Call",
@@ -871,7 +877,7 @@ export const translations: Record<Language, TranslationContent> = {
       sendWhatsapp: "واتساب مباشر: 01070471954",
       sendEmail: "إرسال بريد إلكتروني مباشر",
       nameLabel: "الاسم الكريم",
-      emailLabel: "البريد الإلكتروني / رقم الهاتف",
+      emailLabel: "البريد الإلكتروني",
       messageLabel: "ملخص المشروع أو التفاصيل",
       socialTitle: "تواصل معي عبر المنصات الاجتماعية",
       inquiryTitle: "تم تجهيز الاستفسار",
@@ -879,7 +885,10 @@ export const translations: Record<Language, TranslationContent> = {
       ctaWhatsapp: "واتساب",
       ctaTelegram: "تليجرام",
       ctaCall: "اتصال مباشر",
-      submitLabel: "تجهيز الاستفسار والمتابعة",
+      submitLabel: "إرسال الرسالة",
+      submittingLabel: "جارٍ الإرسال...",
+      submitError: "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      rateLimit: "تم إرسال عدد كبير جداً من الرسائل. يرجى المحاولة لاحقاً.",
       whatsappInstant: "واتساب فوري",
       telegramDirect: "تليجرام مباشر",
       directCall: "اتصال هاتفي مباشر",

@@ -1,0 +1,4 @@
+# Copy this file to `.dev.vars` and fill in real values for local `wrangler dev`.
+# `.dev.vars` is gitignored and must never be committed.
+RESEND_API_KEY=
+RESEND_FROM=onboarding@resend.dev

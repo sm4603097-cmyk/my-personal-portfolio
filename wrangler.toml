@@ -1,0 +1,9 @@
+name = "my-personal-portfolio"
+main = "src/worker.ts"
+compatibility_date = "2025-12-01"
+
+assets = { directory = "./dist", binding = "ASSETS", run_worker_first = true }
+
+[[kv_namespaces]]
+binding = "CONTACT_RATE_LIMIT_KV"
+id = "16f221d9097448f6a7dc1a0bb9ead5f0"

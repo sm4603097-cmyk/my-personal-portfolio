@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { MessageSquare, Mail, Phone, Send, ExternalLink, CheckCircle2, ArrowRight } from 'lucide-react';
+import { MessageSquare, Mail, Phone, Send, Loader2, ExternalLink, CheckCircle2, ArrowRight } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
 import { SectionHeader, SectionTransition, HoverLift } from '../motion';
+
+type ContactErrorKey = 'submitError' | 'rateLimit';
 
 const SOCIAL_COLORS: Record<string, string> = {
   facebook: 'hover:border-blue-500/50 hover:text-blue-500',
@@ -16,8 +18,11 @@ export const ContactSection: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>(t.contact.types[0]);
   const [selectedTimeline, setSelectedTimeline] = useState<string>(t.contact.budgets[0]);
   const [name, setName] = useState('');
-  const [contactInfo, setContactInfo] = useState('');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorKey, setErrorKey] = useState<ContactErrorKey | null>(null);
   const [submitted, setSubmitted] = useState(false);
 
   const triggerWhatsApp = () => {
@@ -32,22 +37,56 @@ export const ContactSection: React.FC = () => {
   };
 
   const triggerEmail = () => {
-    const subject = encodeURIComponent(`Project Inquiry: ${selectedType}`);
-    const body = encodeURIComponent(
-      `Hello Alhassan Mohamed,\n\nProject Details:\n- Type: ${selectedType}\n- Estimated Timeline: ${selectedTimeline}\n- Client Name: ${name}\n- Contact: ${contactInfo}\n\nProject Brief:\n${message}`
-    );
-    window.location.href = `${siteConfig.emailLink}?subject=${subject}&body=${body}`;
+    window.location.href = siteConfig.emailLink;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSubmitted(true);
-    const { default: confetti } = await import('canvas-confetti');
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.7 }
-    });
+    if (submitting) return;
+
+    const form = e.currentTarget;
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorKey(null);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          projectType: selectedType,
+          timeline: selectedTimeline,
+          honeypot,
+        }),
+      });
+
+      if (!res.ok) {
+        setErrorKey(res.status === 429 ? 'rateLimit' : 'submitError');
+        return;
+      }
+
+      setSubmitted(true);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduceMotion) {
+        const { default: confetti } = await import('canvas-confetti');
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.7 }
+        });
+      }
+    } catch {
+      setErrorKey('submitError');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -116,8 +155,21 @@ export const ContactSection: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
-                
+              <form onSubmit={handleSubmit} aria-busy={submitting} className="space-y-5 sm:space-y-6">
+
+                {/* Honeypot: hidden field, legitimate users never fill this */}
+                <div aria-hidden="true" className="absolute left-[-9999px] top-auto w-px h-px overflow-hidden">
+                  <label htmlFor="contact-honeypot">Leave this field empty</label>
+                  <input
+                    id="contact-honeypot"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                  />
+                </div>
+
                 {/* Step 1: Project Type Selection */}
                 <div>
                   <label className="block text-xs font-mono text-[var(--accent-cyan)] uppercase tracking-wider font-bold mb-2.5">
@@ -173,6 +225,7 @@ export const ContactSection: React.FC = () => {
                     <input
                       type="text"
                       required
+                      autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="e.g., Sarah Johnson"
@@ -185,11 +238,12 @@ export const ContactSection: React.FC = () => {
                       {t.contact.emailLabel}
                     </label>
                     <input
-                      type="text"
+                      type="email"
                       required
-                      value={contactInfo}
-                      onChange={(e) => setContactInfo(e.target.value)}
-                      placeholder="e.g., sarah@company.com or +20 10..."
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g., sarah@company.com"
                       className="w-full px-4 py-2.5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-sm text-[var(--text-heading)] focus:border-[var(--accent-cyan)] focus:outline-none"
                     />
                   </div>
@@ -200,6 +254,7 @@ export const ContactSection: React.FC = () => {
                     </label>
                     <textarea
                       rows={3}
+                      required
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder="Brief overview of project requirements or technical scope..."
@@ -210,11 +265,22 @@ export const ContactSection: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse"
+                  disabled={submitting}
+                  aria-disabled={submitting}
+                  className="w-full py-3.5 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs font-mono uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center space-x-2 rtl:space-x-reverse disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-[var(--accent-cyan)]"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>{t.contact.submitLabel}</span>
+                  {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>{submitting ? t.contact.submittingLabel : t.contact.submitLabel}</span>
                 </button>
+
+                {errorKey && (
+                  <p
+                    role="alert"
+                    className="text-xs font-mono text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-center"
+                  >
+                    {t.contact[errorKey]}
+                  </p>
+                )}
 
               </form>
             )}
