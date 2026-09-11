@@ -14,6 +14,18 @@ const OPTION_MAX = 120;
 
 const EMAIL_RE = /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]{2,}$/;
 
+const SECURITY_HEADERS: Record<string, string> = {
+  'content-security-policy':
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests",
+  'strict-transport-security': 'max-age=63072000; includeSubDomains',
+  'x-content-type-options': 'nosniff',
+  'x-frame-options': 'DENY',
+  'referrer-policy': 'strict-origin-when-cross-origin',
+  'permissions-policy':
+    'camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(), usb=(), battery=(), autoplay=(), fullscreen=(self), display-capture=()',
+  'cross-origin-opener-policy': 'same-origin',
+};
+
 interface KvStore {
   get(key: string): Promise<string | null>;
   put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
@@ -41,7 +53,24 @@ interface ValidPayload {
 function json(data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': 'no-store',
+    },
+  });
+}
+
+function applySecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    headers.set(key, value);
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
 
@@ -89,6 +118,16 @@ function validate(body: Record<string, unknown>):
 }
 
 async function handleContact(request: Request, env: Env): Promise<Response> {
+  const contentLength = Number(request.headers.get('content-length') || '0');
+  if (contentLength > MAX_BODY_CHARS) {
+    return json({ ok: false, error: 'invalid_fields' }, 400);
+  }
+
+  const contentType = request.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return json({ ok: false, error: 'invalid_fields' }, 400);
+  }
+
   const raw = await request.text();
   if (raw.length > MAX_BODY_CHARS) {
     return json({ ok: false, error: 'invalid_fields' }, 400);
@@ -186,11 +225,12 @@ export default {
 
     if (url.pathname === '/api/contact') {
       if (request.method !== 'POST') {
-        return json({ ok: false, error: 'method_not_allowed' }, 405);
+        return applySecurityHeaders(json({ ok: false, error: 'method_not_allowed' }, 405));
       }
-      return handleContact(request, env);
+      return applySecurityHeaders(await handleContact(request, env));
     }
 
-    return env.ASSETS.fetch(request);
+    const assetResponse = await env.ASSETS.fetch(request);
+    return applySecurityHeaders(assetResponse);
   },
 };
