@@ -67,6 +67,48 @@ interface ValidPayload {
   timeline: string;
 }
 
+// Structured, PII-safe server-side logging. Every value is an explicit safe
+// primitive; message bodies, names, emails, phones, tokens, secrets, cookies,
+// and client IPs are never passed here. Lines are single-line JSON so Workers
+// Observability / wrangler tail render one event per entry.
+type LogLevel = 'log' | 'warn' | 'error';
+type LogField = string | number | boolean;
+
+function logEvent(
+  event: string,
+  fields: Record<string, LogField>,
+  level: LogLevel = 'log',
+): void {
+  const line = JSON.stringify({ event, ts: new Date().toISOString(), ...fields });
+  if (level === 'error') console.error(line);
+  else if (level === 'warn') console.warn(line);
+  else console.log(line);
+}
+
+// Coarse client-IP presence only. The full IP is never logged; it is used
+// solely to derive bounded rate-limit keys and to report whether reactive
+// bucketing had real per-visitor granularity (absent IPs collapse callers).
+interface RequestContext {
+  reqId: string;
+  route: 'api-contact' | 'static';
+  method: string;
+  startedAt: number;
+  hasClientIp: boolean;
+}
+
+function contextFor(request: Request, reqId: string): RequestContext {
+  const url = new URL(request.url);
+  const route = url.pathname === '/api/contact' ? 'api-contact' : 'static';
+  const cfIp = request.headers.get('cf-connecting-ip');
+  return {
+    reqId,
+    route,
+    method: request.method,
+    startedAt: Date.now(),
+    hasClientIp: cfIp !== null && cfIp.trim() !== '',
+  };
+}
+
 function json(data: unknown, status: number): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -168,12 +210,18 @@ function normalizePhone(value: unknown): string | null {
 
 // Server-side Turnstile verification. Fails closed on any error so an
 // unconfirmed token can never reach the email path. Provider details, error
-// codes, and secret state are never exposed to the caller.
+// codes, and secret state are never exposed to the caller; only a coarse
+// failure category is available for server-side diagnostics, never the token
+// or the provider's raw error list.
+type TurnstileOutcome =
+  | { success: true }
+  | { success: false; category: 'provider_network' | 'provider_http' | 'provider_unparseable' | 'rejected' };
+
 async function verifyTurnstile(
   token: string,
   secret: string,
   remoteIp?: string,
-): Promise<boolean> {
+): Promise<TurnstileOutcome> {
   const bodyPayload = remoteIp
     ? { secret, response: token, remoteip: remoteIp }
     : { secret, response: token };
@@ -187,22 +235,26 @@ async function verifyTurnstile(
       signal: AbortSignal.timeout(TURNSTILE_TIMEOUT_MS),
     });
   } catch {
-    return false;
+    return { success: false, category: 'provider_network' };
   }
 
-  if (!response.ok) return false;
+  if (!response.ok) return { success: false, category: 'provider_http' };
 
   let payload: unknown;
   try {
     payload = await response.json();
   } catch {
-    return false;
+    return { success: false, category: 'provider_unparseable' };
   }
 
-  if (typeof payload !== 'object' || payload === null) return false;
+  if (typeof payload !== 'object' || payload === null) {
+    return { success: false, category: 'provider_unparseable' };
+  }
 
   const result = payload as TurnstileVerifyResponse;
-  return result.success === true;
+  return result.success === true
+    ? { success: true }
+    : { success: false, category: 'rejected' };
 }
 
 function validate(body: Record<string, unknown>):
@@ -233,28 +285,72 @@ function validate(body: Record<string, unknown>):
   return { ok: true, data: { name, email, phone, message, projectType, timeline } };
 }
 
-async function handleContact(request: Request, env: Env): Promise<Response> {
+async function handleContact(
+  request: Request,
+  env: Env,
+  ctx: RequestContext,
+): Promise<Response> {
+  const { reqId, method, startedAt } = ctx;
+  const duration = (): number => Date.now() - startedAt;
+
   const burstId = clientIdentifier(request);
   const burstLimiter = env.CONTACT_BURST_LIMITER;
   if (burstLimiter) {
     const { success } = await burstLimiter.limit({ key: burstId });
     if (!success) {
+      logEvent(
+        'contact.rate_limited',
+        {
+          reqId,
+          route: 'api-contact',
+          method,
+          status: 429,
+          durationMs: duration(),
+          category: 'burst',
+          hasClientIp: ctx.hasClientIp,
+        },
+        'warn',
+      );
       return json({ ok: false, error: 'rate_limited' }, 429);
     }
   }
 
   const contentLength = Number(request.headers.get('content-length') || '0');
   if (contentLength > MAX_BODY_CHARS) {
+    logEvent('contact.invalid_request', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 400,
+      durationMs: duration(),
+      category: 'content_length',
+    });
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
   const contentType = request.headers.get('content-type') || '';
   if (!isJsonContentType(contentType)) {
+    logEvent('contact.invalid_request', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 400,
+      durationMs: duration(),
+      category: 'content_type',
+    });
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
   const raw = await readBoundedBody(request, MAX_BODY_CHARS);
   if (raw === null) {
+    logEvent('contact.invalid_request', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 400,
+      durationMs: duration(),
+      category: 'body_invalid',
+    });
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
@@ -262,10 +358,26 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   try {
     parsed = JSON.parse(raw);
   } catch {
+    logEvent('contact.invalid_request', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 400,
+      durationMs: duration(),
+      category: 'payload_invalid',
+    });
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
   if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    logEvent('contact.invalid_request', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 400,
+      durationMs: duration(),
+      category: 'payload_invalid',
+    });
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
   const body = parsed as Record<string, unknown>;
@@ -274,6 +386,14 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   // bot sending `"honeypot": 1` must not slip through to the email path.
   const honeypot = body.honeypot;
   if (honeypot !== undefined && honeypot !== null && `${honeypot}`.trim() !== '') {
+    logEvent('contact.honeypot', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 200,
+      durationMs: duration(),
+      hasClientIp: ctx.hasClientIp,
+    });
     return json({ ok: true }, 200);
   }
 
@@ -281,6 +401,14 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   // payloads fail without spending a Siteverify round-trip.
   const result = validate(body);
   if (!result.ok) {
+    logEvent('contact.validation_rejected', {
+      reqId,
+      route: 'api-contact',
+      method,
+      status: 400,
+      durationMs: duration(),
+      category: 'invalid_fields',
+    });
     return json({ ok: false, error: result.reason }, 400);
   }
 
@@ -294,14 +422,50 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
 
   const turnstileToken = readTrimmed(body.turnstileToken);
   const turnstileSecret = env.TURNSTILE_SECRET_KEY;
-  const verified =
-    turnstileSecret !== undefined &&
-    turnstileToken !== null &&
-    turnstileToken.length > 0 &&
-    turnstileToken.length <= TURNSTILE_TOKEN_MAX &&
-    (await verifyTurnstile(turnstileToken, turnstileSecret, remoteIp));
 
-  if (!verified) {
+  const preflightCategory: string | null =
+    turnstileSecret === undefined
+      ? 'missing_secret'
+      : turnstileToken === null
+        ? 'missing_token'
+        : turnstileToken.length === 0
+          ? 'empty_token'
+          : turnstileToken.length > TURNSTILE_TOKEN_MAX
+            ? 'token_too_long'
+            : null;
+
+  if (preflightCategory !== null) {
+    logEvent(
+      'contact.turnstile_failed',
+      {
+        reqId,
+        route: 'api-contact',
+        method,
+        status: 400,
+        durationMs: duration(),
+        category: preflightCategory,
+        hasClientIp: ctx.hasClientIp,
+      },
+      'warn',
+    );
+    return json({ ok: false, error: 'invalid_fields' }, 400);
+  }
+
+  const outcome = await verifyTurnstile(turnstileToken as string, turnstileSecret as string, remoteIp);
+  if (!outcome.success) {
+    logEvent(
+      'contact.turnstile_failed',
+      {
+        reqId,
+        route: 'api-contact',
+        method,
+        status: 400,
+        durationMs: duration(),
+        category: outcome.category,
+        hasClientIp: ctx.hasClientIp,
+      },
+      'warn',
+    );
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
@@ -313,10 +477,34 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     rateKey = `contact:${await hashInput(id)}`;
     const count = Number((await store.get(rateKey)) ?? '0') || 0;
     if (count >= RATE_LIMIT_MAX) {
+      logEvent(
+        'contact.rate_limited',
+        {
+          reqId,
+          route: 'api-contact',
+          method,
+          status: 429,
+          durationMs: duration(),
+          category: 'kv_window',
+          hasClientIp: ctx.hasClientIp,
+        },
+        'warn',
+      );
       return json({ ok: false, error: 'rate_limited' }, 429);
     }
   } else {
-    console.warn('[contact] CONTACT_RATE_LIMIT_KV binding missing; rate limiting disabled');
+    logEvent(
+      'contact.rate_limiter_unavailable',
+      {
+        reqId,
+        route: 'api-contact',
+        method,
+        status: 0,
+        durationMs: duration(),
+        category: 'missing_binding',
+      },
+      'warn',
+    );
   }
 
   if (store && rateKey) {
@@ -326,7 +514,18 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
 
   const apiKey = env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error('[contact] RESEND_API_KEY is not configured on the server');
+    logEvent(
+      'contact.resend_failed',
+      {
+        reqId,
+        route: 'api-contact',
+        method,
+        status: 502,
+        durationMs: duration(),
+        category: 'missing_secret',
+      },
+      'error',
+    );
     return json({ ok: false, error: 'email_failed' }, 502);
   }
 
@@ -361,29 +560,106 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     });
 
     if (!response.ok) {
-      console.error('[contact] Resend request failed', response.status);
+      logEvent(
+        'contact.resend_failed',
+        {
+          reqId,
+          route: 'api-contact',
+          method,
+          status: 502,
+          durationMs: duration(),
+          category: 'http_error',
+          providerStatus: response.status,
+        },
+        'error',
+      );
       return json({ ok: false, error: 'email_failed' }, 502);
     }
   } catch (error) {
-    console.error('[contact] Resend network failure', error);
+    const name = error instanceof Error ? error.name : 'UnknownError';
+    logEvent(
+      'contact.resend_failed',
+      {
+        reqId,
+        route: 'api-contact',
+        method,
+        status: 502,
+        durationMs: duration(),
+        category: 'network_error',
+        errorName: name,
+      },
+      'error',
+    );
     return json({ ok: false, error: 'email_failed' }, 502);
   }
 
+  logEvent('contact.accepted', {
+    reqId,
+    route: 'api-contact',
+    method,
+    status: 200,
+    durationMs: duration(),
+  });
   return json({ ok: true }, 200);
 }
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
+    const reqId = crypto.randomUUID();
+    const ctx = contextFor(request, reqId);
 
-    if (url.pathname === '/api/contact') {
-      if (request.method !== 'POST') {
-        return applySecurityHeaders(json({ ok: false, error: 'method_not_allowed' }, 405));
+    try {
+      if (ctx.route === 'api-contact') {
+        if (ctx.method !== 'POST') {
+          logEvent('api.method_not_allowed', {
+            reqId,
+            route: 'api-contact',
+            method: ctx.method,
+            status: 405,
+            durationMs: Date.now() - ctx.startedAt,
+          });
+          return applySecurityHeaders(json({ ok: false, error: 'method_not_allowed' }, 405));
+        }
+        return applySecurityHeaders(await handleContact(request, env, ctx));
       }
-      return applySecurityHeaders(await handleContact(request, env));
-    }
 
-    const assetResponse = await env.ASSETS.fetch(request);
-    return applySecurityHeaders(assetResponse);
+      const assetResponse = await env.ASSETS.fetch(request);
+      const response = applySecurityHeaders(assetResponse);
+      if (response.status >= 500) {
+        logEvent(
+          'http.response_5xx',
+          {
+            reqId,
+            route: 'static',
+            method: ctx.method,
+            status: response.status,
+            durationMs: Date.now() - ctx.startedAt,
+            category: 'assets',
+          },
+          'error',
+        );
+      }
+      return response;
+    } catch (error) {
+      // Unexpected exception boundary: never leak internals to the client, and
+      // record a structured server-side error with only coarse metadata.
+      const errorName = error instanceof Error ? error.name : 'UnknownError';
+      const errorMessage = error instanceof Error ? error.message : '';
+      logEvent(
+        'worker.uncaught',
+        {
+          reqId,
+          route: ctx.route,
+          method: ctx.method,
+          status: 500,
+          durationMs: Date.now() - ctx.startedAt,
+          category: 'uncaught',
+          errorName,
+          errorMessage: errorMessage.slice(0, 200) || 'no_message',
+        },
+        'error',
+      );
+      return applySecurityHeaders(json({ ok: false, error: 'internal' }, 500));
+    }
   },
 };

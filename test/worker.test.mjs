@@ -1175,3 +1175,296 @@ test('distribution bundle contains the public sitekey but no worker secret refer
   // variable name must never appear in shipped client code.
   assert.ok(!bundle.includes('TURNSTILE_SECRET_KEY'), 'server secret name must not ship to client');
 });
+
+async function captureLogs(run, env) {
+  const captured = [];
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const originalError = console.error;
+  console.log = (...args) => captured.push(['log', ...args]);
+  console.warn = (...args) => captured.push(['warn', ...args]);
+  console.error = (...args) => captured.push(['error', ...args]);
+  try {
+    const response = await run(env);
+    return { response, captured };
+  } finally {
+    console.log = originalLog;
+    console.warn = originalWarn;
+    console.error = originalError;
+  }
+}
+
+function parsedEvents(captured) {
+  const events = [];
+  for (const args of captured) {
+    for (const arg of args.slice(1)) {
+      if (typeof arg === 'string' && arg.startsWith('{') && arg.endsWith('}')) {
+        try {
+          events.push(JSON.parse(arg));
+        } catch {
+          // Ignore non-JSON console output if any.
+        }
+      }
+    }
+  }
+  return events;
+}
+
+function logsToText(captured) {
+  return captured.map((args) => args.join(' ')).join('\n');
+}
+
+const TEST_PII_STRINGS = [
+  'Test User',
+  'user@example.com',
+  '+20 107 047 1954',
+  'Hello there',
+  'test_turnstile_token',
+  TEST_IP,
+];
+
+function assertNoPiiLogged(captured) {
+  const text = logsToText(captured);
+  for (const needle of TEST_PII_STRINGS) {
+    assert.ok(!text.includes(needle), `log line leaked sensitive value: ${needle}`);
+  }
+}
+
+test('uncaught asset exception returns a generic 500, keeps security headers, and logs a structured event', async () => {
+  const env = createEnv();
+  env.ASSETS.fetch = async () => {
+    throw new Error('boom-observability-test');
+  };
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(new Request(`${ORIGIN}/`), e),
+    env,
+  );
+
+  assert.equal(response.status, 500);
+  const body = await response.text();
+  assert.equal(body, JSON.stringify({ ok: false, error: 'internal' }));
+  assert.ok(!body.includes('boom-observability-test'), 'exception internals must not reach the client');
+  assertSecurityHeaders(response);
+
+  const uncaught = parsedEvents(captured).filter((e) => e.event === 'worker.uncaught');
+  assert.equal(uncaught.length, 1);
+  assert.equal(uncaught[0].status, 500);
+  assert.equal(uncaught[0].route, 'static');
+  assert.equal(uncaught[0].errorName, 'Error');
+  assert.equal(uncaught[0].errorMessage, 'boom-observability-test');
+  assertNoPiiLogged(captured);
+});
+
+test('static 5xx responses are logged; healthy static requests produce no worker log events', async () => {
+  const failingEnv = createEnv();
+  failingEnv.ASSETS.fetch = async () =>
+    new Response('origin down', { status: 503, headers: { 'content-type': 'text/plain' } });
+
+  const failure = await captureLogs(
+    (e) => worker.fetch(new Request(`${ORIGIN}/broken`), e),
+    failingEnv,
+  );
+  assert.equal(failure.response.status, 503);
+  assertSecurityHeaders(failure.response);
+  const fivexx = parsedEvents(failure.captured).filter((e) => e.event === 'http.response_5xx');
+  assert.equal(fivexx.length, 1);
+  assert.equal(fivexx[0].status, 503);
+  assert.equal(fivexx[0].category, 'assets');
+  assert.ok(!logsToText(failure.captured).includes('origin down'), '5xx body must not be logged');
+
+  const healthy = await captureLogs(
+    (e) => worker.fetch(new Request(`${ORIGIN}/`), e),
+    createEnv(),
+  );
+  assert.equal(healthy.response.status, 200);
+  assert.equal(parsedEvents(healthy.captured).length, 0, 'healthy static traffic must stay silent');
+});
+
+test('non-POST /api/contact is a generic 405 with a logged method event and security headers', async () => {
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(new Request(`${ORIGIN}/api/contact`), e),
+    createEnv(),
+  );
+
+  assert.equal(response.status, 405);
+  assert.deepEqual(await response.json(), { ok: false, error: 'method_not_allowed' });
+  assertSecurityHeaders(response);
+
+  const events = parsedEvents(captured);
+  assert.equal(events.filter((e) => e.event === 'api.method_not_allowed').length, 1);
+  assert.ok(events.some((e) => e.status === 405 && e.route === 'api-contact'));
+});
+
+test('invalid contact payloads emit safe event metadata and never log PII', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const emptyRequest = new Request(`${ORIGIN}/api/contact`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'cf-connecting-ip': TEST_IP,
+    },
+    body: '{}',
+  });
+  const empty = await captureLogs((e) => worker.fetch(emptyRequest, e), env);
+  assert.equal(empty.response.status, 400);
+  assert.deepEqual(await empty.response.json(), { ok: false, error: 'invalid_fields' });
+  assert.ok(
+    parsedEvents(empty.captured).some(
+      (e) => e.event === 'contact.validation_rejected' && e.status === 400,
+    ),
+  );
+  assertNoPiiLogged(empty.captured);
+
+  const badEmail = await captureLogs(
+    (e) => worker.fetch(validPost(TEST_IP, { email: 'not-an-email' }), e),
+    env,
+  );
+  assert.equal(badEmail.response.status, 400);
+  assert.ok(
+    parsedEvents(badEmail.captured).some(
+      (e) => e.event === 'contact.validation_rejected' && e.status === 400,
+    ),
+  );
+  assertNoPiiLogged(badEmail.captured);
+
+  const honeypot = await captureLogs(
+    (e) => worker.fetch(validPost(TEST_IP, { honeypot: 'bot-value' }), e),
+    env,
+  );
+  assert.equal(honeypot.response.status, 200);
+  assert.ok(parsedEvents(honeypot.captured).some((e) => e.event === 'contact.honeypot'));
+  assertNoPiiLogged(honeypot.captured);
+
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('turnstile verification failure logs a safe category and never the token', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  const distinctiveToken = 'distinctive_invalid_token_value';
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({ success: false, 'error-codes': ['invalid-input-response'] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    const { response, captured } = await captureLogs(
+      (e) => worker.fetch(validPost(TEST_IP, { turnstileToken: distinctiveToken }), e),
+      env,
+    );
+
+    assert.equal(response.status, 400);
+    const events = parsedEvents(captured);
+    const failed = events.filter((e) => e.event === 'contact.turnstile_failed');
+    assert.equal(failed.length, 1);
+    const keys = Object.keys(failed[0]);
+    assert.ok(keys.includes('category'), 'failure category must be present');
+    assert.ok(!keys.includes('token'), 'token field must never be logged');
+    assert.ok(!logsToText(captured).includes(distinctiveToken), 'token value must never appear in logs');
+    assert.equal(resendCalls, 0);
+    assertNoPiiLogged(captured);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('resend failures log safe metadata and never email content', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  resendHandler = async () =>
+    new Response(JSON.stringify({ message: 'rate limit exceeded' }), {
+      status: 429,
+      headers: { 'content-type': 'application/json' },
+    });
+
+  try {
+    const { response, captured } = await captureLogs(
+      (e) => worker.fetch(validPost(), e),
+      env,
+    );
+
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), { ok: false, error: 'email_failed' });
+    const events = parsedEvents(captured);
+    const failed = events.filter((e) => e.event === 'contact.resend_failed');
+    assert.equal(failed.length, 1);
+    assert.equal(failed[0].category, 'http_error');
+    assert.equal(failed[0].providerStatus, 429);
+    assert.ok(!logsToText(captured).includes('rate limit exceeded'), 'provider body must not be logged');
+    assert.ok(!logsToText(captured).includes('test_re_mocked_key'), 'API key must never be logged');
+    assertNoPiiLogged(captured);
+  } finally {
+    resendHandler = async () =>
+      new Response(JSON.stringify({ id: 'mocked' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+  }
+});
+
+test('missing RESEND_API_KEY logs an error event without secrets', async () => {
+  const env = createEnv({ withKey: false });
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const { response, captured } = await captureLogs((e) => worker.fetch(validPost(), e), env);
+
+  assert.equal(response.status, 502);
+  const events = parsedEvents(captured);
+  const failed = events.filter((e) => e.event === 'contact.resend_failed');
+  assert.equal(failed.length, 1);
+  assert.equal(failed[0].category, 'missing_secret');
+  assert.ok(!logsToText(captured).includes('test_re_mocked_key'), 'key name/value must not be logged');
+  assertNoPiiLogged(captured);
+});
+
+test('successful contact submission logs only the accepted event and no PII', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(validPost(TEST_IP, { phone: '+20 107 047 1954' }), e),
+    env,
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true });
+  const events = parsedEvents(captured);
+  assert.equal(events.filter((e) => e.event === 'contact.accepted').length, 1);
+  assert.equal(events.filter((e) => e.event === 'contact.accepted')[0].status, 200);
+
+  assert.equal(resendCalls, 1);
+  assertNoPiiLogged(captured);
+  assert.ok(!logsToText(captured).includes('phone'), 'phone field name must not be logged');
+});
+
+test('burst limiter rejection emits a safe rate-limit event', async () => {
+  const env = createEnv();
+  env.CONTACT_BURST_LIMITER = { limit: async () => ({ success: false }) };
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(validPost(), e),
+    env,
+  );
+
+  assert.equal(response.status, 429);
+  assert.deepEqual(await response.json(), { ok: false, error: 'rate_limited' });
+  const events = parsedEvents(captured);
+  assert.equal(
+    events.filter((e) => e.event === 'contact.rate_limited' && e.category === 'burst').length,
+    1,
+  );
+  assert.ok(events.some((e) => e.status === 429));
+  assertNoPiiLogged(captured);
+});
