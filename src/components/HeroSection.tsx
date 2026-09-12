@@ -231,12 +231,19 @@ export const HeroSection: React.FC = () => {
 
                 {/* Image Viewport: Focused framing on torso/chest up */}
                 <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-[var(--bg-surface-2)]">
-                  <img
-                    src="/assets/alhassan_mohamed.jpg"
-                    alt="Alhassan Mohamed — Full-Stack & Security Engineer"
-                    className="w-full h-full object-cover object-[center_12%] scale-105"
-                    loading="eager"
-                    style={{
+                  <picture>
+                    <source type="image/avif" srcSet="/assets/alhassan_mohamed.avif" />
+                    <source type="image/webp" srcSet="/assets/alhassan_mohamed.webp" />
+                    <img
+                      src="/assets/alhassan_mohamed.jpg"
+                      alt="Alhassan Mohamed — Full-Stack & Security Engineer"
+                      width="768"
+                      height="1024"
+                      className="w-full h-full object-cover object-[center_12%] scale-105"
+                      loading="eager"
+                      fetchPriority="high"
+                      decoding="async"
+                      style={{
                       filter: 'contrast(1.03) brightness(0.98)',
                       transition: reducedMotion ? 'none' : 'transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)',
                     }}
@@ -248,6 +255,7 @@ export const HeroSection: React.FC = () => {
                       (e.target as HTMLImageElement).style.transform = 'scale(1.05)';
                     }}
                   />
+                  </picture>
 
                   {/* Soft Vignette & Editorial Gradient Fade at Bottom */}
                   <div
