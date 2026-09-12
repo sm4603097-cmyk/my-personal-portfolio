@@ -1416,9 +1416,19 @@ test('a hung Resend call aborts on timeout, returns 502, and logs a timeout even
   resendCalls = 0;
   turnstileCalls = 0;
 
+  let providedSignal = null;
+  // Simulate a provider that never answers. AbortSignal.timeout()'s internal
+  // timer is unref'd, so it would not keep the node --test event loop alive on
+  // its own; the ref'd guard below both keeps the loop alive and fails the
+  // simulation if the expected abort never arrives.
   resendHandler = (input, init) =>
     new Promise((resolve, reject) => {
+      providedSignal = init?.signal ?? null;
+      const guard = setTimeout(() => {
+        reject(new DOMException('The operation was aborted due to timeout', 'TimeoutError'));
+      }, 50);
       init?.signal?.addEventListener('abort', () => {
+        clearTimeout(guard);
         const reason = init.signal.reason;
         reject(reason instanceof Error ? reason : new Error(String(reason)));
       });
@@ -1437,6 +1447,8 @@ test('a hung Resend call aborts on timeout, returns 502, and logs a timeout even
     assert.equal(failed.length, 1);
     assert.equal(failed[0].category, 'timeout');
     assert.equal(failed[0].errorName, 'TimeoutError');
+    assert.ok(providedSignal, 'Resend call must pass a timeout signal');
+    assert.ok(providedSignal.aborted, 'timeout signal must have been aborted');
     assert.ok(!logsToText(captured).includes('test_re_mocked_key'), 'API key must never be logged');
     assertNoPiiLogged(captured);
   } finally {
