@@ -1410,6 +1410,44 @@ test('resend failures log safe metadata and never email content', async () => {
   }
 });
 
+test('a hung Resend call aborts on timeout, returns 502, and logs a timeout event', async () => {
+  const env = createEnv();
+  env.RESEND_TIMEOUT_MS = 50;
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  resendHandler = (input, init) =>
+    new Promise((resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => {
+        const reason = init.signal.reason;
+        reject(reason instanceof Error ? reason : new Error(String(reason)));
+      });
+    });
+
+  try {
+    const { response, captured } = await captureLogs(
+      (e) => worker.fetch(validPost(), e),
+      env,
+    );
+
+    assert.equal(response.status, 502);
+    assert.deepEqual(await response.json(), { ok: false, error: 'email_failed' });
+    const events = parsedEvents(captured);
+    const failed = events.filter((e) => e.event === 'contact.resend_failed');
+    assert.equal(failed.length, 1);
+    assert.equal(failed[0].category, 'timeout');
+    assert.equal(failed[0].errorName, 'TimeoutError');
+    assert.ok(!logsToText(captured).includes('test_re_mocked_key'), 'API key must never be logged');
+    assertNoPiiLogged(captured);
+  } finally {
+    resendHandler = async () =>
+      new Response(JSON.stringify({ id: 'mocked' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+  }
+});
+
 test('missing RESEND_API_KEY logs an error event without secrets', async () => {
   const env = createEnv({ withKey: false });
   resendCalls = 0;
