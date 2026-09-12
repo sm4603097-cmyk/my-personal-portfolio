@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import type { Project } from '../data/portfolioData';
 import { useLanguage } from '../context/LanguageContext';
+import { splitMetricSegments } from '../utils/bidi';
 import { X, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { EASE_STANDARD } from '../motion';
@@ -86,7 +87,22 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
         {metrics && (
           <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-xs mb-6 flex items-center gap-2.5">
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
-            <span className="font-semibold">{metrics}</span>
+            <span className="font-semibold">
+              {splitMetricSegments(metrics).map((seg, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 && <span className="mx-1.5 opacity-60">·</span>}
+                  {seg.number ? (
+                    <>
+                      <bdi dir="ltr">{seg.number}</bdi>
+                      {' '}
+                      {seg.text}
+                    </>
+                  ) : (
+                    seg.text
+                  )}
+                </React.Fragment>
+              ))}
+            </span>
           </div>
         )}
 
@@ -129,7 +145,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
                       {step}
                     </span>
                     {idx < architecture.length - 1 && (
-                      <span className="text-[var(--text-muted)] text-xs font-mono">→</span>
+                      <span className="text-[var(--text-muted)] text-xs font-mono">{isRtl ? '←' : '→'}</span>
                     )}
                   </React.Fragment>
                 ))}
@@ -146,7 +162,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[var(--text-secondary)]">
                 {features.map((feat, idx) => (
                   <li key={idx} className="flex items-start space-x-2 rtl:space-x-reverse">
-                    <ArrowRight className="w-3.5 h-3.5 text-[var(--accent-cyan)] mt-0.5 shrink-0" />
+                    <ArrowRight className="w-3.5 h-3.5 text-[var(--accent-cyan)] mt-0.5 shrink-0 rtl:rotate-180" />
                     <span>{feat}</span>
                   </li>
                 ))}

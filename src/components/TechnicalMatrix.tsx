@@ -97,7 +97,9 @@ export const TechnicalMatrix: React.FC = () => {
                 {t.engineering.categories[activeCategory].name}
               </h3>
               <p className="text-xs font-mono text-[var(--text-muted)] mt-0.5">
-                {t.engineering.skillsCountLabel.replace('{count}', String(t.engineering.categories[activeCategory].skills.length))}
+                {t.engineering.skillsCountLabel.split('{count}')[0]}
+                <bdi dir="ltr">{t.engineering.categories[activeCategory].skills.length}</bdi>
+                {t.engineering.skillsCountLabel.split('{count}')[1]}
               </p>
             </div>
             <span className="flex items-center gap-1.5 text-xs font-mono text-[var(--accent-cyan)] px-3 py-1 rounded-full bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] w-fit">

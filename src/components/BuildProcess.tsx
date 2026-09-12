@@ -58,7 +58,7 @@ export const BuildProcess: React.FC = () => {
                       {step.title}
                     </span>
                   </div>
-                  <ArrowRight className={`w-3.5 h-3.5 shrink-0 transition-all duration-200 ${activeStep === idx ? 'text-[var(--accent-cyan)] translate-x-1 rtl:-translate-x-1' : 'opacity-30'}`} />
+                  <ArrowRight className={`w-3.5 h-3.5 shrink-0 rtl:rotate-180 transition-all duration-200 ${activeStep === idx ? 'text-[var(--accent-cyan)] translate-x-1 rtl:-translate-x-1' : 'opacity-30'}`} />
                 </motion.button>
               </TimelineNode>
             ))}

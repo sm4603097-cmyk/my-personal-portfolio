@@ -306,7 +306,7 @@ export const HeroSection: React.FC = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-[11px] font-mono font-bold text-[var(--text-heading)]">
-                    {t.caseStudy.unitTests} {t.hero.testsBadgeUnit}
+                    <bdi dir="ltr">{t.caseStudy.unitTests}</bdi> {t.hero.testsBadgeUnit}
                   </span>
                   <span className="text-[9px] font-mono text-[var(--text-muted)]">
                     {t.hero.testsBadgeSub}

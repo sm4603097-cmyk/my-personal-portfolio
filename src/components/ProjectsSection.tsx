@@ -153,7 +153,7 @@ export const ProjectsSection: React.FC = () => {
 
                     <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-mono font-semibold text-[var(--text-secondary)] group-hover:text-[var(--accent-cyan)] transition-colors">
                       <span>{t.projects.viewCaseStudy}</span>
-                      <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                      <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
                     </div>
                   </div>
                 </motion.div>

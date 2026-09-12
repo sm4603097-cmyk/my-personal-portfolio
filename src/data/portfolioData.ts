@@ -318,7 +318,7 @@ export const projectsData: Project[] = [
     problemEn: "Reading programming tutorials on mobile screens is often tedious due to poor code formatting and lack of interactive feedback.",
     problemAr: "قراءة شروحات البرمجة على الهاتف غالباً ما تكون مزعجة بسبب سوء تنسيق الكود وغياب التفاعل الفوري.",
     solutionEn: "Implemented dynamic syntax syntax highlighters with quiz validation components optimized for portrait phone screens.",
-    solutionAr: "تم دمج محرك تظليل الكود مع مكونات اختباري تفاعلية مخصصة للعرض الشاقولي على الشاشات الذكية.",
+    solutionAr: "تم دمج محرك تظليل الكود مع مكونات اختبار تفاعلية مخصصة للعرض الشاقولي على الشاشات الذكية.",
     featuresEn: ["Code syntax highlighting", "Interactive multiple-choice & fill-in quizzes", "Trackable module progress", "Offline lesson caching"],
     featuresAr: ["تنسيق وتظليل الكود البرمجي", "اختبارات تفاعلية فورية الإجابة", "متابعة نسبة إنجاز المسارات", "حفظ الدروس للمطالعة بدون إنترنت"]
   },

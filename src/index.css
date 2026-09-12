@@ -140,6 +140,22 @@ html.rtl-active footer {
   font-family: 'Cairo', 'Tajawal', sans-serif;
 }
 
+/* RTL typography: JetBrains Mono has no Arabic glyphs, so mono labels fall
+   back to the Arabic UI font (Latin stays mono). Letter-spacing is zeroed for
+   Arabic because tracking breaks the cursive joins between letters. These
+   unlayered rules intentionally beat Tailwind's `tracking-*`/`font-mono`
+   utilities. */
+html.rtl-active .font-mono {
+  font-family: 'JetBrains Mono', 'Cairo', 'Tajawal', monospace;
+  letter-spacing: 0;
+}
+
+html.rtl-active .font-display,
+html.rtl-active .btn-primary,
+html.rtl-active .btn-ghost {
+  letter-spacing: 0;
+}
+
 /* Semantic Theme Helpers */
 .theme-bg-page { background-color: var(--bg-page); }
 .theme-bg-surface-1 { background-color: var(--bg-surface-1); }

@@ -318,7 +318,7 @@ export const ContactSection: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
                   </button>
                 </HoverLift>
 
@@ -342,7 +342,7 @@ export const ContactSection: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
                   </a>
                 </HoverLift>
 
@@ -364,7 +364,7 @@ export const ContactSection: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
                   </button>
                 </HoverLift>
 
@@ -386,7 +386,7 @@ export const ContactSection: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
                   </button>
                 </HoverLift>
               </div>
