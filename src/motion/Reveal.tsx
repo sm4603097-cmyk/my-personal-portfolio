@@ -31,7 +31,7 @@ export interface RevealProps {
   distance?: number;
   /** Intersection threshold (0–1) before triggering. */
   amount?: number;
-  /** Whether the reveal plays only once (default) or replays on re-entry. */
+  /** Whether the reveal plays only once or replays on re-entry (default). */
   once?: boolean;
   className?: string;
   style?: React.CSSProperties;
@@ -51,7 +51,7 @@ export const Reveal: React.FC<RevealProps> = ({
   duration = DURATION.medium,
   distance,
   amount = 0.2,
-  once = true,
+  once = false,
   className,
   style,
   as = 'div',
@@ -99,7 +99,7 @@ export interface MaskRevealProps {
   duration?: number;
   /** Intersection threshold (0–1) before triggering. */
   amount?: number;
-  /** Whether the reveal plays only once (default) or replays on re-entry. */
+  /** Whether the reveal plays only once or replays on re-entry (default). */
   once?: boolean;
   /** Applied to the overflow-hidden mask wrapper. */
   className?: string;
@@ -119,7 +119,7 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
   delay = 0,
   duration = DURATION.slow,
   amount = 0.25,
-  once = true,
+  once = false,
   className,
   innerClassName,
   as = 'div',

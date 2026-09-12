@@ -6,17 +6,21 @@ export interface ViewportPreset {
   amount: number;
 }
 
+// Scroll-triggered entrance animations default to replaying whenever the
+// element re-enters the viewport (and reverting to their initial state on
+// leave). Pass `viewportOnce(...)` explicitly for the rare one-shot case.
+
 /** Strict reveal: requires 25% visible — used for section headers. */
-export const VIEWPORT_HEADER: ViewportPreset = { once: true, amount: 0.25 };
+export const VIEWPORT_HEADER: ViewportPreset = { once: false, amount: 0.25 };
 
 /** Standard reveal: 20% visible. */
-export const VIEWPORT_STANDARD: ViewportPreset = { once: true, amount: 0.2 };
+export const VIEWPORT_STANDARD: ViewportPreset = { once: false, amount: 0.2 };
 
 /** Laid-back reveal: 10% visible — used for grids and tall blocks. */
-export const VIEWPORT_LAIDBACK: ViewportPreset = { once: true, amount: 0.1 };
+export const VIEWPORT_LAIDBACK: ViewportPreset = { once: false, amount: 0.1 };
 
 /** Very permissive: 5% visible — used for cards that scroll lazily. */
-export const VIEWPORT_PERMISSIVE: ViewportPreset = { once: true, amount: 0.05 };
+export const VIEWPORT_PERMISSIVE: ViewportPreset = { once: false, amount: 0.05 };
 
 export const viewportOnce = (amount: number): ViewportPreset => ({ once: true, amount });
 

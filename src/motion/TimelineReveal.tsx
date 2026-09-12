@@ -5,7 +5,7 @@ import type { Variants } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { createStaggerVariants, NO_MOTION_CONTAINER } from './variants';
 import { useIsRtl } from './hooks';
-import { viewportOnce } from './presets';
+import { viewportOnce, viewportRepeat } from './presets';
 
 const ACCENT_MARKER = {
   default: 'bg-transparent border border-[var(--border-strong)]',
@@ -26,6 +26,8 @@ export interface TimelineRevealProps {
   activeIndex?: number | null;
   /** Intersection threshold (0–1). */
   amount?: number;
+  /** Whether the reveal plays only once or replays on re-entry (default). */
+  once?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
   lineClassName,
   activeIndex = null,
   amount = 0.1,
+  once = false,
 }) => {
   const reducedMotion = useReducedMotion();
   const isRtl = useIsRtl();
@@ -57,7 +60,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={viewportOnce(amount)}
+      viewport={once ? viewportOnce(amount) : viewportRepeat(amount)}
       variants={containerVariants}
       className={`relative ${className ?? ''}`}
     >
@@ -80,7 +83,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
               ? { scaleY: 1 }
               : { scaleX: 1 }
         }
-        viewport={viewportOnce(amount)}
+        viewport={once ? viewportOnce(amount) : viewportRepeat(amount)}
         transition={{ duration: DURATION.medium, ease: EASE_PREMIUM }}
       />
 

@@ -23,7 +23,7 @@ export interface StaggerContainerProps {
   delayChildren?: number;
   /** Intersection threshold (0–1) before the group triggers. */
   amount?: number;
-  /** Whether the reveal plays only once (default) or replays on re-entry. */
+  /** Whether the reveal plays only once or replays on re-entry (default). */
   once?: boolean;
   className?: string;
   style?: React.CSSProperties;
@@ -40,7 +40,7 @@ export const StaggerContainer: React.FC<StaggerContainerProps> = ({
   stagger = DURATION.stagger,
   delayChildren = 0.1,
   amount = 0.15,
-  once = true,
+  once = false,
   className,
   style,
   as = 'div',

@@ -73,7 +73,8 @@ export const HeroSection: React.FC = () => {
             style={{ y: textY }}
             variants={staggerContainer}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.2 }}
             className="lg:col-span-7 flex flex-col items-start"
           >
             {/* Live System Availability Badge */}
@@ -209,7 +210,8 @@ export const HeroSection: React.FC = () => {
           <motion.div
             style={{ y: imageY }}
             initial={reducedMotion ? false : { opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: false, amount: 0.1 }}
             transition={{ duration: 1, ease: TRANSITION_EASE, delay: 0.2 }}
             className="lg:col-span-5 relative flex justify-center items-center"
           >

@@ -12,7 +12,7 @@ export interface SectionTransitionProps {
   distance?: number;
   /** Intersection threshold (0–1). */
   amount?: number;
-  /** Whether the reveal plays only once (default) or replays on re-entry. */
+  /** Whether the reveal plays only once or replays on re-entry (default). */
   once?: boolean;
   className?: string;
 }
@@ -26,7 +26,7 @@ export const SectionTransition: React.FC<SectionTransitionProps> = ({
   children,
   distance = 18,
   amount = 0.15,
-  once = true,
+  once = false,
   className,
 }) => {
   const reducedMotion = useReducedMotion();

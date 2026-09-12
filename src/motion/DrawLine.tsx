@@ -3,7 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { useIsRtl } from './hooks';
-import { viewportOnce } from './presets';
+import { viewportOnce, viewportRepeat } from './presets';
 
 export interface DrawLineProps {
   /** Vertical lines draw top→bottom; horizontal lines draw from the reading start. */
@@ -14,6 +14,8 @@ export interface DrawLineProps {
   delay?: number;
   /** Intersection threshold (0–1) before triggering. */
   amount?: number;
+  /** Whether the draw plays only once or replays on re-entry (default). */
+  once?: boolean;
   className?: string;
 }
 
@@ -26,6 +28,7 @@ export const DrawLine: React.FC<DrawLineProps> = ({
   duration = DURATION.medium,
   delay = 0,
   amount = 0.2,
+  once = false,
   className,
 }) => {
   const reducedMotion = useReducedMotion();
@@ -62,7 +65,7 @@ export const DrawLine: React.FC<DrawLineProps> = ({
       }}
       initial="hidden"
       whileInView="visible"
-      viewport={viewportOnce(amount)}
+      viewport={once ? viewportOnce(amount) : viewportRepeat(amount)}
       variants={variants}
       className={className}
       aria-hidden="true"

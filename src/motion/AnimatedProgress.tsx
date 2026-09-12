@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { animate, motion, useInView, useMotionValue, useReducedMotion } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { useIsRtl } from './hooks';
-import { viewportOnce } from './presets';
 
 export interface AnimatedProgressProps {
   /** Fraction 0–1 of the track that should fill (use real existing data). */
@@ -26,7 +25,8 @@ export interface AnimatedProgressProps {
 /**
  * A GPU-friendly progress bar. The fill uses `scaleX` from the track start
  * (correct in both LTR and RTL) instead of layout-heavy width animation.
- * Sequence: label → bar draws → valueLabel fades in.
+ * Sequence: label → bar draws → valueLabel fades in. The bar resets when it
+ * leaves the viewport and redraws on re-entry.
  */
 export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
   value,
@@ -42,16 +42,23 @@ export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
   const reducedMotion = useReducedMotion();
   const isRtl = useIsRtl();
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, viewportOnce(0.5));
+  const inView = useInView(ref, { once: false, amount: 0.5 });
   const scaleX = useMotionValue(reducedMotion ? clampFraction(value) : 0);
-  const [valueRevealed, setValueRevealed] = useState(false);
+  const valueOpacity = useMotionValue(reducedMotion ? 1 : 0);
 
   useEffect(() => {
     if (reducedMotion) {
       scaleX.set(clampFraction(value));
+      valueOpacity.set(1);
       return;
     }
-    if (!inView) return;
+
+    // Out of view — reset so the bar redraws from empty on re-entry.
+    if (!inView) {
+      scaleX.set(0);
+      valueOpacity.set(0);
+      return;
+    }
 
     const controls = animate(scaleX, clampFraction(value), {
       duration,
@@ -59,16 +66,17 @@ export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
       delay,
     });
 
-    const revealTimer = window.setTimeout(
-      () => setValueRevealed(true),
-      (delay + duration * 0.85) * 1000,
-    );
+    const labelControls = animate(valueOpacity, 1, {
+      duration: 0.3,
+      ease: EASE_PREMIUM,
+      delay: delay + duration * 0.85,
+    });
 
     return () => {
       controls.stop();
-      window.clearTimeout(revealTimer);
+      labelControls.stop();
     };
-  }, [reducedMotion, inView, value, duration, delay, scaleX]);
+  }, [reducedMotion, inView, value, duration, delay, scaleX, valueOpacity]);
 
   return (
     <div ref={ref} className={className}>
@@ -83,13 +91,7 @@ export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
         />
       </div>
       {valueLabel && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: reducedMotion || valueRevealed ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {valueLabel}
-        </motion.div>
+        <motion.div style={{ opacity: valueOpacity }}>{valueLabel}</motion.div>
       )}
     </div>
   );

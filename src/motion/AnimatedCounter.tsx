@@ -3,7 +3,6 @@ import { useInView, useReducedMotion } from 'framer-motion';
 import { animate } from 'framer-motion';
 import { EASE_PREMIUM } from './transitions';
 import { formatCount, parseNumericValue } from './utils';
-import { viewportOnce } from './presets';
 
 export interface AnimatedCounterProps {
   /**
@@ -30,10 +29,11 @@ export interface AnimatedCounterProps {
 }
 
 /**
- * Animates a metric from 0 toward its real value when it scrolls into view.
- * Runs once by default, uses transform/opacity-free numeric tweening directly
- * on the text node (no React re-render per frame), and renders the final
- * value immediately for reduced-motion visitors.
+ * Animates a metric from 0 toward its real value each time it scrolls into
+ * view. Counter resets to its start value when it leaves the viewport so it
+ * replays 0 → value on re-entry, uses transform/opacity-free numeric tweening
+ * directly on the text node (no React re-render per frame), and renders the
+ * final value immediately for reduced-motion visitors.
  */
 export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
@@ -47,7 +47,7 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
   const reducedMotion = useReducedMotion();
-  const inView = useInView(ref, viewportOnce(0.6));
+  const inView = useInView(ref, { once: false, amount: 0.6 });
 
   const parsed = parseNumericValue(value);
   const finalValue = parsed.number;
@@ -59,25 +59,26 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     return `${parsed.prefix}${formatCount(finalValue, locale, decimals)}${parsed.suffix}`;
   }, [finalValue, format, parsed.raw, parsed.prefix, parsed.suffix, locale, decimals]);
 
-  // Set the starting text synchronously so SSR/initial paint is correct.
-  useEffect(() => {
-    if (!ref.current) return;
-    if (finalValue !== null) {
-      ref.current.textContent = format ? format(0, finalValue) : `${parsed.prefix}${formatCount(0, locale, decimals)}${parsed.suffix}`;
-    }
-  }, [finalValue, format, parsed.prefix, parsed.suffix, locale, decimals]);
-
   useEffect(() => {
     const el = ref.current;
     if (!el || finalValue === null) return;
 
-    // Reduced motion — jump straight to the final value.
+    // Fully rendered start text ("0 …") used for the initial paint and resets.
+    const startText =
+      format ? format(0, finalValue)
+      : `${parsed.prefix}${formatCount(0, locale, decimals)}${parsed.suffix}`;
+
+    // Reduced motion — jump straight to the final value and stay static.
     if (reducedMotion) {
       el.textContent = staticText ?? finalText;
       return;
     }
 
-    if (!inView) return;
+    // Out of view — restore the start value so re-entry replays from 0.
+    if (!inView) {
+      el.textContent = startText;
+      return;
+    }
 
     let formatter: Intl.NumberFormat | null = null;
     try {
@@ -88,6 +89,8 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     } catch {
       // fallback: no formatter
     }
+
+    el.textContent = startText;
 
     const controls = animate(0, finalValue, {
       duration,
