@@ -8,6 +8,28 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-react',
+              test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+            },
+            {
+              name: 'vendor-motion',
+              test: /node_modules[\\/](framer-motion|motion-dom|motion-utils|tslib)[\\/]/,
+            },
+            {
+              name: 'vendor-icons',
+              test: /node_modules[\\/](lucide-react)[\\/]/,
+            },
+          ],
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': {
