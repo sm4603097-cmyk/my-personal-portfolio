@@ -91,6 +91,42 @@ function isJsonContentType(value: string): boolean {
   return value.split(';')[0].trim().toLowerCase() === 'application/json';
 }
 
+// Reads request.body with a hard cap on transmitted bytes so an oversized body
+// is never fully buffered before rejection. Chunks are collected only up to
+// the cap and decoded once, so UTF-8 sequences split across chunk boundaries
+// cannot be corrupted.
+async function readBoundedBody(
+  request: Request,
+  maxBytes: number,
+): Promise<string | null> {
+  const reader = request.body?.getReader();
+  if (!reader) return '';
+
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value) continue;
+      total += value.byteLength;
+      if (total > maxBytes) return null;
+      chunks.push(value);
+    }
+  } catch {
+    return null;
+  }
+
+  const merged = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    merged.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(merged);
+}
+
 async function hashInput(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const digest = await crypto.subtle.digest('SHA-256', data);
@@ -146,8 +182,8 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
-  const raw = await request.text();
-  if (raw.length > MAX_BODY_CHARS) {
+  const raw = await readBoundedBody(request, MAX_BODY_CHARS);
+  if (raw === null) {
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 

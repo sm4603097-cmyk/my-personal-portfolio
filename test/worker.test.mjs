@@ -214,7 +214,7 @@ test('oversized request is rejected before the body is read', async () => {
   assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
 });
 
-test('oversized body without content-length (chunked) is rejected after read', async () => {
+test('oversized body without content-length (chunked) is rejected mid-stream', async () => {
   const env = createEnv();
 
   let sent = 0;
@@ -241,6 +241,139 @@ test('oversized body without content-length (chunked) is rejected after read', a
   });
 
   const response = await worker.fetch(request, env);
+
+  assert.equal(response.status, 400);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+});
+
+test('oversized streaming body is rejected without fully reading the body', async () => {
+  const env = createEnv();
+  const BODY_TOTAL = 64 * 1024;
+  let bytesProduced = 0;
+
+  // pull() only produces on demand, so the number of bytes handed to the
+  // handler proves how much of the body was actually consumed.
+  const source = new ReadableStream({
+    async pull(controller) {
+      const chunk = new Uint8Array(4096);
+      bytesProduced += chunk.byteLength;
+      controller.enqueue(chunk);
+      if (bytesProduced >= BODY_TOTAL) controller.close();
+    },
+  });
+
+  const request = new Request(`${ORIGIN}/api/contact`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: source,
+    duplex: 'half',
+  });
+
+  const response = await worker.fetch(request, env);
+
+  assert.equal(response.status, 400);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  // The handler must stop as soon as the 32KiB cap is crossed, long before
+  // the full 64KiB body is produced.
+  assert.ok(
+    bytesProduced < BODY_TOTAL,
+    `expected to stop reading early, but produced ${bytesProduced} bytes`,
+  );
+});
+
+test('malformed JSON returns generic 400', async () => {
+  const env = createEnv();
+  const response = await worker.fetch(
+    new Request(`${ORIGIN}/api/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"name": "Test", "message": "unterminated',
+    }),
+    env,
+  );
+
+  assert.equal(response.status, 400);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+});
+
+test('empty body returns generic 400', async () => {
+  const env = createEnv();
+  const response = await worker.fetch(
+    new Request(`${ORIGIN}/api/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '',
+    }),
+    env,
+  );
+
+  assert.equal(response.status, 400);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+});
+
+test('Unicode and multibyte content is accepted within the cap', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const response = await worker.fetch(
+    validPost(TEST_IP, {
+      name: 'مستخدم تجريبي',
+      message: 'مرحباً! This contains emoji too 😀🎉🚀',
+    }),
+    env,
+  );
+
+  assert.equal(response.status, 200);
+  assert.ok(await response.json());
+  assert.equal(resendCalls, 1);
+});
+
+test('multibyte emoji message near the byte boundary is accepted', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  // 2500 4-byte emoji fill the 5000-code-unit message limit (~10KiB of UTF-8),
+  // well under the 32KiB byte cap yet the maximum multibyte message allowed.
+  const response = await worker.fetch(
+    validPost(TEST_IP, { message: '😀'.repeat(2500) }),
+    env,
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(resendCalls, 1);
+});
+
+test('multibyte body over the byte cap is rejected as generic 400', async () => {
+  const env = createEnv();
+  const encoder = new TextEncoder();
+  const oversized = JSON.stringify({ name: '😀'.repeat(10000) });
+  assert.ok(encoder.encode(oversized).byteLength > 32768);
+
+  // Streamed without content-length so only the streaming byte cap applies.
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(oversized));
+      controller.close();
+    },
+  });
+
+  const response = await worker.fetch(
+    new Request(`${ORIGIN}/api/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body,
+      duplex: 'half',
+    }),
+    env,
+  );
 
   assert.equal(response.status, 400);
   assertSecurityHeaders(response);
