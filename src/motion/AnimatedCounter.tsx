@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useInView, useReducedMotion } from 'framer-motion';
 import { animate } from 'framer-motion';
 import { EASE_PREMIUM } from './transitions';
-import { formatCount, parseNumericValue } from './utils';
+import { parseNumericValue } from './utils';
+import { counterBehavior, counterFinalText, counterStartText } from './counterState';
 
 export interface AnimatedCounterProps {
   /**
@@ -34,6 +35,10 @@ export interface AnimatedCounterProps {
  * replays 0 → value on re-entry, uses transform/opacity-free numeric tweening
  * directly on the text node (no React re-render per frame), and renders the
  * final value immediately for reduced-motion visitors.
+ *
+ * The span ALWAYS paints its start text ("0…") from the first render so the
+ * element has non-zero dimensions — IntersectionObserver can only report an
+ * element as in-view when the observed target has a measurable area.
  */
 export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   value,
@@ -52,30 +57,33 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   const parsed = parseNumericValue(value);
   const finalValue = parsed.number;
 
+  // Zero state ("0…") — painted into the initial markup so the observed
+  // element always has non-zero layout area, and reused for out-of-view resets.
+  const startText = useMemo<string>(
+    () => counterStartText(value, { format, locale, decimals }),
+    [value, format, locale, decimals],
+  );
+
   // Fully rendered final text for static / reduced-motion states.
-  const finalText = useMemo<string>(() => {
-    if (finalValue === null) return parsed.raw;
-    if (format) return format(finalValue, finalValue);
-    return `${parsed.prefix}${formatCount(finalValue, locale, decimals)}${parsed.suffix}`;
-  }, [finalValue, format, parsed.raw, parsed.prefix, parsed.suffix, locale, decimals]);
+  const finalText = useMemo<string>(
+    () => counterFinalText(value, { format, locale, decimals }),
+    [value, format, locale, decimals],
+  );
 
   useEffect(() => {
     const el = ref.current;
     if (!el || finalValue === null) return;
 
-    // Fully rendered start text ("0 …") used for the initial paint and resets.
-    const startText =
-      format ? format(0, finalValue)
-      : `${parsed.prefix}${formatCount(0, locale, decimals)}${parsed.suffix}`;
+    const behavior = counterBehavior(reducedMotion === true, inView);
 
     // Reduced motion — jump straight to the final value and stay static.
-    if (reducedMotion) {
+    if (behavior === 'static-final') {
       el.textContent = staticText ?? finalText;
       return;
     }
 
     // Out of view — restore the start value so re-entry replays from 0.
-    if (!inView) {
+    if (behavior === 'reset') {
       el.textContent = startText;
       return;
     }
@@ -105,12 +113,12 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     });
 
     return () => controls.stop();
-  }, [inView, reducedMotion, finalValue, duration, delay, format, parsed.prefix, parsed.suffix, locale, decimals, staticText, finalText]);
+  }, [inView, reducedMotion, finalValue, duration, delay, format, parsed.prefix, parsed.suffix, locale, decimals, staticText, finalText, startText]);
 
   // Non-numeric values render their source string directly.
   if (finalValue === null) {
     return <span ref={ref} className={className}>{parsed.raw}</span>;
   }
 
-  return <span ref={ref} className={className} aria-label={staticText ?? finalText} />;
+  return <span ref={ref} className={className} aria-label={staticText ?? finalText}>{startText}</span>;
 };
