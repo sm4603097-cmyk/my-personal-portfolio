@@ -111,11 +111,11 @@ function resetTurnstileVerifyHandler() {
 before(() => {
   originalFetch = globalThis.fetch;
   globalThis.fetch = async (input, init) => {
-    if (String(input).includes('api.resend.com')) {
+    if (String(input).startsWith('https://api.resend.com/')) {
       resendCalls += 1;
       return resendHandler(input, init);
     }
-    if (String(input).includes('challenges.cloudflare.com')) {
+    if (String(input).startsWith('https://challenges.cloudflare.com/')) {
       turnstileCalls += 1;
       return turnstileVerifyHandler(input, init);
     }
