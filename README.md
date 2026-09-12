@@ -48,7 +48,7 @@ Browser (same origin)
   → sm4603097@gmail.com
 ```
 
-The Worker runs first for every request (`assets.run_worker_first = true`). Requests to `/api/contact` are handled; all other routes are forwarded to `env.ASSETS.fetch(request)`, so the static site is served exactly as before. The production project name `my-personal-portfolio` is unchanged, so the existing production URL keeps working.
+The Worker runs first for every request (`assets.run_worker_first = true`). Requests to `/api/contact` are handled; all other routes are forwarded to `env.ASSETS.fetch(request)`, so the static site is served exactly as before. The production project name `my-personal-portfolio` is unchanged; production is served at `https://my-personal-portfolio.salama-8377.workers.dev`.
 
 ### Required Cloudflare setup
 
