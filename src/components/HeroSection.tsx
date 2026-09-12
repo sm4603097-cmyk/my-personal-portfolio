@@ -218,6 +218,17 @@ export const HeroSection: React.FC = () => {
             {/* Seamless Composition: Backing Studio Glow */}
             <div className="relative w-full max-w-sm sm:max-w-md">
 
+              {/* Top Status Pill Overlay (raised above the portrait, breathing room below) */}
+              <div className="absolute -top-2 sm:-top-3 left-3 rtl:left-auto rtl:right-3 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)]/80 border border-[var(--border-strong)] backdrop-blur-md shadow-md">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+                </span>
+                <span className="text-[10px] font-mono text-[var(--accent-cyan)] font-bold tracking-wider">
+                  {t.hero.metaLat}
+                </span>
+              </div>
+
               {/* Backing Ambient Halo */}
               <div
                 className="absolute inset-0 rounded-full opacity-60 pointer-events-none"
@@ -266,17 +277,6 @@ export const HeroSection: React.FC = () => {
                       background: 'linear-gradient(to top, var(--bg-card-solid) 0%, rgba(0,0,0,0.15) 30%, transparent 60%)',
                     }}
                   />
-
-                  {/* Top Status Pill Overlay */}
-                  <div className="absolute top-3 left-3 rtl:left-auto rtl:right-3 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)]/80 border border-[var(--border-strong)] backdrop-blur-md shadow-md">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
-                    </span>
-                    <span className="text-[10px] font-mono text-[var(--accent-cyan)] font-bold tracking-wider">
-                      {t.hero.metaLat}
-                    </span>
-                  </div>
 
                   {/* Bottom Integrated Identity Caption */}
                   <div className="absolute bottom-3 left-3 right-3 z-20 p-3 rounded-xl bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] backdrop-blur-md shadow-lg flex items-center justify-between">
