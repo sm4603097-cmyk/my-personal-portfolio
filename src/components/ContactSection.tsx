@@ -65,6 +65,7 @@ export const ContactSection: React.FC = () => {
   const [selectedTimeline, setSelectedTimeline] = useState<string>(t.contact.budgets[0]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -120,6 +121,7 @@ export const ContactSection: React.FC = () => {
         body: JSON.stringify({
           name,
           email,
+          phone,
           message,
           projectType: selectedType,
           timeline: selectedTimeline,
@@ -415,6 +417,24 @@ export const ContactSection: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g., sarah@company.com"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-sm text-[var(--text-heading)] focus:border-[var(--accent-cyan)] focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="contact-phone" className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
+                      {t.contact.phoneLabel}
+                    </label>
+                    <input
+                      id="contact-phone"
+                      name="phone"
+                      type="tel"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      dir="ltr"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder={t.contact.phonePlaceholder}
                       className="w-full px-4 py-2.5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-sm text-[var(--text-heading)] focus:border-[var(--accent-cyan)] focus:outline-none"
                     />
                   </div>

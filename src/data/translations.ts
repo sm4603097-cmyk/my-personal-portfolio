@@ -191,6 +191,8 @@ export interface TranslationContent {
     sendEmail: string;
     nameLabel: string;
     emailLabel: string;
+    phoneLabel: string;
+    phonePlaceholder: string;
     messageLabel: string;
     socialTitle: string;
     inquiryTitle: string;
@@ -497,6 +499,8 @@ export const translations: Record<Language, TranslationContent> = {
       sendEmail: "Send Direct Email",
       nameLabel: "Your Name",
       emailLabel: "Your Email",
+      phoneLabel: "Phone Number",
+      phonePlaceholder: "e.g., +20 107 047 1954",
       messageLabel: "Project Brief / Details",
       socialTitle: "CONNECT ACROSS PLATFORMS",
       inquiryTitle: "INQUIRY GENERATED",
@@ -801,6 +805,8 @@ export const translations: Record<Language, TranslationContent> = {
       sendEmail: "إرسال بريد إلكتروني مباشر",
       nameLabel: "الاسم الكريم",
       emailLabel: "البريد الإلكتروني",
+      phoneLabel: "رقم الهاتف",
+      phonePlaceholder: "مثال: +20 107 047 1954",
       messageLabel: "ملخص المشروع أو التفاصيل",
       socialTitle: "تواصل معي عبر المنصات الاجتماعية",
       inquiryTitle: "تم تجهيز الاستفسار",

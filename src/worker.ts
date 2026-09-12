@@ -12,6 +12,9 @@ const EMAIL_MAX = 254;
 const MESSAGE_MAX = 5000;
 const OPTION_MAX = 120;
 
+const PHONE_MAX = 40;
+const PHONE_ALLOWED = /^[\p{Nd}+()\-\s]+$/u;
+
 const EMAIL_RE = /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]{2,}$/;
 
 const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
@@ -58,6 +61,7 @@ interface TurnstileVerifyResponse {
 interface ValidPayload {
   name: string;
   email: string;
+  phone: string;
   message: string;
   projectType: string;
   timeline: string;
@@ -147,6 +151,21 @@ function readTrimmed(value: unknown): string | null {
   return typeof value === 'string' ? value.trim() : null;
 }
 
+// Optional, permissively validated phone number used only as a contact
+// preference. Omitted or empty values normalize to an empty string; anything
+// that is not trimmed digits with + - ( ) and spaces is treated as invalid so
+// header-injection style or payload-smuggling input cannot reach the email.
+function normalizePhone(value: unknown): string | null {
+  if (value === undefined) return '';
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (trimmed === '') return '';
+  if (trimmed.length > PHONE_MAX) return null;
+  if (!PHONE_ALLOWED.test(trimmed)) return null;
+  if (!/\p{Nd}/u.test(trimmed)) return null;
+  return trimmed;
+}
+
 // Server-side Turnstile verification. Fails closed on any error so an
 // unconfirmed token can never reach the email path. Provider details, error
 // codes, and secret state are never exposed to the caller.
@@ -197,6 +216,9 @@ function validate(body: Record<string, unknown>):
     return { ok: false, reason: 'invalid_fields' };
   }
 
+  const phone = normalizePhone(body.phone);
+  if (phone === null) return { ok: false, reason: 'invalid_fields' };
+
   const message = readTrimmed(body.message);
   if (!message || message.length > MESSAGE_MAX) return { ok: false, reason: 'invalid_fields' };
 
@@ -208,7 +230,7 @@ function validate(body: Record<string, unknown>):
   const timeline = readTrimmed(body.timeline);
   if (!timeline || timeline.length > OPTION_MAX) return { ok: false, reason: 'invalid_fields' };
 
-  return { ok: true, data: { name, email, message, projectType, timeline } };
+  return { ok: true, data: { name, email, phone, message, projectType, timeline } };
 }
 
 async function handleContact(request: Request, env: Env): Promise<Response> {
@@ -309,12 +331,14 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   }
 
   const from = env.RESEND_FROM ?? DEFAULT_FROM;
-  const { name, email, message, projectType, timeline } = result.data;
+  const { name, email, phone, message, projectType, timeline } = result.data;
+  const phoneDisplay = phone !== '' ? phone : 'Not provided';
 
   const text =
     `Portfolio Contact Message\n\n` +
     `Name: ${name}\n` +
     `Email: ${email}\n` +
+    `Phone: ${phoneDisplay}\n` +
     `Project Type: ${projectType}\n` +
     `Timeline: ${timeline}\n` +
     `Message: ${message}\n` +

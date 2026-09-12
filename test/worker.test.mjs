@@ -494,6 +494,200 @@ test('valid contact request flows through to Resend and returns 200', async () =
   assert.equal(resendCalls, 1);
 });
 
+test('phone omitted is accepted (optional field)', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP), env);
+
+  assert.equal(response.status, 200);
+  assert.equal(resendCalls, 1);
+});
+
+test('empty phone string is accepted', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { phone: '' }), env);
+
+  assert.equal(response.status, 200);
+  assert.equal(resendCalls, 1);
+});
+
+test('whitespace-only phone is treated as not provided', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { phone: '   ' }), env);
+
+  assert.equal(response.status, 200);
+  assert.equal(resendCalls, 1);
+});
+
+test('realistic phone formats are accepted', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const phones = [
+    '01070471954',
+    '+201070471954',
+    '+20 107 047 1954',
+    '010 7047 1954',
+    '(010) 704-7195',
+    '+1 (415) 555-0100',
+  ];
+  for (let i = 0; i < phones.length; i += 1) {
+    // Distinct per-test IPs so the 5/hour KV limit is not tripped while
+    // exercising all formats.
+    const response = await worker.fetch(validPost(`203.0.113.${100 + i}`, { phone: phones[i] }), env);
+    assert.equal(response.status, 200, `phone '${phones[i]}' must be accepted`);
+  }
+
+  assert.equal(resendCalls, phones.length);
+});
+
+test('phone over maximum length is rejected', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const tooLong = '+'.padEnd(41, '1');
+  const response = await worker.fetch(validPost(TEST_IP, { phone: tooLong }), env);
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0, 'schema validation must reject before Siteverify');
+  assert.equal(resendCalls, 0);
+});
+
+test('non-string phone values are rejected', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  for (const phone of [12345, true, ['010']]) {
+    const response = await worker.fetch(validPost(TEST_IP, { phone }), env);
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  }
+  assert.equal(resendCalls, 0);
+});
+
+test('phone with HTML, URL, or control content is rejected', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const hostile = [
+    '<script>alert(1)</script>',
+    'http://evil.example/010',
+    'tel:01070471954',
+    '010\0number',
+    'name="v"',
+    'abc',
+    '++(())--',
+  ];
+  for (const phone of hostile) {
+    const response = await worker.fetch(validPost(TEST_IP, { phone }), env);
+    assert.equal(response.status, 400, `phone '${phone}' must be rejected`);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  }
+  assert.equal(resendCalls, 0);
+});
+
+test('phone is trimmed before storage in the email body', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  let capturedBody = null;
+  resendHandler = async (input, init) => {
+    capturedBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({ id: 'mocked' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  try {
+    const response = await worker.fetch(validPost(TEST_IP, { phone: '  +20 107 047 1954  ' }), env);
+
+    assert.equal(response.status, 200);
+    assert.ok(capturedBody.text.includes('Phone: +20 107 047 1954'));
+    assert.ok(!capturedBody.text.includes('Phone:   +20 107 047 1954  '));
+  } finally {
+    resendHandler = async () =>
+      new Response(JSON.stringify({ id: 'mocked' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+  }
+});
+
+test('phone is included in the email body but not in headers', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  let capturedBody = null;
+  let capturedInit = null;
+  resendHandler = async (input, init) => {
+    capturedInit = init;
+    capturedBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({ id: 'mocked' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  try {
+    const response = await worker.fetch(validPost(TEST_IP, { phone: '+20 107 047 1954' }), env);
+
+    assert.equal(response.status, 200);
+    assert.ok(capturedBody.text.includes('Name: Test User'));
+    assert.ok(capturedBody.text.includes('Email: user@example.com'));
+    assert.ok(capturedBody.text.includes('Phone: +20 107 047 1954'));
+    assert.ok(capturedBody.text.includes('Project Type: Web'));
+    assert.ok(capturedBody.text.includes('Timeline: 1 month'));
+    assert.ok(capturedBody.text.includes('Message: Hello there'));
+
+    const headerBlob = JSON.stringify(capturedInit.headers);
+    assert.ok(
+      !headerBlob.includes('+20 107 047 1954'),
+      'phone must never appear in request headers',
+    );
+    assert.ok(!capturedBody.subject.includes('+20'), 'phone must not appear in the subject');
+    assert.ok(!capturedBody.reply_to.includes('+20'), 'phone must not appear in reply_to');
+    assert.ok(!capturedBody.to.includes('+20'), 'phone must not appear in the recipient');
+  } finally {
+    resendHandler = async () =>
+      new Response(JSON.stringify({ id: 'mocked' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+  }
+});
+
+test('omitted phone renders Not provided in the email body', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  let capturedBody = null;
+  resendHandler = async (input, init) => {
+    capturedBody = JSON.parse(init.body);
+    return new Response(JSON.stringify({ id: 'mocked' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  try {
+    const response = await worker.fetch(validPost(TEST_IP), env);
+
+    assert.equal(response.status, 200);
+    assert.ok(capturedBody.text.includes('Phone: Not provided'));
+  } finally {
+    resendHandler = async () =>
+      new Response(JSON.stringify({ id: 'mocked' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+  }
+});
+
 test('honeypot responses return 200 without calling Resend', async () => {
   const env = createEnv();
   resendCalls = 0;
