@@ -7,3 +7,11 @@ assets = { directory = "./dist", binding = "ASSETS", run_worker_first = true }
 [[kv_namespaces]]
 binding = "CONTACT_RATE_LIMIT_KV"
 id = "16f221d9097448f6a7dc1a0bb9ead5f0"
+
+[[ratelimits]]
+name = "CONTACT_BURST_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 10
+  period = 60

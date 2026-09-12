@@ -39,6 +39,9 @@ interface Env {
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
   CONTACT_RATE_LIMIT_KV?: KvStore;
+  CONTACT_BURST_LIMITER?: {
+    limit(options: { key: string }): Promise<{ success: boolean }>;
+  };
   ASSETS: AssetsBinding;
 }
 
@@ -124,6 +127,15 @@ function validate(body: Record<string, unknown>):
 }
 
 async function handleContact(request: Request, env: Env): Promise<Response> {
+  const burstId = clientIdentifier(request);
+  const burstLimiter = env.CONTACT_BURST_LIMITER;
+  if (burstLimiter) {
+    const { success } = await burstLimiter.limit({ key: burstId });
+    if (!success) {
+      return json({ ok: false, error: 'rate_limited' }, 429);
+    }
+  }
+
   const contentLength = Number(request.headers.get('content-length') || '0');
   if (contentLength > MAX_BODY_CHARS) {
     return json({ ok: false, error: 'invalid_fields' }, 400);
@@ -158,7 +170,7 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return json({ ok: true }, 200);
   }
 
-  const id = clientIdentifier(request);
+  const id = burstId;
   const store = env.CONTACT_RATE_LIMIT_KV;
   let rateKey: string | null = null;
 
