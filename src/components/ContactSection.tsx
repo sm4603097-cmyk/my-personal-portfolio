@@ -70,11 +70,14 @@ export const ContactSection: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<ContactErrorKey | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const turnstileSectionRef = useRef<HTMLElement | null>(null);
   const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
   const turnstileWidgetIdRef = useRef<string | null>(null);
+  // The live Turnstile token. A ref (not state) so the submit handler always
+  // reads the token synchronously. The token is never rendered, and waiting on
+  // state would let the user's click race against the callback's re-render.
+  const turnstileTokenRef = useRef<string | null>(null);
   const turnstilePendingSubmitRef = useRef(false);
   const submitWithTokenRef = useRef<(token: string) => void>(() => {});
 
@@ -87,12 +90,12 @@ export const ContactSection: React.FC = () => {
         // The widget may already be removed; a clean local token reset is enough.
       }
     }
-    setTurnstileToken(null);
+    turnstileTokenRef.current = null;
   }, []);
 
   const onTurnstileSuccess = useCallback(
     (token: string) => {
-      setTurnstileToken(token);
+      turnstileTokenRef.current = token;
       if (turnstilePendingSubmitRef.current) {
         turnstilePendingSubmitRef.current = false;
         submitWithTokenRef.current(token);
@@ -103,7 +106,7 @@ export const ContactSection: React.FC = () => {
 
   const onTurnstileExpired = useCallback(() => {
     turnstilePendingSubmitRef.current = false;
-    setTurnstileToken(null);
+    turnstileTokenRef.current = null;
   }, []);
 
   const performSubmission = async (token: string) => {
@@ -233,8 +236,8 @@ export const ContactSection: React.FC = () => {
       return;
     }
 
-    if (turnstileToken) {
-      await performSubmission(turnstileToken);
+    if (turnstileTokenRef.current) {
+      await performSubmission(turnstileTokenRef.current);
       return;
     }
 

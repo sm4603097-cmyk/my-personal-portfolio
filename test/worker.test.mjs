@@ -18,7 +18,7 @@ const SECURITY_HEADER_NAMES = [
 ];
 
 const EXPECTED_CSP =
-  "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests";
+  "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests";
 
 function createKvStore() {
   return {
@@ -145,6 +145,31 @@ test('GET / (static page) receives all security headers', async () => {
   assert.equal(response.status, 200);
   assertSecurityHeaders(response);
   assert.equal(await response.text(), '<html><body>mock static page</body></html>');
+});
+
+test('CSP allows the Cloudflare Turnstile iframe (frame-src)', async () => {
+  const env = createEnv();
+  const response = await worker.fetch(new Request(`${ORIGIN}/`), env);
+
+  const csp = response.headers.get('content-security-policy');
+  assert.ok(csp, 'CSP header must be present');
+  assert.ok(
+    csp.includes("frame-src https://challenges.cloudflare.com"),
+    'CSP must include frame-src for the Turnstile widget iframe',
+  );
+  assert.ok(csp.includes("frame-ancestors 'none'"), 'frame-ancestors must remain restricted');
+});
+
+test('CSP does not use connect-src for challenges.cloudflare.com (pre-clearance only)', async () => {
+  const env = createEnv();
+  const response = await worker.fetch(new Request(`${ORIGIN}/`), env);
+
+  const csp = response.headers.get('content-security-policy');
+  assert.ok(csp.includes("connect-src 'self'"), 'connect-src must stay restricted to self');
+  assert.ok(
+    !csp.includes('connect-src.*challenges.cloudflare.com'),
+    'connect-src must not include challenges.cloudflare.com when pre-clearance is not used',
+  );
 });
 
 test('static response preserves its own headers while adding security headers', async () => {
