@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">
 
           {/* Identity */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left rtl:sm:text-right">
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-start">
             <div className="w-7 h-7 rounded-lg border border-[var(--border-strong)] bg-[var(--accent-cyan-dim)] flex items-center justify-center text-[var(--accent-cyan)] font-mono text-[10px] font-bold">
               {siteConfig.monogram}
             </div>

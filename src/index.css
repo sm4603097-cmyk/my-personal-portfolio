@@ -133,6 +133,13 @@ html.rtl-active .font-display {
   font-family: 'Tajawal', 'Cairo', sans-serif;
 }
 
+/* RTL: keep footer text in the Cairo-based Arabic UI font so Latin and Arabic
+   glyphs share one consistent baseline inside the footer (overrides font-mono
+   which has no Arabic glyphs). */
+html.rtl-active footer {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+}
+
 /* Semantic Theme Helpers */
 .theme-bg-page { background-color: var(--bg-page); }
 .theme-bg-surface-1 { background-color: var(--bg-surface-1); }
