@@ -17,7 +17,7 @@ const SECURITY_HEADER_NAMES = [
 ];
 
 const EXPECTED_CSP =
-  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests";
+  "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests";
 
 function createKvStore() {
   return {
@@ -146,6 +146,45 @@ test('POST /api/contact with wrong Content-Type returns 400 generic error', asyn
   assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
 });
 
+test('content-type lookalikes are rejected (media type must match exactly)', async () => {
+  const env = createEnv();
+
+  for (const type of ['application/jsonp', 'application/json5', 'text/json']) {
+    const response = await worker.fetch(
+      new Request(`${ORIGIN}/api/contact`, {
+        method: 'POST',
+        headers: { 'content-type': type },
+        body: JSON.stringify({
+          name: 'Test', email: 'user@example.com', message: 'Hi', projectType: 'Web', timeline: '1 month',
+        }),
+      }),
+      env,
+    );
+
+    assert.equal(response.status, 400, `content-type '${type}' must be rejected`);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  }
+});
+
+test('content-type with valid parameters is accepted', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const response = await worker.fetch(
+    new Request(`${ORIGIN}/api/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        name: 'Test', email: 'user@example.com', message: 'Hi', projectType: 'Web', timeline: '1 month',
+      }),
+    }),
+    env,
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal(resendCalls, 1);
+});
+
 test('oversized request is rejected before the body is read', async () => {
   const env = createEnv();
 
@@ -175,6 +214,74 @@ test('oversized request is rejected before the body is read', async () => {
   assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
 });
 
+test('oversized body without content-length (chunked) is rejected after read', async () => {
+  const env = createEnv();
+
+  let sent = 0;
+  const body = new ReadableStream({
+    start(controller) {
+      const chunk = new TextEncoder().encode('x'.repeat(1024));
+      const timer = setInterval(() => {
+        if (sent >= 40) {
+          clearInterval(timer);
+          controller.close();
+          return;
+        }
+        sent += 1;
+        controller.enqueue(chunk);
+      }, 1);
+    },
+  });
+
+  const request = new Request(`${ORIGIN}/api/contact`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body,
+    duplex: 'half',
+  });
+
+  const response = await worker.fetch(request, env);
+
+  assert.equal(response.status, 400);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+});
+
+test('spoofed x-forwarded-for cannot select a rate-limit bucket', async () => {
+  const env = createEnv();
+
+  const spoofedPost = (ip) =>
+    new Request(`${ORIGIN}/api/contact`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-forwarded-for': ip,
+      },
+      body: JSON.stringify({
+        name: 'Test User',
+        email: 'user@example.com',
+        message: 'Hello there',
+        projectType: 'Web',
+        timeline: '1 month',
+        honeypot: '',
+      }),
+    });
+
+  // Without a cf-connecting-ip, all callers share the 'unknown' bucket, so a
+  // spoofer cycling through x-forwarded-for values cannot evade the limit.
+  for (let i = 0; i < 5; i += 1) {
+    const response = await worker.fetch(spoofedPost(`1.2.${i}.1`), env);
+    assert.equal(response.status, 200);
+  }
+
+  const sixth = await worker.fetch(spoofedPost('9.9.9.9'), env);
+  assert.equal(sixth.status, 429);
+  assertSecurityHeaders(sixth);
+  assertNoStore(sixth);
+  assert.deepEqual(await sixth.json(), { ok: false, error: 'rate_limited' });
+});
+
 test('valid contact request flows through to Resend and returns 200', async () => {
   const env = createEnv();
   resendCalls = 0;
@@ -199,6 +306,28 @@ test('honeypot responses return 200 without calling Resend', async () => {
   assertNoStore(response);
   assert.deepEqual(await response.json(), { ok: true });
   assert.equal(resendCalls, 0);
+});
+
+test('honeypot catches non-string bot values without calling Resend', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { honeypot: 1 }), env);
+
+  assert.equal(response.status, 200);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(resendCalls, 0);
+});
+
+test('honeypot only fires when a non-empty value is present', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+
+  const empty = await worker.fetch(validPost(TEST_IP, { honeypot: '' }), env);
+  assert.equal(empty.status, 200);
+  assert.equal(resendCalls, 1);
 });
 
 test('invalid email returns 400 generic error', async () => {

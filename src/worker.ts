@@ -16,7 +16,7 @@ const EMAIL_RE = /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]{2,}$/;
 
 const SECURITY_HEADERS: Record<string, string> = {
   'content-security-policy':
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests",
+    "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests",
   'strict-transport-security': 'max-age=63072000; includeSubDomains',
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'DENY',
@@ -75,11 +75,17 @@ function applySecurityHeaders(response: Response): Response {
 }
 
 function clientIdentifier(request: Request): string {
+  // Only trust the IP header injected by Cloudflare's edge. Client-supplied
+  // forwarding headers (e.g. x-forwarded-for) are never used because they can
+  // be spoofed; absence of cf-connecting-ip collapses callers into a single
+  // shared bucket rather than trusting untrusted input.
   const cfIp = request.headers.get('cf-connecting-ip');
-  if (cfIp) return cfIp;
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
+  if (cfIp && cfIp.trim() !== '') return cfIp.trim();
   return 'unknown';
+}
+
+function isJsonContentType(value: string): boolean {
+  return value.split(';')[0].trim().toLowerCase() === 'application/json';
 }
 
 async function hashInput(input: string): Promise<string> {
@@ -124,7 +130,7 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   }
 
   const contentType = request.headers.get('content-type') || '';
-  if (!contentType.includes('application/json')) {
+  if (!isJsonContentType(contentType)) {
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
@@ -145,7 +151,10 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   }
   const body = parsed as Record<string, unknown>;
 
-  if (typeof body.honeypot === 'string' && body.honeypot.trim() !== '') {
+  // Any non-empty honeypot value is a bot signal, regardless of JSON type. A
+  // bot sending `"honeypot": 1` must not slip through to the email path.
+  const honeypot = body.honeypot;
+  if (honeypot !== undefined && honeypot !== null && `${honeypot}`.trim() !== '') {
     return json({ ok: true }, 200);
   }
 

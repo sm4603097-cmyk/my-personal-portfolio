@@ -29,7 +29,7 @@ export const ContactSection: React.FC = () => {
     const text = encodeURIComponent(
       `Hello Alhassan Mohamed,\n\nI want to discuss a project:\n- Type: ${selectedType}\n- Timeline: ${selectedTimeline}\n- Name: ${name || 'Client'}\n- Message: ${message || 'Interested in building a serious product.'}`
     );
-    window.open(`${siteConfig.whatsappLink}?text=${text}`, '_blank');
+    window.open(`${siteConfig.whatsappLink}?text=${text}`, '_blank', 'noopener,noreferrer');
   };
 
   const triggerCall = () => {
