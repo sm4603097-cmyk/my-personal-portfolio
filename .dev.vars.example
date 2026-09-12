@@ -2,3 +2,7 @@
 # `.dev.vars` is gitignored and must never be committed.
 RESEND_API_KEY=
 RESEND_FROM=onboarding@resend.dev
+# Cloudflare Turnstile secret for the contact form. Get the value from the
+# Cloudflare dashboard → Turnstile → the widget's secret key. Keep it server-side;
+# only the public sitekey lives in the frontend (src/data/siteConfig.ts).
+TURNSTILE_SECRET_KEY=

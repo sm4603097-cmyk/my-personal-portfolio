@@ -14,9 +14,13 @@ const OPTION_MAX = 120;
 
 const EMAIL_RE = /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]{2,}$/;
 
+const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const TURNSTILE_TOKEN_MAX = 2048;
+const TURNSTILE_TIMEOUT_MS = 5000;
+
 const SECURITY_HEADERS: Record<string, string> = {
   'content-security-policy':
-    "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests",
+    "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests",
   'strict-transport-security': 'max-age=63072000; includeSubDomains',
   'x-content-type-options': 'nosniff',
   'x-frame-options': 'DENY',
@@ -38,11 +42,17 @@ interface AssetsBinding {
 interface Env {
   RESEND_API_KEY?: string;
   RESEND_FROM?: string;
+  TURNSTILE_SECRET_KEY?: string;
   CONTACT_RATE_LIMIT_KV?: KvStore;
   CONTACT_BURST_LIMITER?: {
     limit(options: { key: string }): Promise<{ success: boolean }>;
   };
   ASSETS: AssetsBinding;
+}
+
+interface TurnstileVerifyResponse {
+  success: boolean;
+  'error-codes'?: string[];
 }
 
 interface ValidPayload {
@@ -137,6 +147,45 @@ function readTrimmed(value: unknown): string | null {
   return typeof value === 'string' ? value.trim() : null;
 }
 
+// Server-side Turnstile verification. Fails closed on any error so an
+// unconfirmed token can never reach the email path. Provider details, error
+// codes, and secret state are never exposed to the caller.
+async function verifyTurnstile(
+  token: string,
+  secret: string,
+  remoteIp?: string,
+): Promise<boolean> {
+  const bodyPayload = remoteIp
+    ? { secret, response: token, remoteip: remoteIp }
+    : { secret, response: token };
+
+  let response: Response;
+  try {
+    response = await fetch(TURNSTILE_SITEVERIFY_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(bodyPayload),
+      signal: AbortSignal.timeout(TURNSTILE_TIMEOUT_MS),
+    });
+  } catch {
+    return false;
+  }
+
+  if (!response.ok) return false;
+
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    return false;
+  }
+
+  if (typeof payload !== 'object' || payload === null) return false;
+
+  const result = payload as TurnstileVerifyResponse;
+  return result.success === true;
+}
+
 function validate(body: Record<string, unknown>):
   | { ok: true; data: ValidPayload }
   | { ok: false; reason: string } {
@@ -206,6 +255,34 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return json({ ok: true }, 200);
   }
 
+  // Cheap schema validation runs before Turnstile so obviously malformed
+  // payloads fail without spending a Siteverify round-trip.
+  const result = validate(body);
+  if (!result.ok) {
+    return json({ ok: false, error: result.reason }, 400);
+  }
+
+  // Turnstile is verified server-side only; a missing, malformed, expired, or
+  // rejected token fails closed with the same generic error as other invalid
+  // input. Only the visitor IP header injected by Cloudflare's edge is sent as
+  // remoteip, and only when present.
+  const cfConnectingIp = request.headers.get('cf-connecting-ip');
+  const remoteIp =
+    cfConnectingIp && cfConnectingIp.trim() !== '' ? cfConnectingIp.trim() : undefined;
+
+  const turnstileToken = readTrimmed(body.turnstileToken);
+  const turnstileSecret = env.TURNSTILE_SECRET_KEY;
+  const verified =
+    turnstileSecret !== undefined &&
+    turnstileToken !== null &&
+    turnstileToken.length > 0 &&
+    turnstileToken.length <= TURNSTILE_TOKEN_MAX &&
+    (await verifyTurnstile(turnstileToken, turnstileSecret, remoteIp));
+
+  if (!verified) {
+    return json({ ok: false, error: 'invalid_fields' }, 400);
+  }
+
   const id = burstId;
   const store = env.CONTACT_RATE_LIMIT_KV;
   let rateKey: string | null = null;
@@ -218,11 +295,6 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     }
   } else {
     console.warn('[contact] CONTACT_RATE_LIMIT_KV binding missing; rate limiting disabled');
-  }
-
-  const result = validate(body);
-  if (!result.ok) {
-    return json({ ok: false, error: result.reason }, 400);
   }
 
   if (store && rateKey) {

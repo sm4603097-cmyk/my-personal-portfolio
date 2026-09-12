@@ -17,6 +17,7 @@ export interface SiteConfig {
   email: string;
   emailLink: string;
   github: string;
+  turnstileSiteKey: string;
   socials: SocialLink[];
 }
 
@@ -35,6 +36,7 @@ export const siteConfig: SiteConfig = {
   email: 'sm4603097@gmail.com',
   emailLink: 'mailto:sm4603097@gmail.com',
   github: 'https://github.com',
+  turnstileSiteKey: '0x4AAAAAAExS4vnlmaeqF8pQ',
   socials: [
     {
       name: 'Facebook',

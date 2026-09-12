@@ -1,10 +1,56 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { MessageSquare, Mail, Phone, Send, Loader2, ExternalLink, CheckCircle2, ArrowRight } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
 import { SectionHeader, SectionTransition, HoverLift } from '../motion';
 
 type ContactErrorKey = 'submitError' | 'rateLimit';
+
+type TurnstileRenderOptions = {
+  sitekey: string;
+  theme?: 'light' | 'dark' | 'auto';
+  size?: 'normal' | 'flexible' | 'compact';
+  appearance?: 'always' | 'execute' | 'interaction-only';
+  execution?: 'render' | 'execute';
+  callback?: (token: string) => void;
+  'expired-callback'?: () => void;
+  'error-callback'?: (errorCode: string) => void;
+};
+
+interface TurnstileApi {
+  render(container: HTMLElement | string, options: TurnstileRenderOptions): string;
+  reset(widgetId: string): void;
+  remove(widgetId: string): void;
+  execute(container?: HTMLElement | string): void;
+}
+
+const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
+let turnstileScriptPromise: Promise<void> | null = null;
+
+function turnstileApi(): TurnstileApi | undefined {
+  return (window as Window & { turnstile?: TurnstileApi }).turnstile;
+}
+
+function loadTurnstileScript(): Promise<void> {
+  const api = turnstileApi();
+  if (api) return Promise.resolve();
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+
+  turnstileScriptPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = TURNSTILE_SCRIPT_URL;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => {
+      turnstileScriptPromise = null;
+      reject(new Error('Turnstile script failed to load'));
+    };
+    document.head.appendChild(script);
+  });
+  return turnstileScriptPromise;
+}
 
 const SOCIAL_COLORS: Record<string, string> = {
   facebook: 'hover:border-blue-500/50 hover:text-blue-500',
@@ -24,6 +70,143 @@ export const ContactSection: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<ContactErrorKey | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  const turnstileSectionRef = useRef<HTMLElement | null>(null);
+  const turnstileContainerRef = useRef<HTMLDivElement | null>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
+  const turnstilePendingSubmitRef = useRef(false);
+  const submitWithTokenRef = useRef<(token: string) => void>(() => {});
+
+  const resetTurnstile = useCallback(() => {
+    const widgetId = turnstileWidgetIdRef.current;
+    if (widgetId) {
+      try {
+        turnstileApi()?.reset(widgetId);
+      } catch {
+        // The widget may already be removed; a clean local token reset is enough.
+      }
+    }
+    setTurnstileToken(null);
+  }, []);
+
+  const onTurnstileSuccess = useCallback(
+    (token: string) => {
+      setTurnstileToken(token);
+      if (turnstilePendingSubmitRef.current) {
+        turnstilePendingSubmitRef.current = false;
+        submitWithTokenRef.current(token);
+      }
+    },
+    [],
+  );
+
+  const onTurnstileExpired = useCallback(() => {
+    turnstilePendingSubmitRef.current = false;
+    setTurnstileToken(null);
+  }, []);
+
+  const performSubmission = async (token: string) => {
+    setSubmitting(true);
+    setErrorKey(null);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          projectType: selectedType,
+          timeline: selectedTimeline,
+          honeypot,
+          turnstileToken: token,
+        }),
+      });
+
+      if (!res.ok) {
+        setErrorKey(res.status === 429 ? 'rateLimit' : 'submitError');
+        return;
+      }
+
+      setSubmitted(true);
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduceMotion) {
+        const { default: confetti } = await import('canvas-confetti');
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.7 }
+        });
+      }
+    } catch {
+      setErrorKey('submitError');
+    } finally {
+      // Every consumed token is single-use, so the widget is reset after each
+      // attempt. A fresh token replaces it via the success callback.
+      resetTurnstile();
+      setSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    submitWithTokenRef.current = performSubmission;
+  });
+
+  // Lazy-load Turnstile only when the contact section approaches the viewport.
+  useEffect(() => {
+    const section = turnstileSectionRef.current;
+    const container = turnstileContainerRef.current;
+    if (!section || !container) return;
+
+    let disposed = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (disposed || !entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+
+        loadTurnstileScript()
+          .then(() => {
+            if (disposed || !turnstileContainerRef.current) return;
+            const api = turnstileApi();
+            if (!api) return;
+
+            const widgetId = api.render(turnstileContainerRef.current, {
+              sitekey: siteConfig.turnstileSiteKey,
+              theme: 'auto',
+              size: 'flexible',
+              appearance: 'interaction-only',
+              callback: onTurnstileSuccess,
+              'expired-callback': onTurnstileExpired,
+              'error-callback': onTurnstileExpired,
+            });
+            turnstileWidgetIdRef.current = widgetId;
+          })
+          .catch(() => {
+            // Turnstile unavailable: the server still enforces verification.
+          });
+      },
+      { rootMargin: '400px 0px 0px 0px' },
+    );
+
+    observer.observe(section);
+
+    return () => {
+      disposed = true;
+      observer.disconnect();
+      const widgetId = turnstileWidgetIdRef.current;
+      if (widgetId) {
+        try {
+          turnstileApi()?.remove(widgetId);
+        } catch {
+          // widget not rendered yet
+        }
+        turnstileWidgetIdRef.current = null;
+      }
+    };
+  }, [onTurnstileSuccess, onTurnstileExpired]);
 
   const triggerWhatsApp = () => {
     const text = encodeURIComponent(
@@ -50,47 +233,32 @@ export const ContactSection: React.FC = () => {
       return;
     }
 
-    setSubmitting(true);
-    setErrorKey(null);
-
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          message,
-          projectType: selectedType,
-          timeline: selectedTimeline,
-          honeypot,
-        }),
-      });
-
-      if (!res.ok) {
-        setErrorKey(res.status === 429 ? 'rateLimit' : 'submitError');
-        return;
-      }
-
-      setSubmitted(true);
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!reduceMotion) {
-        const { default: confetti } = await import('canvas-confetti');
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.7 }
-        });
-      }
-    } catch {
-      setErrorKey('submitError');
-    } finally {
-      setSubmitting(false);
+    if (turnstileToken) {
+      await performSubmission(turnstileToken);
+      return;
     }
+
+    // No token yet (or it expired): request a fresh challenge. If a token
+    // arrives, the success callback completes the pending submission.
+    const api = turnstileApi();
+    if (api) {
+      turnstilePendingSubmitRef.current = true;
+      api.execute(turnstileWidgetIdRef.current ?? undefined);
+
+      window.setTimeout(() => {
+        if (turnstilePendingSubmitRef.current) {
+          turnstilePendingSubmitRef.current = false;
+          setErrorKey('submitError');
+        }
+      }, 8000);
+      return;
+    }
+
+    setErrorKey('submitError');
   };
 
   return (
-    <section id="contact" className="py-24 sm:py-28 theme-bg-surface-1 border-t border-[var(--border-subtle)] relative overflow-hidden">
+    <section id="contact" ref={turnstileSectionRef} className="py-24 sm:py-28 theme-bg-surface-1 border-t border-[var(--border-subtle)] relative overflow-hidden">
       
       {/* Background Ambient Glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-80 sm:w-[35rem] h-80 sm:h-[35rem] bg-[var(--accent-cyan-dim)] rounded-full blur-[80px] pointer-events-none" />
@@ -262,6 +430,11 @@ export const ContactSection: React.FC = () => {
                     />
                   </div>
                 </div>
+
+                {/* Turnstile anti-bot verification. Rendered invisibly by the
+                    widget itself (appearance: interaction-only) and lazy-loaded
+                    when the section approaches the viewport. */}
+                <div ref={turnstileContainerRef} />
 
                 <button
                   type="submit"

@@ -1,5 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 const { default: worker } = await import('../src/worker.ts');
 
@@ -17,7 +18,7 @@ const SECURITY_HEADER_NAMES = [
 ];
 
 const EXPECTED_CSP =
-  "default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests";
+  "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests";
 
 function createKvStore() {
   return {
@@ -31,10 +32,11 @@ function createKvStore() {
   };
 }
 
-function createEnv({ withKv = true, withKey = true } = {}) {
+function createEnv({ withKv = true, withKey = true, withTurnstileKey = true } = {}) {
   return {
     RESEND_API_KEY: withKey ? 'test_re_mocked_key' : undefined,
     RESEND_FROM: 'sender@example.com',
+    TURNSTILE_SECRET_KEY: withTurnstileKey ? 'test_turnstile_secret_key' : undefined,
     CONTACT_RATE_LIMIT_KV: withKv ? createKvStore() : undefined,
     ASSETS: {
       async fetch() {
@@ -55,6 +57,7 @@ function validPost(ip = TEST_IP, overrides = {}) {
     projectType: 'Web',
     timeline: '1 month',
     honeypot: '',
+    turnstileToken: 'test_turnstile_token',
     ...overrides,
   };
   return new Request(`${ORIGIN}/api/contact`, {
@@ -68,19 +71,53 @@ function validPost(ip = TEST_IP, overrides = {}) {
 }
 
 let resendCalls = 0;
+let turnstileCalls = 0;
 let originalFetch;
 let resendHandler = async () =>
   new Response(JSON.stringify({ id: 'mocked' }), {
     status: 200,
     headers: { 'content-type': 'application/json' },
   });
+let turnstileVerifyHandler = async () =>
+  new Response(
+    JSON.stringify({
+      success: true,
+      challenge_ts: '2026-09-12T09:00:00.000Z',
+      hostname: 'portfolio.example.com',
+      'error-codes': [],
+    }),
+    {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    },
+  );
+
+function resetTurnstileVerifyHandler() {
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({
+        success: true,
+        challenge_ts: '2026-09-12T09:00:00.000Z',
+        hostname: 'portfolio.example.com',
+        'error-codes': [],
+      }),
+      {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      },
+    );
+}
 
 before(() => {
   originalFetch = globalThis.fetch;
   globalThis.fetch = async (input, init) => {
     if (String(input).includes('api.resend.com')) {
       resendCalls += 1;
-      return resendHandler();
+      return resendHandler(input, init);
+    }
+    if (String(input).includes('challenges.cloudflare.com')) {
+      turnstileCalls += 1;
+      return turnstileVerifyHandler(input, init);
     }
     return originalFetch(input, init);
   };
@@ -169,6 +206,7 @@ test('content-type lookalikes are rejected (media type must match exactly)', asy
 test('content-type with valid parameters is accepted', async () => {
   const env = createEnv();
   resendCalls = 0;
+  turnstileCalls = 0;
 
   const response = await worker.fetch(
     new Request(`${ORIGIN}/api/contact`, {
@@ -176,12 +214,14 @@ test('content-type with valid parameters is accepted', async () => {
       headers: { 'content-type': 'application/json; charset=utf-8' },
       body: JSON.stringify({
         name: 'Test', email: 'user@example.com', message: 'Hi', projectType: 'Web', timeline: '1 month',
+        turnstileToken: 'test_turnstile_token',
       }),
     }),
     env,
   );
 
   assert.equal(response.status, 200);
+  assert.equal(turnstileCalls, 1);
   assert.equal(resendCalls, 1);
 });
 
@@ -398,6 +438,7 @@ test('spoofed x-forwarded-for cannot select a rate-limit bucket', async () => {
         projectType: 'Web',
         timeline: '1 month',
         honeypot: '',
+        turnstileToken: 'test_turnstile_token',
       }),
     });
 
@@ -520,4 +561,398 @@ test('Resend error responses are mapped to generic 502', async () => {
         headers: { 'content-type': 'application/json' },
       });
   }
+});
+
+test('missing Turnstile token returns generic 400 and never reaches Resend', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { turnstileToken: undefined }), env);
+
+  assert.equal(response.status, 400);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('empty Turnstile token returns generic 400', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { turnstileToken: '' }), env);
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('whitespace-only Turnstile token returns generic 400', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { turnstileToken: '   ' }), env);
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('non-string Turnstile token returns generic 400', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { turnstileToken: 12345 }), env);
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('oversized Turnstile token is rejected locally without Siteverify', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(
+    validPost(TEST_IP, { turnstileToken: 't'.repeat(4096) }),
+    env,
+  );
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('invalid Turnstile token is rejected with a generic error and no email', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({ success: false, 'error-codes': ['invalid-input-response'] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assertSecurityHeaders(response);
+    assertNoStore(response);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('expired or replayed Turnstile token is rejected and cannot reach Resend', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({ success: false, 'error-codes': ['timeout-or-duplicate'] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('successful mocked Siteverify lets the valid flow continue to Resend', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(), env);
+
+  assert.equal(response.status, 200);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(turnstileCalls, 1);
+  assert.equal(resendCalls, 1);
+});
+
+test('Siteverify is passed the visitor IP when cf-connecting-ip is present', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  let seenRemoteIp = null;
+  turnstileVerifyHandler = async (input, init) => {
+    seenRemoteIp = JSON.parse(init.body).remoteip;
+    return new Response(
+      JSON.stringify({ success: true, 'error-codes': [] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 200);
+    assert.equal(seenRemoteIp, TEST_IP);
+    assert.equal(turnstileCalls, 1);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('Siteverify omits remoteip when no cf-connecting-ip is present', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  let seenRemoteIp = 'sentinel';
+  turnstileVerifyHandler = async (input, init) => {
+    seenRemoteIp = JSON.parse(init.body).remoteip;
+    return new Response(
+      JSON.stringify({ success: true, 'error-codes': [] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+  };
+
+  try {
+    const request = new Request(`${ORIGIN}/api/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Test User',
+        email: 'user@example.com',
+        message: 'Hello there',
+        projectType: 'Web',
+        timeline: '1 month',
+        honeypot: '',
+        turnstileToken: 'test_turnstile_token',
+      }),
+    });
+    const response = await worker.fetch(request, env);
+
+    assert.equal(response.status, 200);
+    assert.equal(seenRemoteIp, undefined);
+    assert.equal(turnstileCalls, 1);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('Siteverify HTTP failure fails closed and never calls Resend', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () => new Response('upstream error', { status: 500 });
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('Siteverify network failure fails closed and never calls Resend', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () => {
+    throw new Error('simulated network failure');
+  };
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('Siteverify malformed JSON response fails closed', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () =>
+    new Response('not-json{', { status: 200, headers: { 'content-type': 'application/json' } });
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('Siteverify unexpected payload shape fails closed', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({ status: 'ok', result: true }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('Siteverify non-JSON content (array) fails closed', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify(['not', 'an', 'object']),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    const response = await worker.fetch(validPost(), env);
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+    assert.equal(turnstileCalls, 1);
+    assert.equal(resendCalls, 0);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('missing TURNSTILE_SECRET_KEY fails closed for otherwise valid requests', async () => {
+  const env = createEnv({ withTurnstileKey: false });
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(), env);
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { ok: false, error: 'invalid_fields' });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('failed verification never echoes the token back to the client', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  const distinctiveToken = 'distinctive_invalid_token_value';
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({ success: false, 'error-codes': ['invalid-input-response'] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    const response = await worker.fetch(validPost(TEST_IP, { turnstileToken: distinctiveToken }), env);
+
+    assert.equal(response.status, 400);
+    const payload = await response.text();
+    assert.ok(!payload.includes(distinctiveToken), 'token must not be reflected in the response');
+    assert.ok(!payload.includes('turnstile'));
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('honeypot short-circuits before Turnstile is called', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const response = await worker.fetch(validPost(TEST_IP, { honeypot: 'bot-value' }), env);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(turnstileCalls, 0);
+  assert.equal(resendCalls, 0);
+});
+
+test('an invalid Turnstile token cannot consume the KV submission budget', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+  turnstileVerifyHandler = async () =>
+    new Response(
+      JSON.stringify({ success: false, 'error-codes': ['invalid-input-response'] }),
+      { status: 200, headers: { 'content-type': 'application/json' } },
+    );
+
+  try {
+    // Six rejected verifications must not burn the p/hour KV budget.
+    for (let i = 0; i < 6; i += 1) {
+      const response = await worker.fetch(validPost(TEST_IP), env);
+      assert.equal(response.status, 400);
+    }
+
+    // A subsequent valid submission (mocked success) must still succeed.
+    resetTurnstileVerifyHandler();
+    const ok = await worker.fetch(validPost(TEST_IP), env);
+    assert.equal(ok.status, 200);
+    assert.equal(resendCalls, 1);
+  } finally {
+    resetTurnstileVerifyHandler();
+  }
+});
+
+test('distribution bundle contains the public sitekey but no worker secret reference', async (t) => {
+  const distDir = new URL('../dist/assets/', import.meta.url);
+  let files;
+  try {
+    files = fs.readdirSync(distDir).filter((file) => file.endsWith('.js'));
+  } catch {
+    // dist is gitignored; when absent the secret leak check is skipped.
+    t.skip('dist not built');
+    return;
+  }
+
+  assert.ok(files.length > 0, 'expected built bundle files');
+
+  const bundle = files
+    .map((file) => fs.readFileSync(new URL(file, distDir), 'utf8'))
+    .join('\n');
+
+  // The PUBLIC sitekey is expected in the client bundle.
+  assert.ok(bundle.includes('0x4AAAAAAExS4vnlmaeqF8pQ'), 'public sitekey must ship in bundle');
+
+  // The secret is read via env.TURNSTILE_SECRET_KEY at runtime, so the literal
+  // variable name must never appear in shipped client code.
+  assert.ok(!bundle.includes('TURNSTILE_SECRET_KEY'), 'server secret name must not ship to client');
 });
