@@ -1,5 +1,18 @@
 import type { ProjectCategory } from './projectCategories';
 
+/**
+ * Icon identifiers used by the flagship case study. Mapped to lucide-react
+ * components inside the presentation layer so the data stays UI-independent.
+ */
+export type CaseStudyIcon =
+  | 'Database'
+  | 'GitBranch'
+  | 'Users'
+  | 'FileCheck2'
+  | 'BookOpen'
+  | 'LayoutDashboard'
+  | 'Code2';
+
 export interface Project {
   id: string;
   category: ProjectCategory;
@@ -24,13 +37,168 @@ export interface Project {
   imagePath?: string;
   githubUrl?: string;
   liveUrl?: string;
+  /** Verified figures rendered as animated counters in the flagship case study. */
+  statsEn?: { value: number; label: string; icon?: CaseStudyIcon }[];
+  statsAr?: { value: number; label: string; icon?: CaseStudyIcon }[];
+  /** Grouped capability matrix (Learning / Platform / Engineering …). */
+  capabilitiesEn?: { title: string; icon?: CaseStudyIcon; items: string[] }[];
+  capabilitiesAr?: { title: string; icon?: CaseStudyIcon; items: string[] }[];
+  /** Evidence-oriented security engineering highlights. */
+  securityEn?: string[];
+  securityAr?: string[];
+  /** Closing impact statement. */
+  impactEn?: string;
+  impactAr?: string;
 }
 
 export const projectsData: Project[] = [
   {
-    id: "al-fath-education",
+    id: "quran-learning-platform",
     category: "web",
     isFlagship: true,
+    titleEn: "Quran Learning Platform",
+    titleAr: "منصة تعلّم القرآن الكريم",
+    subtitleEn: "Production-grade Quran memorization, revision & Tajweed learning — bilingual, multi-role, RTL-native.",
+    subtitleAr: "منصة تعليمية متكاملة للحفظ والمراجعة والتجويد، ثنائية اللغة، متعددة الأدوار، مصممة للعربية بالكامل.",
+    descEn: "A complete Quran academy operating online — memorization, revision, reading and Tajweed programs with lesson scheduling, homework and reports — across dedicated portals for students, parents, teachers and administrators.",
+    descAr: "أكاديمية قرآن كاملة تعمل عبر الإنترنت — برامج الحفظ والمراجعة والقراءة والتجويد مع جدولة الدروس والواجبات والتقارير — عبر بوابات مخصصة للطلاب وأولياء الأمور والمعلمين والإدارة.",
+    tech: ["Next.js App Router", "React", "TypeScript", "Prisma ORM", "PostgreSQL", "Clerk Auth", "Stripe", "Resend", "Zod", "next-intl", "Tailwind CSS", "Vitest", "Docker", "Vercel"],
+    metricsEn: "35 Database Models · 17 Migrations · 6 Roles · 67 Vitest Test Files",
+    metricsAr: "35 نموذجاً لقاعدة البيانات · 17 ترحيلاً · 6 أدوار · 67 ملف اختبار Vitest",
+    architectureEn: [
+      "Student · Teacher · Parent · Admin",
+      "Clerk Authentication",
+      "Role-Based Authorization",
+      "Core Services (Enrollment · Lessons · Progress)",
+      "PostgreSQL Database",
+      "Payments · Notifications · Reports",
+    ],
+    architectureAr: [
+      "الطالب · المعلم · ولي الأمر · الإدارة",
+      "مصادقة Clerk",
+      "التحقق من الصلاحيات حسب الدور",
+      "الخدمات الأساسية (التسجيل · الدروس · التقدم)",
+      "قاعدة بيانات PostgreSQL",
+      "الدفع · الإشعارات · التقارير",
+    ],
+    problemEn: "Quran programs — memorization, revision and Tajweed — carry deep domain rules: page, surah and juz boundaries, mistake types, per-lesson sessions and multi-role workflows that generic education tools do not model natively.",
+    problemAr: "برامج القرآن الكريم — الحفظ والمراجعة والتجويد — تحمل قواعد مجال دقيقة مثل حدود الصفحات والسور والجزء، أنواع الأخطاء، جلسات الدروس، ومسارات العمل متعددة الأدوار التي لا توفرها أدوات التعليم العامة.",
+    solutionEn: "Engineered a domain-native data model (35 Prisma models across 17 migrations) with role-based portals, a fully Arabic-RTL bilingual interface, subscription and enrollment workflows, and a hardened API layer.",
+    solutionAr: "تم بناء نموذج بيانات متخصص (35 نموذجاً عبر 17 ترحيلاً) مع بوابات تحكم حسب الأدوار، واجهة ثنائية اللغة داعمة للعربية RTL بالكامل، مسارات اشتراك وتسجيل، وطبقة حماية صارمة للواجهات.",
+    featuresEn: [
+      "Role-based portals for students, parents, teachers and administrators",
+      "Bilingual interface: full Arabic (RTL) and English",
+      "Memorization, revision, Tajweed and Ijazah program workflows",
+      "Subscription plans with admin-reviewed enrollment and activation codes",
+      "Lesson scheduling, attendance, homework and lesson reports",
+      "Notifications, in-app messaging and parent progress reports",
+    ],
+    featuresAr: [
+      "بوابات مخصصة للطلاب وأولياء الأمور والمعلمين والإدارة",
+      "واجهة ثنائية اللغة: عربية كاملة (RTL) وإنجليزية",
+      "مسارات عمل للحفظ والمراجعة والتجويد والإجازة",
+      "خطط اشتراك مع تسجيل يُراجع إدارياً ورموز تفعيل",
+      "جدولة الدروس والحضور والواجبات وتقارير الدروس",
+      "إشعارات ورسائل داخلية وتقارير تقدم لأولياء الأمور",
+    ],
+    statsEn: [
+      { value: 35, label: "Database Models", icon: "Database" },
+      { value: 17, label: "Schema Migrations", icon: "GitBranch" },
+      { value: 6, label: "Roles & Portals", icon: "Users" },
+      { value: 67, label: "Vitest Test Files", icon: "FileCheck2" },
+    ],
+    statsAr: [
+      { value: 35, label: "نموذج قاعدة بيانات", icon: "Database" },
+      { value: 17, label: "ترحيلات المخطط", icon: "GitBranch" },
+      { value: 6, label: "أدوار ولوحات تحكم", icon: "Users" },
+      { value: 67, label: "ملفات اختبار Vitest", icon: "FileCheck2" },
+    ],
+    capabilitiesEn: [
+      {
+        title: "Learning",
+        icon: "BookOpen",
+        items: [
+          "Memorization, revision, reading & Tajweed programs",
+          "Page → ayah → surah → juz progress tracking",
+          "Mistake logging (Tajweed, pronunciation, memory)",
+          "Ijazah tracks & auto-generated completion certificates",
+        ],
+      },
+      {
+        title: "Platform",
+        icon: "LayoutDashboard",
+        items: [
+          "Dedicated admin, teacher, student & parent portals",
+          "Clerk authentication with webhook-synced users",
+          "Subscriptions, plans, enrollment & activation codes",
+          "Lessons, attendance, homework, reports & notifications",
+        ],
+      },
+      {
+        title: "Engineering",
+        icon: "Code2",
+        items: [
+          "35-model Prisma + PostgreSQL schema, 17 migrations",
+          "Server actions + REST APIs with rate limiting",
+          "Server-side validation (Zod) & sanitized content",
+          "Full Arabic RTL + English localization",
+        ],
+      },
+    ],
+    capabilitiesAr: [
+      {
+        title: "التعلم",
+        icon: "BookOpen",
+        items: [
+          "برامج الحفظ والمراجعة والقراءة والتجويد",
+          "تتبع التقدم من الصفحة إلى الآية والسورة والجزء",
+          "تسجيل الأخطاء (تجويد، نطق، حفظ)",
+          "مسارات الإجازة وشهادات إتمام تُولَّد تلقائياً",
+        ],
+      },
+      {
+        title: "المنصة",
+        icon: "LayoutDashboard",
+        items: [
+          "بوابات مخصصة: إدارة، معلم، طالب، ولي أمر",
+          "مصادقة Clerk مع مزامنة المستخدمين عبر الـ Webhooks",
+          "اشتراكات وخطط وتسجيل برموز تفعيل",
+          "دروس وحضور وواجبات وتقارير وإشعارات",
+        ],
+      },
+      {
+        title: "الهندسة",
+        icon: "Code2",
+        items: [
+          "مخطط Prisma و PostgreSQL بـ 35 نموذجاً و17 ترحيلاً",
+          "Server Actions و REST APIs مع تقييد معدل الطلبات",
+          "تحقق من البيانات على الخادم (Zod) وتنقية المحتوى",
+          "دعم كامل للعربية RTL والإنجليزية",
+        ],
+      },
+    ],
+    securityEn: [
+      "Role-based access control on protected routes & server actions",
+      "Clerk authentication with secure session handling",
+      "Server-side Zod validation & sanitized HTML rendering",
+      "DB-backed rate limiting on API endpoints",
+      "Audit-logged admin & sensitive actions",
+      "Soft-delete tombstones for safe user/data removal",
+    ],
+    securityAr: [
+      "إدارة صلاحيات حسب الدور على المسارات والإجراءات المحمية",
+      "مصادقة Clerk مع إدارة جلسات آمنة",
+      "تحقق Zod من جانب الخادم وتنقية ناتج HTML",
+      "تقييد معدل الطلبات المدعوم بقاعدة البيانات للواجهات",
+      "تسجيل الإجراءات الحساسة في سجل التدقيق Audit Log",
+      "حذف ناعم (Soft Delete) للبيانات مع استبقاء الأثر",
+    ],
+    impactEn: "End-to-end engineering of a real academy's operational spine — enrollment, learning, payments and reporting — unified into one bilingual, multi-role, RTL-native system.",
+    impactAr: "هندسة شاملة للعمود الفقري التشغيلي لأكاديمية حقيقية — التسجيل والتعلم والدفع والتقارير — في نظام واحد ثنائي اللغة متعدد الأدوار يدعم العربية بالكامل.",
+  },
+  {
+    id: "al-fath-education",
+    category: "web",
     titleEn: "Al-Fath Education",
     titleAr: "منصة الفتح التعليمية",
     subtitleEn: "From website to scalable educational web application",

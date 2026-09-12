@@ -58,24 +58,15 @@ export interface TranslationContent {
   };
   caseStudy: {
     badge: string;
-    title: string;
-    subtitle: string;
-    summary: string;
-    architectureTitle: string;
-    verificationBadge: string;
     unitTests: string;
-    unitTestsDesc: string;
-    unitTestsMeta: string;
-    e2eTests: string;
-    e2eTestsDesc: string;
-    e2eTestsMeta: string;
     stackTitle: string;
-    keyFeaturesTitle: string;
-    keyFeatures: { title: string; desc: string }[];
-    architectureSteps: { title: string; desc: string; icon: string }[];
+    capabilitiesTitle: string;
+    architectureTitle: string;
     architectureSub: string;
-    verifiedPipeline: string;
-    layerConfirmed: string;
+    verifiedArchitecture: string;
+    securityTitle: string;
+    securitySub: string;
+    impactTitle: string;
   };
   projects: {
     badge: string;
@@ -256,7 +247,7 @@ export const translations: Record<Language, TranslationContent> = {
       metaLat: "SYS: ZERO-TRUST ENGINE · 30.0444° N",
       capabilities: ["Web Platforms", "Android Native", "AI Pipelines", "Zero-Trust Security"],
       verifiedBadge: "VERIFIED",
-      testsBadgeUnit: "TESTS",
+      testsBadgeUnit: "TEST FILES",
       testsBadgeSub: "Automated Protection",
       whatsappLabel: "WhatsApp",
       callLabel: "Call Direct",
@@ -313,49 +304,15 @@ export const translations: Record<Language, TranslationContent> = {
     },
     caseStudy: {
       badge: "FLAGSHIP CASE STUDY",
-      title: "Al-Fath Education",
-      subtitle: "From website to scalable educational web application.",
-      summary: "A comprehensive digital learning platform engineered with role-based authorization, seamless student management, real-time assessment modules, and hardened API pipelines.",
-      architectureTitle: "SYSTEM ARCHITECTURE FLOW",
-      verificationBadge: "VERIFIED TEST PROOF",
-      unitTests: "441 / 441",
-      unitTestsDesc: "Unit & Logic Tests Passed",
-      unitTestsMeta: "Vitest suite · business logic & domain constraints",
-      e2eTests: "104 / 104",
-      e2eTestsDesc: "End-to-End Tests Passed",
-      e2eTestsMeta: "Playwright · full browser journey automation",
-      stackTitle: "VERIFIED STACK ARCHITECTURE",
-      keyFeaturesTitle: "CORE ARCHITECTURAL HIGHLIGHTS",
-      keyFeatures: [
-        {
-          title: "Multi-Role Authorization",
-          desc: "Strict RBAC matrix separating admin, instructor, and student permissions across all endpoints."
-        },
-        {
-          title: "Edge API & Database Integration",
-          desc: "High-concurrency database queries combined with Cloudflare Workers for ultra-low latency."
-        },
-        {
-          title: "Hardened Auth & Sessions",
-          desc: "Clerk-based authentication integrated with server-side validation and protected route guards."
-        },
-        {
-          title: "Comprehensive Test Automation",
-          desc: "Vitest logic suites and Playwright E2E browser flows enforcing regression protection."
-        }
-      ],
-      architectureSteps: [
-        { title: "React Frontend", desc: "Type-safe UI with responsive layout", icon: "Layout" },
-        { title: "API Gateway", desc: "RESTful endpoints & route validation", icon: "Server" },
-        { title: "Authentication", desc: "Identity verification & session tokens", icon: "Key" },
-        { title: "Authorization", desc: "Role-based access matrix (RBAC)", icon: "ShieldCheck" },
-        { title: "Database Layer", desc: "PostgreSQL relational data store", icon: "Database" },
-        { title: "Cloudflare Edge", desc: "Global CDN & Worker distribution", icon: "Globe" },
-        { title: "Production Build", desc: "Automated CI/CD deployment pipeline", icon: "Rocket" }
-      ],
-      architectureSub: "Interactive request pipeline & cloud edge deployment flow",
-      verifiedPipeline: "VERIFIED PIPELINE",
-      layerConfirmed: "Layer Confirmed"
+      unitTests: "67",
+      stackTitle: "TECHNOLOGY STACK",
+      capabilitiesTitle: "CAPABILITY MATRIX",
+      architectureTitle: "SYSTEM ARCHITECTURE",
+      architectureSub: "How the platform composes roles, services, and data into a single system",
+      verifiedArchitecture: "VERIFIED ARCHITECTURE",
+      securityTitle: "SECURITY ENGINEERING",
+      securitySub: "Defense built into the architecture, not bolted on",
+      impactTitle: "WHAT WAS ENGINEERED",
     },
     projects: {
       badge: "PRODUCT PORTFOLIO",
@@ -594,7 +551,7 @@ export const translations: Record<Language, TranslationContent> = {
       metaLat: "محرك الأمان: ZERO-TRUST · الإحداثيات: 30.0444° N",
       capabilities: ["منصات الويب", "تطبيقات أندرويد", "أنظمة الذكاء الاصطناعي", "أمان Zero-Trust"],
       verifiedBadge: "تم التحقق",
-      testsBadgeUnit: "اختبارات",
+      testsBadgeUnit: "ملفات اختبار",
       testsBadgeSub: "حماية آلية",
       whatsappLabel: "واتساب",
       callLabel: "اتصال فوري",
@@ -651,49 +608,15 @@ export const translations: Record<Language, TranslationContent> = {
     },
     caseStudy: {
       badge: "المشروع الرئيسي",
-      title: "منصة الفتح التعليمية",
-      subtitle: "تحويل الموقع إلى تطبيق ويب تعليمي متكامل وقابل للتوسع.",
-      summary: "منصة تعليمية رقمية شامِلة تم تصميمها بنظام صلاحيات أدوار، إدارة طلاب سلسة، وحدات تقييم فورية، وواجهات برمجة تطبيقات محمية.",
-      architectureTitle: "مخطط بنية النظام البرمجي",
-      verificationBadge: "نتائج الاختبارات المعتمدة",
-      unitTests: "441 / 441",
-      unitTestsDesc: "اختبارات المنطق والوحدات (Passed)",
-      unitTestsMeta: "مجموعات Vitest · منطق الأعمال وقيود النطاق",
-      e2eTests: "104 / 104",
-      e2eTestsDesc: "اختبارات الاستخدام الشاملة (Passed)",
-      e2eTestsMeta: "Playwright · أتمتة رحلات المتصفح الكاملة",
-      stackTitle: "تقنيات البنية المعمارية المعتمدة",
-      keyFeaturesTitle: "أبرز مميزات البنية المعمارية",
-      keyFeatures: [
-        {
-          title: "إدارة الصلاحيات المتعددة (RBAC)",
-          desc: "جدول صلاحيات صارم يفصل بين المسؤولين، المعلمين، والطلاب في جميع واجهات الـAPI."
-        },
-        {
-          title: "التكامل السريع مع قاعدة البيانات",
-          desc: "استعلامات قاعدة بيانات عالية الأداء مدمجة مع Cloudflare Workers لضمان أدنى زمن استجابة."
-        },
-        {
-          title: "أمان تسجيل الدخول والجلسات",
-          desc: "مصادقة عبر Clerk مدمجة مع التحقق من جانب الخادم وحماية المسارات الحساسة."
-        },
-        {
-          title: "أتمتة الاختبارات الشاملة",
-          desc: "مجموعات اختبارات Vitest ومسارات متصفح Playwright للحماية من أي تراجع برمجي."
-        }
-      ],
-      architectureSteps: [
-        { title: "واجهة React", desc: "واجهة مستخدم آمنة ومتحققة الأنواع responsive", icon: "Layout" },
-        { title: "بوابة الـ API", desc: "نقاط اتصال RESTful مع التحقق من المسارات", icon: "Server" },
-        { title: "نظام المصادقة", desc: "التحقق من الهوية وجلسات المشتركين", icon: "Key" },
-        { title: "نظام الصلاحيات", desc: "جدول إدارة الصلاحيات حسب الدور (RBAC)", icon: "ShieldCheck" },
-        { title: "قاعدة البيانات", desc: "مخزن بيانات علاقي PostgreSQL", icon: "Database" },
-        { title: "شبكة Cloudflare", desc: "توزيع عالمي للـ CDN ومعالجة edge", icon: "Globe" },
-        { title: "بيئة الإنتاج", desc: "مسار نشر آلي CI/CD للتشغيل الفعلي", icon: "Rocket" }
-      ],
-      architectureSub: "مسار الطلبات التفاعلي وتدفق النشر على شبكة الحافة السحابية",
-      verifiedPipeline: "مسار تحقق مؤكد",
-      layerConfirmed: "تم تأكيد الطبقة"
+      unitTests: "67",
+      stackTitle: "التقنيات المستخدمة",
+      capabilitiesTitle: "مصفوفة الإمكانات",
+      architectureTitle: "بنية النظام",
+      architectureSub: "كيف يدمج النظام الأدوار والخدمات وقاعدة البيانات في منظومة واحدة",
+      verifiedArchitecture: "بنية مؤكدة",
+      securityTitle: "هندسة الأمان",
+      securitySub: "حماية مبنية داخل البنية المعمارية، وليست إضافات لاحقة",
+      impactTitle: "ما تم إنجازه هندسياً",
     },
     projects: {
       badge: "معرض المنتجات",

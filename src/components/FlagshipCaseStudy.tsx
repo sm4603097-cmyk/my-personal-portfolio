@@ -1,15 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  ShieldCheck,
+  CheckCircle2,
+  ArrowRight,
+  Database,
+  GitBranch,
+  Users,
+  FileCheck2,
+  BookOpen,
+  LayoutDashboard,
+  Code2,
+} from 'lucide-react';
 
+import { projectsData, type CaseStudyIcon } from '../data/portfolioData';
 import { SECTION_REVEAL, CARD_STAGGER as STAGGER_ITEMS, SLIDE_UP as CHILD_REVEAL, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { AnimatedCounter, SectionHeader } from '../motion';
+import { AnimatedCounter, SectionHeader, useIsRtl } from '../motion';
+
+const ICON_MAP: Record<CaseStudyIcon, LucideIcon> = {
+  Database,
+  GitBranch,
+  Users,
+  FileCheck2,
+  BookOpen,
+  LayoutDashboard,
+  Code2,
+};
 
 export const FlagshipCaseStudy: React.FC = () => {
   const { t } = useLanguage();
+  const isRtl = useIsRtl();
   const reducedMotion = useReducedMotion();
-  const [activeStep, setActiveStep] = useState(0);
+
+  const flagship = projectsData.find((p) => p.isFlagship);
+  if (!flagship) return null;
+
+  const stats = (isRtl ? flagship.statsAr : flagship.statsEn) ?? [];
+  const capabilities = (isRtl ? flagship.capabilitiesAr : flagship.capabilitiesEn) ?? [];
+  const security = (isRtl ? flagship.securityAr : flagship.securityEn) ?? [];
+  const architecture = (isRtl ? flagship.architectureAr : flagship.architectureEn) ?? [];
+  const impact = isRtl ? flagship.impactAr : flagship.impactEn;
 
   const reveal = reducedMotion ? NO_MOTION_CONTAINER : SECTION_REVEAL;
   const container = reducedMotion ? NO_MOTION_CONTAINER : STAGGER_ITEMS;
@@ -33,67 +65,94 @@ export const FlagshipCaseStudy: React.FC = () => {
         {/* Section Header */}
         <SectionHeader
           eyebrow={t.caseStudy.badge}
-          title={t.caseStudy.title}
-          subtitle={t.caseStudy.subtitle}
-          description={t.caseStudy.summary}
+          title={isRtl ? flagship.titleAr : flagship.titleEn}
+          subtitle={isRtl ? flagship.subtitleAr : flagship.subtitleEn}
+          description={isRtl ? flagship.descAr : flagship.descEn}
           live
           className="mb-12"
         />
 
-        {/* Automated Test Verification Results Cards */}
+        {/* Verified Platform Stats */}
         <motion.div
           variants={container}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, amount: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-12"
         >
-          {/* Unit Test Card */}
-          <motion.div
-            variants={child}
-            className="rounded-2xl bg-[var(--bg-card)] border border-emerald-500/30 p-6 sm:p-7 flex items-center gap-5 sm:gap-6 relative overflow-hidden group shadow-lg"
-            id="test-unit-card"
-          >
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-500 shrink-0">
-              <CheckCircle2 className="w-7 h-7 sm:w-8 sm:h-8" />
-            </div>
-            <div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-emerald-500 font-mono leading-none">
-                <AnimatedCounter value={t.caseStudy.unitTests} />
-              </div>
-              <div className="text-sm font-semibold text-[var(--text-heading)] mt-1.5">
-                {t.caseStudy.unitTestsDesc}
-              </div>
-              <div className="text-[11px] text-[var(--text-muted)] font-mono mt-0.5">
-                {t.caseStudy.unitTestsMeta}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* E2E Card */}
-          <motion.div
-            variants={child}
-            className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-accent)] p-6 sm:p-7 flex items-center gap-5 sm:gap-6 relative overflow-hidden group shadow-lg"
-            id="test-e2e-card"
-          >
-            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-[var(--accent-cyan-dim)] border border-[var(--border-accent)] flex items-center justify-center text-[var(--accent-cyan)] shrink-0">
-              <ShieldCheck className="w-7 h-7 sm:w-8 sm:h-8" />
-            </div>
-            <div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-[var(--accent-cyan)] font-mono leading-none">
-                <AnimatedCounter value={t.caseStudy.e2eTests} />
-              </div>
-              <div className="text-sm font-semibold text-[var(--text-heading)] mt-1.5">
-                {t.caseStudy.e2eTestsDesc}
-              </div>
-              <div className="text-[11px] text-[var(--text-muted)] font-mono mt-0.5">
-                {t.caseStudy.e2eTestsMeta}
-              </div>
-            </div>
-          </motion.div>
+          {stats.map((stat, idx) => {
+            const Icon = stat.icon ? ICON_MAP[stat.icon] : CheckCircle2;
+            const isEmphasis = idx % 2 === 0;
+            return (
+              <motion.div
+                key={idx}
+                variants={child}
+                className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] p-5 sm:p-6 relative overflow-hidden shadow-lg"
+              >
+                <div
+                  className={`w-11 h-11 rounded-xl border flex items-center justify-center mb-4 ${
+                    isEmphasis
+                      ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-500'
+                      : 'bg-[var(--accent-cyan-dim)] border-[var(--border-accent)] text-[var(--accent-cyan)]'
+                  }`}
+                >
+                  <Icon className="w-6 h-6" />
+                </div>
+                <div
+                  className={`text-3xl sm:text-4xl font-display font-black font-mono leading-none ${
+                    isEmphasis ? 'text-emerald-500' : 'text-[var(--accent-cyan)]'
+                  }`}
+                >
+                  <AnimatedCounter value={stat.value} />
+                </div>
+                <div className="text-xs font-semibold text-[var(--text-heading)] mt-2">
+                  {stat.label}
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
 
-        {/* Interactive Architecture Flow Chain */}
+        {/* Capability Matrix */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.15 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-12"
+        >
+          {capabilities.map((cap, idx) => {
+            const Icon = cap.icon ? ICON_MAP[cap.icon] : CheckCircle2;
+            return (
+              <motion.div
+                key={idx}
+                variants={child}
+                className="editorial-card p-6 rounded-xl flex flex-col"
+              >
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-[var(--border-subtle)]">
+                  <div className="w-9 h-9 rounded-lg bg-[var(--accent-cyan-dim)] border border-[var(--border-accent)] flex items-center justify-center text-[var(--accent-cyan)] shrink-0">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h4 className="text-sm font-bold font-display uppercase tracking-wide text-[var(--text-heading)]">
+                    {cap.title}
+                  </h4>
+                </div>
+                <ul className="space-y-2.5 mt-auto">
+                  {cap.items.map((item, itemIdx) => (
+                    <li key={itemIdx} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-[var(--accent-cyan)] mt-0.5 shrink-0" />
+                      <span className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                        {item}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Architecture Flow Chain */}
         <motion.div
           variants={reveal}
           initial="hidden"
@@ -112,65 +171,67 @@ export const FlagshipCaseStudy: React.FC = () => {
             </div>
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-surface-2)] border border-[var(--border-strong)] text-[var(--accent-cyan)] text-xs font-mono w-fit">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{t.caseStudy.verifiedPipeline}</span>
+              <span>{t.caseStudy.verifiedArchitecture}</span>
             </div>
           </div>
 
-          {/* Flow Steps Selector */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 mb-6">
-            {t.caseStudy.architectureSteps.map((step, idx) => {
-              const isSelected = activeStep === idx;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setActiveStep(idx)}
-                  className={`p-3 sm:p-4 rounded-xl text-left rtl:text-right transition-all duration-200 cursor-pointer border flex flex-col justify-between min-h-[110px] ${
-                    isSelected
-                      ? 'bg-[var(--accent-cyan-dim)] border-[var(--accent-cyan)] text-[var(--accent-cyan)] shadow-md'
-                      : 'bg-[var(--bg-surface-2)] border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-secondary)]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-[10px] font-mono font-bold tracking-wider">
-                      0{idx + 1}
-                    </span>
-                    <div className={`w-2 h-2 rounded-full ${isSelected ? 'bg-[var(--accent-cyan)]' : 'bg-slate-400 dark:bg-slate-700'}`} />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold font-display leading-tight text-[var(--text-heading)]">
-                      {step.title}
-                    </div>
-                    <div className="text-[10px] text-[var(--text-muted)] font-mono mt-1 line-clamp-2">
-                      {step.desc}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Active Step Detailed Inspector */}
-          <div className="p-4 sm:p-5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-lg bg-[var(--accent-cyan-dim)] border border-[var(--border-accent)] flex items-center justify-center text-[var(--accent-cyan)] shrink-0 font-mono font-bold text-sm">
-                0{activeStep + 1}
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-[var(--text-heading)] font-display">
-                  {t.caseStudy.architectureSteps[activeStep].title}
-                </h4>
-                <p className="text-xs text-[var(--text-secondary)] font-mono mt-0.5">
-                  {t.caseStudy.architectureSteps[activeStep].desc}
-                </p>
-              </div>
-            </div>
-            <div className="text-[11px] font-mono text-[var(--accent-cyan)] px-3 py-1 rounded-md bg-[var(--bg-card)] border border-[var(--border-subtle)] shrink-0 font-semibold">
-              {t.caseStudy.layerConfirmed}
-            </div>
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+            {architecture.map((step, idx) => (
+              <React.Fragment key={idx}>
+                <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] hover:border-[var(--accent-cyan)] transition-colors">
+                  <span className="text-[10px] font-mono font-bold tracking-wider text-[var(--accent-cyan)]">
+                    0{idx + 1}
+                  </span>
+                  <span className="text-xs font-semibold text-[var(--text-secondary)] font-mono">
+                    {step}
+                  </span>
+                </div>
+                {idx < architecture.length - 1 && (
+                  <ArrowRight className="w-4 h-4 text-[var(--accent-cyan)] opacity-60 shrink-0 rtl:rotate-180" />
+                )}
+              </React.Fragment>
+            ))}
           </div>
         </motion.div>
 
-        {/* Key Features & Tech Stack */}
+        {/* Security Engineering */}
+        <motion.div
+          variants={reveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.15 }}
+          className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] p-5 sm:p-8 mb-12 shadow-xl"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-[var(--border-subtle)]">
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold text-[var(--text-heading)] font-display uppercase tracking-wide">
+                {t.caseStudy.securityTitle}
+              </h3>
+              <p className="text-xs text-[var(--text-muted)] font-mono mt-0.5">
+                {t.caseStudy.securitySub}
+              </p>
+            </div>
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-500 shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {security.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)]"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
+                <span className="text-xs text-[var(--text-secondary)] font-mono leading-relaxed">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Impact & Tech Stack */}
         <motion.div
           variants={container}
           initial="hidden"
@@ -178,35 +239,23 @@ export const FlagshipCaseStudy: React.FC = () => {
           viewport={{ once: false, amount: 0.15 }}
           className="grid grid-cols-1 lg:grid-cols-12 gap-8"
         >
-          <motion.div variants={child} className="lg:col-span-8 space-y-4">
-            <h3 className="text-lg sm:text-xl font-bold text-[var(--text-heading)] font-display uppercase tracking-wide">
-              {t.caseStudy.keyFeaturesTitle}
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {t.caseStudy.keyFeatures.map((feat, idx) => (
-                <div key={idx} className="editorial-card p-5 rounded-xl group">
-                  <div className="text-sm font-bold text-[var(--accent-cyan)] font-display mb-2 flex items-center gap-2">
-                    <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
-                    {feat.title}
-                  </div>
-                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                    {feat.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          {impact && (
+            <motion.div variants={child} className="lg:col-span-8 editorial-card p-6 sm:p-7 rounded-xl">
+              <h3 className="text-xs font-bold text-[var(--text-heading)] font-mono uppercase tracking-[0.16em] mb-3 pb-3 border-b border-[var(--border-subtle)]">
+                {t.caseStudy.impactTitle}
+              </h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                {impact}
+              </p>
+            </motion.div>
+          )}
 
-          {/* Verified Tech Stack List */}
           <motion.div variants={child} className="lg:col-span-4 editorial-card p-6 rounded-xl">
             <h3 className="text-xs font-bold text-[var(--text-heading)] font-mono uppercase tracking-[0.16em] mb-4 pb-3 border-b border-[var(--border-subtle)]">
               {t.caseStudy.stackTitle}
             </h3>
             <div className="flex flex-wrap gap-2">
-              {[
-                "React", "TypeScript", "Vite", "Tailwind CSS", "Clerk Auth",
-                "PostgreSQL", "Vitest", "Playwright", "Cloudflare Workers", "REST APIs"
-              ].map((techName, idx) => (
+              {flagship.tech.map((techName, idx) => (
                 <span
                   key={idx}
                   className="px-2.5 py-1 rounded-lg bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-colors"
