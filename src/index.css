@@ -304,6 +304,21 @@ html.rtl-active footer {
 }
 
 /* ============================================================
+   THEME SWITCH TRANSITION SUPPRESSION
+   Themed by a `.theme-switching` class added to <html> for a single
+   frame while the active theme class swaps. Without suppression, every
+   transitioned element (transition-all, transition-colors, cards)
+   animates its colors in parallel, keeping the page in a long
+   style-recalc storm that makes Dark/Light toggling feel slow.
+   ============================================================ */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}
+
+/* ============================================================
    ANIMATIONS & REDUCED MOTION
    ============================================================ */
 @keyframes pulse-subtle {
