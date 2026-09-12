@@ -21,6 +21,8 @@ const TURNSTILE_SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0
 const TURNSTILE_TOKEN_MAX = 2048;
 const TURNSTILE_TIMEOUT_MS = 5000;
 
+const RESEND_TIMEOUT_MS = 10000;
+
 const SECURITY_HEADERS: Record<string, string> = {
   'content-security-policy':
     "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests",
@@ -44,6 +46,7 @@ interface AssetsBinding {
 
 interface Env {
   RESEND_API_KEY?: string;
+  RESEND_TIMEOUT_MS?: number;
   RESEND_FROM?: string;
   TURNSTILE_SECRET_KEY?: string;
   CONTACT_RATE_LIMIT_KV?: KvStore;
@@ -557,6 +560,7 @@ async function handleContact(
         subject: SUBJECT,
         text,
       }),
+      signal: AbortSignal.timeout(env.RESEND_TIMEOUT_MS ?? RESEND_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -585,7 +589,7 @@ async function handleContact(
         method,
         status: 502,
         durationMs: duration(),
-        category: 'network_error',
+        category: name === 'TimeoutError' ? 'timeout' : 'network_error',
         errorName: name,
       },
       'error',
