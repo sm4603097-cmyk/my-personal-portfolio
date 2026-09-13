@@ -96,7 +96,6 @@ export interface TranslationContent {
     badge: string;
     title: string;
     subtitle: string;
-    module: string;
     matrixBadge: string;
     skillsCountLabel: string;
     categories: {
@@ -239,7 +238,7 @@ export const translations: Record<Language, TranslationContent> = {
       home: "Home",
     },
     hero: {
-      systemStatus: "ENGINEERING PRODUCT PLATFORM · ACTIVE",
+      systemStatus: "PRODUCT ENGINEERING · OPEN FOR WORK",
       nameFirstName: "ALHASSAN",
       nameLastName: "MOHAMED",
       headline: "I BUILD COMPLETE DIGITAL PRODUCTS.",
@@ -250,7 +249,7 @@ export const translations: Record<Language, TranslationContent> = {
       scrollHint: "SCROLL TO EXPLORE ARCHITECTURE",
       portraitLabel: "ALHASSAN MOHAMED",
       portraitSub: "The Engineer Behind The Systems",
-      metaLat: "SYS: ZERO-TRUST ENGINE · 30.0444° N",
+      metaLat: "ZERO-TRUST SECURITY · 30.0444° N",
       capabilities: ["Web Platforms", "Android Native", "AI Pipelines", "Zero-Trust Security"],
       verifiedBadge: "VERIFIED",
       testsBadgeUnit: "TEST FILES",
@@ -302,23 +301,23 @@ export const translations: Record<Language, TranslationContent> = {
           highlight: "Protected Endpoint Logic"
         }
       ],
-      verifiedStack: "VERIFIED STACK",
+      verifiedStack: "KEY TECHNOLOGIES",
       proofBadge: "ARCHITECTURAL PROOF & CODE DISCIPLINE",
       quote: "Experience is demonstrated by output — not claims.",
       detailDesc: "Every project I deliver includes strict database migrations, schema boundary validations, server-side authorization guards, and regression testing.",
       highlights: ["30+ Shipped Apps", "Zero-Trust Validation", "500+ Passed Tests"]
     },
     caseStudy: {
-      badge: "FLAGSHIP CASE STUDY",
+      badge: "FEATURED PROJECT",
       unitTests: "67",
       stackTitle: "TECHNOLOGY STACK",
-      capabilitiesTitle: "CAPABILITY MATRIX",
+      capabilitiesTitle: "FEATURES & CAPABILITIES",
       architectureTitle: "SYSTEM ARCHITECTURE",
       architectureSub: "How the platform composes roles, services, and data into a single system",
       verifiedArchitecture: "VERIFIED ARCHITECTURE",
       securityTitle: "SECURITY ENGINEERING",
       securitySub: "Defense built into the architecture, not bolted on",
-      impactTitle: "WHAT WAS ENGINEERED",
+      impactTitle: "WHAT WAS BUILT",
     },
     projects: {
       badge: "PRODUCT PORTFOLIO",
@@ -336,19 +335,18 @@ export const translations: Record<Language, TranslationContent> = {
       emptySubtitle: "Switch to another category to explore the portfolio.",
       modalOverview: "OVERVIEW",
       modalChallenge: "THE CHALLENGE",
-      modalSolution: "THE ARCHITECTURAL SOLUTION",
-      modalPipeline: "SYSTEM PIPELINE STEPS",
+      modalSolution: "THE SOLUTION",
+      modalPipeline: "HOW IT WORKS",
       modalHighlights: "ENGINEERING HIGHLIGHTS",
       modalStack: "TECHNOLOGY STACK",
       liveDemo: "View Live",
       sourceCode: "Source Code"
     },
     engineering: {
-      badge: "ENGINEERING MATRIX",
-      title: "TECHNICAL BREADTH & DEPTH",
+      badge: "TECHNICAL SKILLS",
+      title: "SKILLS & TOOLS",
       subtitle: "A structured view of tools, technologies, databases, and infrastructure utilized across production environments.",
-      module: "MODULE",
-      matrixBadge: "PRODUCTION MATRIX",
+      matrixBadge: "USED IN PRODUCTION",
       skillsCountLabel: "{count} core engineering competencies",
       categories: [
         {
@@ -437,10 +435,10 @@ export const translations: Record<Language, TranslationContent> = {
       principleTitle: "Zero-Trust Architecture Standard",
       principleDesc: "Every inbound HTTP request is treated as untrusted. Frontends only capture user intent; the server enforces identity, roles, validation schemas, and transactional boundary rules.",
       principles: ["Server-Side Enforcement", "Zero Client Trust", "RBAC Matrix", "Schema Validation"],
-      simulateLabel: "SIMULATE REQUEST LIFECYCLE",
+      simulateLabel: "RUN THE DEMO",
       simulatingLabel: "SIMULATING FLOW...",
       auditBadge: "ZERO-TRUST AUDIT",
-      flowTitle: "REQUEST LIFECYCLE PIPELINE",
+      flowTitle: "HOW REQUESTS ARE PROTECTED",
       flowSubtitle: "Interactive simulation of a secure request passing through server-side verification layers.",
       progressLabel: "Request progress",
       flowSteps: [
@@ -458,8 +456,8 @@ export const translations: Record<Language, TranslationContent> = {
       title: "HOW I BUILD DIGITAL PRODUCTS",
       subtitle: "A systematic 7-phase engineering process designed for reliability, speed, and long-term codebase health.",
       phase: "PHASE",
-      verifiedMilestone: "VERIFIED MILESTONE",
-      deliverableLabel: "EXPECTED PHASE DELIVERABLE",
+      verifiedMilestone: "CHECKPOINT",
+      deliverableLabel: "WHAT YOU GET",
       steps: [
         { num: "01", title: "Understand", desc: "Dissect business objectives, user requirements, technical constraints, and system specifications.", deliverable: "Technical Scope & Requirements" },
         { num: "02", title: "Architect", desc: "Design data models, API endpoint structures, security policies, and frontend state topology.", deliverable: "System Diagram & Schema Design" },
@@ -477,7 +475,7 @@ export const translations: Record<Language, TranslationContent> = {
       quote1: "The project is delivered.",
       quote2: "The relationship isn't.",
       guaranteeDesc: "When a project is launched, I stand firmly behind the code delivered. Any issues related to agreed project scope are handled responsibly according to contract terms.",
-      platformsTitle: "VERIFIED FREELANCE & ENGINEERING CREDENTIALS",
+      platformsTitle: "VERIFIED PROFILES",
       platforms: [
         { name: "Upwork", role: "Full-Stack & Android Developer", badge: "Verified Top Platform", link: "" },
         { name: "Khamsat", role: "Software Engineering Services", badge: "Verified Marketplace Provider", link: "" },
@@ -494,7 +492,7 @@ export const translations: Record<Language, TranslationContent> = {
       badge: "START A CONVERSATION",
       title: "LET'S BUILD SOMETHING THAT EARNS ITS PLACE.",
       subtitle: "Direct access to WhatsApp, phone calls, Telegram, and social channels.",
-      scoperTitle: "LIGHTWEIGHT PROJECT SCOPER",
+      scoperTitle: "QUICK PROJECT BRIEF",
       step1Title: "1. What are you building?",
       step2Title: "2. Estimated Timeline?",
       step3Title: "3. Direct Contact Details",
@@ -509,7 +507,7 @@ export const translations: Record<Language, TranslationContent> = {
       phonePlaceholder: "Example: +20 1XX XXX XXXX",
       messageLabel: "Project Brief / Details",
       socialTitle: "CONNECT ACROSS PLATFORMS",
-      inquiryTitle: "INQUIRY GENERATED",
+      inquiryTitle: "REQUEST READY",
       inquiryDesc: "Click below to instantly launch your preferred chat or direct line.",
       ctaWhatsapp: "WhatsApp",
       ctaTelegram: "Telegram",
@@ -548,7 +546,7 @@ export const translations: Record<Language, TranslationContent> = {
       home: "الرئيسية",
     },
     hero: {
-      systemStatus: "منصة تطوير المنتجات البرمجية · نشطة",
+      systemStatus: "هندسة المنتجات · متاح للعمل",
       nameFirstName: "الحسن",
       nameLastName: "محمد",
       headline: "أنا أبني منتجات رقمية متكاملة.",
@@ -559,7 +557,7 @@ export const translations: Record<Language, TranslationContent> = {
       scrollHint: "مرر لاستكشاف بنية الأنظمة",
       portraitLabel: "الحسن محمد",
       portraitSub: "المهندس خلف الأنظمة",
-      metaLat: "محرك الأمان: \u2066ZERO-TRUST\u2069 · الإحداثيات: \u206630.0444° N\u2069",
+      metaLat: "أمان \u2066ZERO-TRUST\u2069 · الإحداثيات: \u206630.0444° N\u2069",
       capabilities: ["منصات الويب", "تطبيقات أندرويد", "أنظمة الذكاء الاصطناعي", "أمان Zero-Trust"],
       verifiedBadge: "تم التحقق",
       testsBadgeUnit: "ملف اختبار",
@@ -611,23 +609,23 @@ export const translations: Record<Language, TranslationContent> = {
           highlight: "حماية كاملة لنقاط الاتصال"
         }
       ],
-      verifiedStack: "التقنيات المعتمدة",
+      verifiedStack: "التقنيات الأساسية",
       proofBadge: "دليل معماري وانضباط في الكود",
       quote: "الخبرة تُبدى بالمخرجات، لا بالادعاءات.",
       detailDesc: "كل مشروع أسلّمه يتضمن ترحيلاً صارماً لقواعد البيانات، تحققاً من حدود المخططات، طبقات حماية على الخادم، واختبارات تراجع كاملة.",
       highlights: ["أكثر من 30 تطبيقاً تم إطلاقها", "تحقق وفق أسلوب Zero-Trust", "أكثر من 500 اختبار ناجح"]
     },
     caseStudy: {
-      badge: "المشروع الرئيسي",
+      badge: "مشروع مميز",
       unitTests: "67",
       stackTitle: "التقنيات المستخدمة",
-      capabilitiesTitle: "مصفوفة الإمكانات",
+      capabilitiesTitle: "الإمكانات والقدرات",
       architectureTitle: "بنية النظام",
       architectureSub: "كيف يدمج النظام الأدوار والخدمات وقاعدة البيانات في منظومة واحدة",
       verifiedArchitecture: "بنية مؤكدة",
       securityTitle: "هندسة الأمان",
       securitySub: "حماية مبنية داخل البنية المعمارية، وليست إضافات لاحقة",
-      impactTitle: "ما تم إنجازه هندسياً",
+      impactTitle: "ما تم إنجازه",
     },
     projects: {
       badge: "معرض المنتجات",
@@ -645,19 +643,18 @@ export const translations: Record<Language, TranslationContent> = {
       emptySubtitle: "اختر تصنيفاً آخر لاستكشاف المعرض.",
       modalOverview: "نظرة عامة",
       modalChallenge: "التحدي",
-      modalSolution: "الحل المعماري",
-      modalPipeline: "خطوات مسار النظام",
+      modalSolution: "الحل",
+      modalPipeline: "كيف يعمل النظام",
       modalHighlights: "أبرز النقاط الهندسية",
       modalStack: "التقنيات المستخدمة",
       liveDemo: "معاينة مباشرة",
       sourceCode: "الكود المصدري"
     },
     engineering: {
-      badge: "المصفوفة التقنية",
-      title: "العمق والشمول التقني",
+      badge: "المهارات التقنية",
+      title: "المهارات والأدوات",
       subtitle: "عرض منظم للأدوات، التقنيات، قواعد البيانات، والبنية التحتية المستخدمة في بيئات الإنتاج الحقيقية.",
-      module: "الوحدة",
-      matrixBadge: "مصفوفة الإنتاج",
+      matrixBadge: "مستخدمة في الإنتاج",
       skillsCountLabel: "إجمالي الكفاءات الهندسية: {count}",
       categories: [
         {
@@ -746,10 +743,10 @@ export const translations: Record<Language, TranslationContent> = {
       principleTitle: "معيار الثقة المعدومة Zero-Trust",
       principleDesc: "كل طلب HTTP قادم يُعامل كطلب غير موثوق. الواجهة الأمامية تلتقط رغبة المستخدم فقط، بينما يتولى الخادم التحقق من الهوية، الصلاحيات، المخططات، وحدود المعاملات.",
       principles: ["فرض الحماية على الخادم", "عدم الثقة في العميل", "مصفوفة الصلاحيات RBAC", "تدقيق المخططات"],
-      simulateLabel: "محاكاة دورة حياة الطلب",
+      simulateLabel: "شغّل العرض التوضيحي",
       simulatingLabel: "جارٍ المحاكاة...",
       auditBadge: "تدقيق Zero-Trust",
-      flowTitle: "مسار معالجة دورة الطلب",
+      flowTitle: "كيف تُحمى الطلبات",
       flowSubtitle: "محاكاة تفاعلية لطلب آمن يمر عبر طبقات التحقق على الخادم.",
       progressLabel: "تقدم الطلب",
       flowSteps: [
@@ -767,8 +764,8 @@ export const translations: Record<Language, TranslationContent> = {
       title: "كيف أبني المنتجات الرقمية",
       subtitle: "منهجية هندسية من 7 مراحل مخصصة لضمان الاعتمادية، السرعة، ونقاء الكود على المدى الطويل.",
       phase: "المرحلة",
-      verifiedMilestone: "إنجاز مؤكد",
-      deliverableLabel: "المخرجات المتوقعة من المرحلة",
+      verifiedMilestone: "نقطة مراجعة",
+      deliverableLabel: "مخرجات هذه المرحلة",
       steps: [
         { num: "01", title: "الفهم والتحليل", desc: "تحليل الأهداف، متطلبات المستخدم، القيود التقنية، ومواصفات النظام.", deliverable: "وثيقة النطاق والمتطلبات" },
         { num: "02", title: "التصميم المعماري", desc: "تصميم نماذج البيانات، هيكلة نقاط الـ API، سياسات الأمان، وحالة الواجهات.", deliverable: "مخطط النظام وتصميم البيانات" },
@@ -786,7 +783,7 @@ export const translations: Record<Language, TranslationContent> = {
       quote1: "تسليم المشروع هو البداية.",
       quote2: "والعلاقة المهنية مستمرة.",
       guaranteeDesc: "عند إطلاق المشروع، أقف تماماً خلف الكود والمخرجات التي تم تسليمها. أي استفسارات أو ملاحظات تتعلق بنطاق العمل المتفق عليه تُعالج بمسؤولية تامة وفقاً للشروط.",
-      platformsTitle: "حسابات ومنصات العمل الحر المعتمدة",
+      platformsTitle: "حساباتي المعتمدة",
       platforms: [
         { name: "Upwork", role: "مطوِّر متكامل وأندرويد Full-Stack", badge: "منصة عالمية معتمدة", link: "" },
         { name: "خمسات Khamsat", role: "خدمات الهندسة والبرمجيات", badge: "بائع خدمات معتمد", link: "" },
@@ -803,7 +800,7 @@ export const translations: Record<Language, TranslationContent> = {
       badge: "تواصل مباشر",
       title: "دعنا نبني شيئاً يستحق مكانته.",
       subtitle: "تواصل مباشر عبر الواتساب، المكالمات الهاتفية، التليجرام، ومنصات التواصل الاجتماعي.",
-      scoperTitle: "محدد نطاق المشروع السريع",
+      scoperTitle: "موجز مشروع سريع",
       step1Title: "1. ما الذي تريد بناؤه؟",
       step2Title: "2. الجدول الزمني المتوقع؟",
       step3Title: "3. بيانات التواصل المباشر",
@@ -818,7 +815,7 @@ export const translations: Record<Language, TranslationContent> = {
       phonePlaceholder: "مثال: +20 1XX XXX XXXX",
       messageLabel: "ملخص المشروع أو التفاصيل",
       socialTitle: "تواصل معي عبر المنصات الاجتماعية",
-      inquiryTitle: "تم تجهيز الاستفسار",
+      inquiryTitle: "طلبك جاهز",
       inquiryDesc: "اضغط بالأسفل لإطلاق قناة الدردشة أو الاتصال المباشر المفضلة لديك فوراً.",
       ctaWhatsapp: "واتساب",
       ctaTelegram: "تليجرام",
