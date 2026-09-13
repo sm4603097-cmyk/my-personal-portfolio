@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+﻿import React, { useState, useEffect } from 'react';
+import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MessageCircle, Send, Phone, Mail, X, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { siteConfig } from '../data/siteConfig';
@@ -77,7 +77,7 @@ export const FloatingContactDock: React.FC = () => {
   ];
 
   return (
-    <motion.aside
+    <m.aside
       aria-label={t.contact.dockTitle}
       className="fixed bottom-5 start-5 z-40"
       animate={{
@@ -94,7 +94,7 @@ export const FloatingContactDock: React.FC = () => {
         {/* Expanded Contact Action List */}
         <AnimatePresence>
           {isOpen && !nearFooter && (
-            <motion.div
+            <m.div
               initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.95 }}
@@ -141,12 +141,12 @@ export const FloatingContactDock: React.FC = () => {
                   </a>
                 );
               })}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {/* Master Floating Trigger Button — semi-transparent / subtle */}
-        <motion.button
+        <m.button
           whileHover={reducedMotion || nearFooter ? undefined : { scale: 1.05 }}
           whileTap={reducedMotion || nearFooter ? undefined : { scale: 0.95 }}
           onClick={() => setIsOpen(!isOpen)}
@@ -168,8 +168,8 @@ export const FloatingContactDock: React.FC = () => {
           ) : (
             <ChevronUp className="w-4 h-4 text-[var(--text-secondary)] group-hover:text-[var(--accent-cyan)] transition-colors" />
           )}
-        </motion.button>
+        </m.button>
       </div>
-    </motion.aside>
+    </m.aside>
   );
 };

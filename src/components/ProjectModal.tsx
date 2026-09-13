@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import type { Project } from '../data/portfolioData';
 import { useLanguage } from '../context/LanguageContext';
 import { splitMetricSegments } from '../utils/bidi';
 import { X, CheckCircle2, ArrowRight, ExternalLink, GitBranch } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { EASE_STANDARD } from '../motion';
 
 interface ProjectModalProps {
@@ -78,7 +78,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
   const architecture = isRtl ? project.architectureAr : project.architectureEn;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -86,7 +86,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-black/70 backdrop-blur-md overflow-y-auto"
       onClick={onClose}
     >
-      <motion.div
+      <m.div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
@@ -267,7 +267,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
             {t.projects.closeModal}
           </button>
         </div>
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 };

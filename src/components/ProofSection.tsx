@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { ShieldCheck, Check, ArrowRight } from 'lucide-react';
 
 import { SECTION_REVEAL, CARD_STAGGER, CARD_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
@@ -52,7 +52,7 @@ export const ProofSection: React.FC = () => {
         />
 
         {/* Filter Navigation Tabs */}
-        <motion.div
+        <m.div
           variants={reducedMotion ? NO_MOTION_CONTAINER : SECTION_REVEAL}
           initial="hidden"
           whileInView="visible"
@@ -76,10 +76,10 @@ export const ProofSection: React.FC = () => {
               </button>
             );
           })}
-        </motion.div>
+        </m.div>
 
         {/* Proof Cards Grid */}
-        <motion.div
+        <m.div
           key={activeTab}
           variants={container}
           initial="hidden"
@@ -88,7 +88,7 @@ export const ProofSection: React.FC = () => {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
         >
           {visibleItems.map((itemData) => (
-            <motion.div
+            <m.div
               key={itemData.id}
               variants={item}
               className="editorial-card p-6 flex flex-col justify-between group relative overflow-hidden"
@@ -135,9 +135,9 @@ export const ProofSection: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Deep Architectural Highlight Box */}
         <SectionTransition once={false} className="mt-12 rounded-2xl border border-[var(--border-accent)] p-6 sm:p-8 relative overflow-hidden bg-[var(--bg-card)] shadow-lg">

@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, ExternalLink, BadgeCheck } from 'lucide-react';
 import { SECTION_REVEAL, CARD_STAGGER as STAGGER, SLIDE_UP as PLATFORM_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
 import { SectionHeader, EASE_STANDARD, useIsFinePointer } from '../motion';
@@ -30,7 +30,7 @@ export const SupportTrust: React.FC = () => {
         />
 
         {/* Commitment Statement Card */}
-        <motion.div
+        <m.div
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -66,7 +66,7 @@ export const SupportTrust: React.FC = () => {
             </div>
 
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Verified Freelance Platforms Grid */}
         <div className="mb-12">
@@ -74,7 +74,7 @@ export const SupportTrust: React.FC = () => {
             {t.trust.platformsTitle}
           </h3>
 
-          <motion.div
+          <m.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -109,7 +109,7 @@ export const SupportTrust: React.FC = () => {
                 </>
               );
               return isLink ? (
-                <motion.a
+                <m.a
                   key={idx}
                   {...motionProps}
                   href={plat.link}
@@ -119,14 +119,14 @@ export const SupportTrust: React.FC = () => {
                   whileTap={canLift ? { scale: 0.99 } : undefined}
                 >
                   {cardContent}
-                </motion.a>
+                </m.a>
               ) : (
-                <motion.div key={idx} {...motionProps}>
+                <m.div key={idx} {...motionProps}>
                   {cardContent}
-                </motion.div>
+                </m.div>
               );
             })}
-          </motion.div>
+          </m.div>
         </div>
 
         {/* GitHub Engineering Statement */}

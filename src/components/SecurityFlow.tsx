@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { m, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Shield, Play, Check } from 'lucide-react';
 
 import { SECTION_REVEAL, CARD_STAGGER as STAGGER, SCALE_ITEM as STEP_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
@@ -77,7 +77,7 @@ export const SecurityFlow: React.FC = () => {
         />
 
         {/* Zero-Trust Principle Banner & Live Simulator Trigger */}
-        <motion.div
+        <m.div
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -115,10 +115,10 @@ export const SecurityFlow: React.FC = () => {
               </button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Interactive Flow Pipeline */}
-        <motion.div
+        <m.div
             variants={reveal}
             initial="hidden"
             whileInView="visible"
@@ -150,7 +150,7 @@ export const SecurityFlow: React.FC = () => {
             </div>
             <div className="relative h-1.5 rounded-full bg-[var(--bg-surface-3)] overflow-visible">
               {/* Progress fill */}
-              <motion.div
+              <m.div
                 aria-hidden="true"
                 className="absolute inset-y-0 start-0 rounded-full bg-gradient-to-r from-[var(--accent-cyan)] to-emerald-500"
                 style={{
@@ -159,7 +159,7 @@ export const SecurityFlow: React.FC = () => {
                 }}
               />
               {/* Packet indicator */}
-              <motion.div
+              <m.div
                 aria-hidden="true"
                 className="absolute -top-[5px] size-3.5 rounded-full bg-[var(--accent-cyan)] border-2 border-[var(--bg-card)] shadow-[0_0_14px_-2px_var(--accent-cyan)]"
                 style={{
@@ -172,7 +172,7 @@ export const SecurityFlow: React.FC = () => {
           </div>
 
           {/* Steps Grid */}
-          <motion.div
+          <m.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -184,7 +184,7 @@ export const SecurityFlow: React.FC = () => {
               const isPast = activeStep > idx;
 
               return (
-                <motion.button
+                <m.button
                   key={idx}
                   variants={item}
                   onClick={() => setActiveStep(idx)}
@@ -222,13 +222,13 @@ export const SecurityFlow: React.FC = () => {
                       {stepItem.status}
                     </div>
                   </div>
-                </motion.button>
+                </m.button>
               );
             })}
-          </motion.div>
+          </m.div>
 
           {/* Active Step Details */}
-          <motion.div
+          <m.div
             key={activeStep}
             initial={reducedMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -246,9 +246,9 @@ export const SecurityFlow: React.FC = () => {
             <div className="px-3.5 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-accent)] text-[var(--accent-cyan)] text-xs font-mono font-bold shrink-0">
               STATUS: {t.security.flowSteps[activeStep].status}
             </div>
-          </motion.div>
+          </m.div>
 
-        </motion.div>
+        </m.div>
 
       </div>
     </section>

@@ -1,6 +1,6 @@
-import { Children, useMemo } from 'react';
+﻿import { Children, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { createStaggerVariants, NO_MOTION_CONTAINER } from './variants';
@@ -33,7 +33,7 @@ export interface TimelineRevealProps {
 /**
  * A reusable timeline that draws its connector progressively, staggers its
  * nodes on reveal, and (optionally) grows an accent fill toward the active
- * step — communicating engineering progression, not game-like motion.
+ * step — communicating engineering progression, not game-like m.
  */
 export const TimelineReveal: React.FC<TimelineRevealProps> = ({
   children,
@@ -57,7 +57,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
     activeIndex === null || count <= 1 ? 1 : Math.min(1, Math.max(0, activeIndex / (count - 1)));
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={once ? viewportOnce(amount) : viewportRepeat(amount)}
@@ -65,7 +65,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
       className={`relative ${className ?? ''}`}
     >
       {/* Base connector — draws itself progressively on reveal. */}
-      <motion.div
+      <m.div
         aria-hidden="true"
         className={`pointer-events-none absolute ${
           direction === 'vertical'
@@ -88,7 +88,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
       />
 
       {/* Active-reach fill overlay. */}
-      <motion.div
+      <m.div
         aria-hidden="true"
         className={`pointer-events-none absolute ${
           direction === 'vertical'
@@ -107,7 +107,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
       <div className={direction === 'vertical' ? 'flex flex-col' : 'flex'}>
         {children}
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 
@@ -150,9 +150,9 @@ export const TimelineNode: React.FC<TimelineNodeProps> = ({
   const markerState = active ? ACCENT_MARKER.active : reached ? ACCENT_MARKER.reached : ACCENT_MARKER.default;
 
   return (
-    <motion.div variants={itemVariants} data-index={index} className={`relative ${className ?? ''}`}>
+    <m.div variants={itemVariants} data-index={index} className={`relative ${className ?? ''}`}>
       {/* Node marker aligned with the connector rail. */}
-      <motion.span
+      <m.span
         aria-hidden="true"
         className={`absolute start-0 top-1 z-10 size-[10px] rounded-full ${markerState} ${markerClassName ?? ''}`}
         animate={reducedMotion ? { scale: 1 } : { scale: active ? 1.2 : 1 }}
@@ -162,6 +162,6 @@ export const TimelineNode: React.FC<TimelineNodeProps> = ({
         }}
       />
       <div className="min-w-0 ps-7">{children}</div>
-    </motion.div>
+    </m.div>
   );
 };

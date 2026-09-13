@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import {
   ShieldCheck,
@@ -73,7 +73,7 @@ export const FlagshipCaseStudy: React.FC = () => {
         />
 
         {/* Verified Platform Stats */}
-        <motion.div
+        <m.div
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -84,7 +84,7 @@ export const FlagshipCaseStudy: React.FC = () => {
             const Icon = stat.icon ? ICON_MAP[stat.icon] : CheckCircle2;
             const isEmphasis = idx % 2 === 0;
             return (
-              <motion.div
+              <m.div
                 key={idx}
                 variants={child}
                 className="rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] p-5 sm:p-6 relative overflow-hidden shadow-lg"
@@ -108,13 +108,13 @@ export const FlagshipCaseStudy: React.FC = () => {
                 <div className="text-xs font-semibold text-[var(--text-heading)] mt-2">
                   {stat.label}
                 </div>
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
 
         {/* Capability Matrix */}
-        <motion.div
+        <m.div
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -124,7 +124,7 @@ export const FlagshipCaseStudy: React.FC = () => {
           {capabilities.map((cap, idx) => {
             const Icon = cap.icon ? ICON_MAP[cap.icon] : CheckCircle2;
             return (
-              <motion.div
+              <m.div
                 key={idx}
                 variants={child}
                 className="editorial-card p-6 rounded-xl flex flex-col"
@@ -147,13 +147,13 @@ export const FlagshipCaseStudy: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-              </motion.div>
+              </m.div>
             );
           })}
-        </motion.div>
+        </m.div>
 
         {/* Architecture Flow Chain */}
-        <motion.div
+        <m.div
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -192,10 +192,10 @@ export const FlagshipCaseStudy: React.FC = () => {
               </React.Fragment>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Security Engineering */}
-        <motion.div
+        <m.div
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -229,10 +229,10 @@ export const FlagshipCaseStudy: React.FC = () => {
               </div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Impact & Tech Stack */}
-        <motion.div
+        <m.div
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -240,17 +240,17 @@ export const FlagshipCaseStudy: React.FC = () => {
           className="grid grid-cols-1 lg:grid-cols-12 gap-8"
         >
           {impact && (
-            <motion.div variants={child} className="lg:col-span-8 editorial-card p-6 sm:p-7 rounded-xl">
+            <m.div variants={child} className="lg:col-span-8 editorial-card p-6 sm:p-7 rounded-xl">
               <h3 className="text-xs font-bold text-[var(--text-heading)] font-mono uppercase tracking-[0.16em] mb-3 pb-3 border-b border-[var(--border-subtle)]">
                 {t.caseStudy.impactTitle}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 {impact}
               </p>
-            </motion.div>
+            </m.div>
           )}
 
-          <motion.div variants={child} className="lg:col-span-4 editorial-card p-6 rounded-xl">
+          <m.div variants={child} className="lg:col-span-4 editorial-card p-6 rounded-xl">
             <h3 className="text-xs font-bold text-[var(--text-heading)] font-mono uppercase tracking-[0.16em] mb-4 pb-3 border-b border-[var(--border-subtle)]">
               {t.caseStudy.stackTitle}
             </h3>
@@ -264,8 +264,8 @@ export const FlagshipCaseStudy: React.FC = () => {
                 </span>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
       </div>
     </section>

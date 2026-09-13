@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+﻿import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { animate, motion, useInView, useMotionValue, useReducedMotion } from 'framer-motion';
+import { animate, m, useInView, useMotionValue, useReducedMotion } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { useIsRtl } from './hooks';
 
@@ -82,7 +82,7 @@ export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
     <div ref={ref} className={className}>
       {label && <div className="mb-1.5">{label}</div>}
       <div className={`w-full ${heightClassName} overflow-hidden rounded-full ${trackClassName ?? ''}`}>
-        <motion.div
+        <m.div
           className={`h-full rounded-full ${barClassName ?? ''}`}
           style={{
             scaleX,
@@ -91,7 +91,7 @@ export const AnimatedProgress: React.FC<AnimatedProgressProps> = ({
         />
       </div>
       {valueLabel && (
-        <motion.div style={{ opacity: valueOpacity }}>{valueLabel}</motion.div>
+        <m.div style={{ opacity: valueOpacity }}>{valueLabel}</m.div>
       )}
     </div>
   );

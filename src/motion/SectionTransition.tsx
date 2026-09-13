@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { NO_MOTION_CONTAINER } from './variants';
@@ -48,7 +48,7 @@ export const SectionTransition: React.FC<SectionTransitionProps> = ({
   );
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={viewportPreset}
@@ -56,6 +56,6 @@ export const SectionTransition: React.FC<SectionTransitionProps> = ({
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };

@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+﻿import type { ReactNode } from 'react';
+import { m, useReducedMotion } from 'framer-motion';
 import { EASE_STANDARD } from './transitions';
 import { useIsFinePointer } from './hooks';
 
@@ -13,7 +13,7 @@ export interface HoverLiftProps {
 
 /**
  * A restrained lift applied on hover. Automatically disabled for
- * reduced-motion visitors and for coarse-pointer (mostly touch) devices.
+ * reduced-m visitors and for coarse-pointer (mostly touch) devices.
  */
 export const HoverLift: React.FC<HoverLiftProps> = ({
   children,
@@ -29,13 +29,13 @@ export const HoverLift: React.FC<HoverLiftProps> = ({
   }
 
   return (
-    <motion.div
+    <m.div
       whileHover={{ y: -lift }}
       whileTap={{ y: Math.round(-lift * 0.4) }}
       transition={{ duration: 0.3, ease: EASE_STANDARD }}
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };

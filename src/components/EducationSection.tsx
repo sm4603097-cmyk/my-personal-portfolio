@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { GraduationCap, Award, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 import { CARD_STAGGER as STAGGER, CARD_ITEM as CERT_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
@@ -38,7 +38,7 @@ export const EducationSection: React.FC = () => {
         />
 
         {/* Academic Foundation + Commercial Mindset Banner */}
-        <motion.div
+        <m.div
           variants={stagger}
           initial="hidden"
           whileInView="visible"
@@ -46,7 +46,7 @@ export const EducationSection: React.FC = () => {
           className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12"
         >
           {/* Academic Foundation Banner */}
-          <motion.div
+          <m.div
             variants={item}
             className="lg:col-span-7 rounded-2xl border border-[var(--border-accent)] p-6 sm:p-8 relative overflow-hidden flex flex-col justify-between bg-[var(--bg-card)] shadow-lg"
           >
@@ -74,10 +74,10 @@ export const EducationSection: React.FC = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Marketing & UX Acumen */}
-          <motion.div
+          <m.div
             variants={item}
             className="lg:col-span-5 rounded-2xl border border-amber-500/25 p-6 sm:p-8 flex flex-col justify-between bg-[var(--bg-card)] shadow-lg"
           >
@@ -97,8 +97,8 @@ export const EducationSection: React.FC = () => {
             <div className="pt-5 mt-5 border-t border-[var(--border-subtle)] text-[11px] font-mono text-amber-600 dark:text-amber-400 font-medium">
               {t.education.marketingCert}
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
 
         {/* Certifications Grid */}
         <div className="space-y-5">
@@ -106,7 +106,7 @@ export const EducationSection: React.FC = () => {
             {t.education.certsTitle}
           </h3>
 
-          <motion.div
+          <m.div
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -114,7 +114,7 @@ export const EducationSection: React.FC = () => {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5"
           >
             {t.education.certList.map((cert, idx) => (
-              <motion.div
+              <m.div
                 key={idx}
                 variants={item}
                 className="editorial-card p-5 sm:p-6 flex flex-col justify-between group"
@@ -137,9 +137,9 @@ export const EducationSection: React.FC = () => {
                     {cert.desc}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         </div>
 
       </div>
