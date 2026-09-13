@@ -5,6 +5,8 @@ const DEFAULT_FROM = 'onboarding@resend.dev';
 
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_SECONDS = 3600;
+const RATE_LIMIT_MAX_GLOBAL = 15;
+const RATE_LIMIT_GLOBAL_WINDOW_SECONDS = 86400;
 
 const MAX_BODY_CHARS = 32768;
 const NAME_MAX = 100;
@@ -472,28 +474,68 @@ async function handleContact(
     return json({ ok: false, error: 'invalid_fields' }, 400);
   }
 
-  const id = burstId;
   const store = env.CONTACT_RATE_LIMIT_KV;
-  let rateKey: string | null = null;
 
   if (store) {
-    rateKey = `contact:${await hashInput(id)}`;
-    const count = Number((await store.get(rateKey)) ?? '0') || 0;
-    if (count >= RATE_LIMIT_MAX) {
+    try {
+      const rateKey = `contact:${await hashInput(burstId)}`;
+      const perIpCount = Number((await store.get(rateKey)) ?? '0') || 0;
+      if (perIpCount >= RATE_LIMIT_MAX) {
+        logEvent(
+          'contact.rate_limited',
+          {
+            reqId,
+            route: 'api-contact',
+            method,
+            status: 429,
+            durationMs: duration(),
+            category: 'kv_window',
+            hasClientIp: ctx.hasClientIp,
+          },
+          'warn',
+        );
+        return json({ ok: false, error: 'rate_limited' }, 429);
+      }
+
+      const globalKey = `contact:global:${new Date().toISOString().slice(0, 10)}`;
+      const globalCount = Number((await store.get(globalKey)) ?? '0') || 0;
+      if (globalCount >= RATE_LIMIT_MAX_GLOBAL) {
+        logEvent(
+          'contact.rate_limited',
+          {
+            reqId,
+            route: 'api-contact',
+            method,
+            status: 429,
+            durationMs: duration(),
+            category: 'kv_global_window',
+            hasClientIp: ctx.hasClientIp,
+          },
+          'warn',
+        );
+        return json({ ok: false, error: 'rate_limited' }, 429);
+      }
+
+      await store.put(rateKey, String(perIpCount + 1), {
+        expirationTtl: RATE_LIMIT_WINDOW_SECONDS,
+      });
+      await store.put(globalKey, String(globalCount + 1), {
+        expirationTtl: RATE_LIMIT_GLOBAL_WINDOW_SECONDS,
+      });
+    } catch {
       logEvent(
-        'contact.rate_limited',
+        'contact.rate_limiter_unavailable',
         {
           reqId,
           route: 'api-contact',
           method,
-          status: 429,
+          status: 0,
           durationMs: duration(),
-          category: 'kv_window',
+          category: 'kv_error',
           hasClientIp: ctx.hasClientIp,
         },
         'warn',
       );
-      return json({ ok: false, error: 'rate_limited' }, 429);
     }
   } else {
     logEvent(
@@ -508,11 +550,6 @@ async function handleContact(
       },
       'warn',
     );
-  }
-
-  if (store && rateKey) {
-    const count = Number((await store.get(rateKey)) ?? '0') || 0;
-    await store.put(rateKey, String(count + 1), { expirationTtl: RATE_LIMIT_WINDOW_SECONDS });
   }
 
   const apiKey = env.RESEND_API_KEY;

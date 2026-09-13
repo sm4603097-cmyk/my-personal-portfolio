@@ -748,6 +748,116 @@ test('rate limiter blocks after 5 submissions per IP', async () => {
   assert.deepEqual(await sixth.json(), { ok: false, error: 'rate_limited' });
 });
 
+test('global daily cap allows the 15th submission and blocks the 16th across IPs', async () => {
+  const env = createEnv();
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const globalKey = `contact:global:${new Date().toISOString().slice(0, 10)}`;
+  env.CONTACT_RATE_LIMIT_KV.map.set(globalKey, '14');
+
+  const fifteenth = await worker.fetch(validPost('203.0.113.101'), env);
+  assert.equal(fifteenth.status, 200);
+  assert.equal(resendCalls, 1, 'the 15th submission must still send the email');
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(validPost('203.0.113.102'), e),
+    env,
+  );
+  assert.equal(response.status, 429);
+  assertSecurityHeaders(response);
+  assertNoStore(response);
+  assert.deepEqual(await response.json(), { ok: false, error: 'rate_limited' });
+  assert.equal(resendCalls, 1, 'the 16th submission must not send another email');
+
+  const events = parsedEvents(captured);
+  assert.equal(
+    events.filter((e) => e.event === 'contact.rate_limited' && e.category === 'kv_global_window').length,
+    1,
+  );
+  assert.ok(events.some((e) => e.status === 429));
+  assertNoPiiLogged(captured);
+});
+
+test('KV read failure fails open to email and logs rate_limiter_unavailable', async () => {
+  const env = createEnv();
+  env.CONTACT_RATE_LIMIT_KV = {
+    async get() {
+      throw new Error('simulated KV outage');
+    },
+    async put() {
+      throw new Error('simulated KV outage');
+    },
+  };
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(validPost(), e),
+    env,
+  );
+
+  assert.equal(response.status, 200, 'a KV outage must not 500 the visitor');
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(resendCalls, 1, 'the email must send even when the KV limiter is unavailable');
+  const events = parsedEvents(captured);
+  assert.equal(
+    events.filter((e) => e.event === 'contact.rate_limiter_unavailable' && e.category === 'kv_error').length,
+    1,
+  );
+  assertNoPiiLogged(captured);
+});
+
+test('KV write failure also fails open and does not 500 the visitor', async () => {
+  const env = createEnv();
+  env.CONTACT_RATE_LIMIT_KV = {
+    async get() {
+      return null;
+    },
+    async put() {
+      throw new Error('simulated KV write failure');
+    },
+  };
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(validPost(), e),
+    env,
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(resendCalls, 1);
+  const events = parsedEvents(captured);
+  assert.equal(
+    events.filter((e) => e.event === 'contact.rate_limiter_unavailable' && e.category === 'kv_error').length,
+    1,
+  );
+  assertNoPiiLogged(captured);
+});
+
+test('missing KV binding fails open to email and logs rate_limiter_unavailable', async () => {
+  const env = createEnv({ withKv: false });
+  resendCalls = 0;
+  turnstileCalls = 0;
+
+  const { response, captured } = await captureLogs(
+    (e) => worker.fetch(validPost(), e),
+    env,
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { ok: true });
+  assert.equal(resendCalls, 1);
+  const events = parsedEvents(captured);
+  assert.equal(
+    events.filter((e) => e.event === 'contact.rate_limiter_unavailable' && e.category === 'missing_binding').length,
+    1,
+  );
+  assertNoPiiLogged(captured);
+});
+
 test('missing RESEND_API_KEY returns generic 502 without leaking details', async () => {
   const env = createEnv({ withKey: false });
   resendCalls = 0;
