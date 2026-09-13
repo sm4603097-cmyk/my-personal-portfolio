@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#050608" />
+    <title>404 · Page Not Found | ALHASSAN MOHAMED</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      /* ---- self-hosted fonts (mirror of src/index.css, minimal weights) ---- */
+      @font-face {
+        font-family: 'Space Grotesk';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('/fonts/space-grotesk/space-grotesk-700-latin.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Tajawal';
+        font-style: normal;
+        font-weight: 800;
+        font-display: swap;
+        src: url('/fonts/tajawal/tajawal-800-arabic.woff2') format('woff2');
+        unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+      }
+      @font-face {
+        font-family: 'Outfit';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('/fonts/outfit/outfit-500-latin.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Outfit';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('/fonts/outfit/outfit-700-latin.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Cairo';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: url('/fonts/cairo/cairo-400-arabic.woff2') format('woff2');
+        unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+      }
+      @font-face {
+        font-family: 'Cairo';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('/fonts/cairo/cairo-500-arabic.woff2') format('woff2');
+        unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+      }
+      @font-face {
+        font-family: 'Cairo';
+        font-style: normal;
+        font-weight: 700;
+        font-display: swap;
+        src: url('/fonts/cairo/cairo-700-arabic.woff2') format('woff2');
+        unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+102E0-102FB, U+10E60-10E7E, U+10EC2-10EC4, U+10EFC-10EFF, U+1EE00-1EE03, U+1EE05-1EE1F, U+1EE21-1EE22, U+1EE24, U+1EE27, U+1EE29-1EE32, U+1EE34-1EE37, U+1EE39, U+1EE3B, U+1EE42, U+1EE47, U+1EE49, U+1EE4B, U+1EE4D-1EE4F, U+1EE51-1EE52, U+1EE54, U+1EE57, U+1EE59, U+1EE5B, U+1EE5D, U+1EE5F, U+1EE61-1EE62, U+1EE64, U+1EE67-1EE6A, U+1EE6C-1EE72, U+1EE74-1EE77, U+1EE79-1EE7C, U+1EE7E, U+1EE80-1EE89, U+1EE8B-1EE9B, U+1EEA1-1EEA3, U+1EEA5-1EEA9, U+1EEAB-1EEBB, U+1EEF0-1EEF1;
+      }
+      @font-face {
+        font-family: 'JetBrains Mono';
+        font-style: normal;
+        font-weight: 500;
+        font-display: swap;
+        src: url('/fonts/jetbrains-mono/jetbrains-mono-500-latin.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+
+      /* ---- design tokens (mirror of src/index.css) ---- */
+      :root {
+        --bg-page: #050608;
+        --bg-surface-1: #090b0f;
+        --bg-surface-2: #0e1117;
+        --bg-card: rgba(12, 15, 22, 0.88);
+        --bg-chip: rgba(14, 17, 23, 0.9);
+        --border-subtle: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.16);
+        --border-accent: rgba(6, 182, 212, 0.35);
+        --text-heading: #ffffff;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #7c8ba1;
+        --accent-cyan: #06b6d4;
+        --accent-cyan-hover: #22d3ee;
+        --accent-cyan-dim: rgba(6, 182, 212, 0.12);
+        --accent-emerald: #10b981;
+        --glow-1: rgba(6, 182, 212, 0.08);
+        --glow-2: rgba(16, 185, 129, 0.06);
+        --grid-line: rgba(255, 255, 255, 0.025);
+        --shadow-primary: 0 8px 24px -6px rgba(6, 182, 212, 0.4);
+        --shadow-primary-hover: 0 14px 30px -6px rgba(6, 182, 212, 0.5);
+      }
+      :root[data-theme='light'],
+      .light {
+        --bg-page: #f8fafc;
+        --bg-surface-1: #ffffff;
+        --bg-surface-2: #f1f5f9;
+        --bg-card: rgba(255, 255, 255, 0.94);
+        --bg-chip: rgba(255, 255, 255, 0.94);
+        --border-subtle: rgba(15, 23, 42, 0.08);
+        --border-strong: rgba(15, 23, 42, 0.16);
+        --border-accent: rgba(8, 145, 178, 0.4);
+        --text-heading: #090d16;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --accent-cyan: #0891b2;
+        --accent-cyan-hover: #0e7490;
+        --accent-cyan-dim: rgba(8, 145, 178, 0.1);
+        --accent-emerald: #059669;
+        --glow-1: rgba(8, 145, 178, 0.08);
+        --glow-2: rgba(5, 150, 105, 0.06);
+        --grid-line: rgba(15, 23, 42, 0.025);
+        --shadow-primary: 0 8px 24px -6px rgba(8, 145, 178, 0.32);
+        --shadow-primary-hover: 0 14px 30px -6px rgba(8, 145, 178, 0.4);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        background: var(--bg-page);
+      }
+
+      body {
+        font-family: 'Outfit', 'Cairo', sans-serif;
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      .font-display {
+        font-family: 'Space Grotesk', 'Tajawal', sans-serif;
+      }
+      html[dir='rtl'] .font-display {
+        font-family: 'Tajawal', 'Cairo', sans-serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        letter-spacing: 0.02em;
+      }
+      html[dir='rtl'] .font-mono {
+        font-family: 'JetBrains Mono', 'Cairo', 'Tajawal', monospace;
+        letter-spacing: 0;
+      }
+
+      /* ---- decorative backdrop (mirror of OG card) ---- */
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .glow-cyan {
+        position: absolute;
+        left: -160px;
+        top: -200px;
+        width: 680px;
+        height: 680px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--glow-1) 0%, transparent 62%);
+      }
+      .glow-emerald {
+        position: absolute;
+        right: -180px;
+        bottom: -220px;
+        width: 720px;
+        height: 720px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--glow-2) 0%, transparent 62%);
+      }
+      .grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 40px 40px;
+        -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 78%);
+        mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 78%);
+      }
+      .vignette {
+        position: absolute;
+        inset: 0;
+        border: 1px solid var(--border-subtle);
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 100%;
+        max-width: 1024px;
+        margin-inline: auto;
+        padding: 1.5rem 1.5rem 1.25rem;
+      }
+
+      /* ---- header ---- */
+      .site-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+      }
+      .brand .mark {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-strong);
+        background: var(--accent-cyan-dim);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-cyan);
+        font-family: 'JetBrains Mono', 'Cairo', monospace;
+        font-weight: 700;
+        font-size: 0.6875rem;
+        transition: border-color 0.25s ease;
+      }
+      .brand:hover .mark {
+        border-color: var(--accent-cyan);
+      }
+      .brand .word {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+      }
+      .brand .word .name {
+        font-family: 'Space Grotesk', 'Tajawal', sans-serif;
+        font-weight: 700;
+        font-size: 0.875rem;
+        letter-spacing: 0.05em;
+        color: var(--text-heading);
+        transition: color 0.25s ease;
+      }
+      .brand:hover .word .name {
+        color: var(--accent-cyan);
+      }
+      .brand .word .tag {
+        font-family: 'JetBrains Mono', 'Cairo', monospace;
+        font-size: 0.625rem;
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+      }
+
+      .lang-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-card);
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+      }
+      .lang-toggle:hover {
+        border-color: var(--border-accent);
+        color: var(--text-heading);
+        background: var(--bg-surface-2);
+      }
+      .lang-toggle .sep {
+        width: 1px;
+        height: 0.875rem;
+        background: var(--border-subtle);
+      }
+      .lang-toggle .on {
+        color: var(--accent-cyan);
+      }
+      html[dir='rtl'] .lang-toggle .sep {
+        order: 1;
+      }
+
+      /* ---- content ---- */
+      .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        padding-block: 4rem 3rem;
+      }
+      .code-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-accent);
+        background: var(--accent-cyan-dim);
+        font-family: 'JetBrains Mono', 'Cairo', monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.18em;
+        color: var(--accent-cyan);
+        text-transform: uppercase;
+        margin-bottom: 1.75rem;
+      }
+      html[dir='rtl'] .code-chip {
+        letter-spacing: 0;
+      }
+      .code-chip .sq {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 2px;
+        background: var(--accent-cyan);
+        box-shadow: 0 0 12px rgba(6, 182, 212, 0.8);
+      }
+      .code-404 {
+        position: relative;
+        font-family: 'Space Grotesk', 'Tajawal', sans-serif;
+        font-weight: 700;
+        font-size: clamp(6rem, 22vw, 13.5rem);
+        line-height: 0.9;
+        letter-spacing: -0.02em;
+        color: var(--text-heading);
+        text-shadow: 0 0 60px var(--glow-1);
+      }
+      .page-title {
+        margin-top: 1rem;
+        font-family: 'Space Grotesk', 'Tajawal', sans-serif;
+        font-weight: 700;
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: var(--text-heading);
+      }
+      html[dir='rtl'] .page-title {
+        letter-spacing: 0;
+        text-transform: none;
+      }
+      .lead {
+        margin-top: 1rem;
+        max-width: 34rem;
+        font-size: 1.0625rem;
+        line-height: 1.75;
+        color: var(--text-secondary);
+      }
+      .path-strip {
+        margin-top: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.875rem;
+        border-radius: 0.625rem;
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-chip);
+        font-family: 'JetBrains Mono', 'Cairo', monospace;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        max-width: 100%;
+      }
+      .path-strip .arrow {
+        color: var(--accent-cyan);
+      }
+      .path-strip #js-path {
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 2.25rem;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        border-radius: 0.75rem;
+        font-weight: 700;
+        font-size: 0.8125rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.25s cubic-bezier(0.22, 1, 0.36, 1), transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease;
+      }
+      html[dir='rtl'] .btn {
+        letter-spacing: 0;
+      }
+      .btn-primary {
+        color: #050608;
+        background: var(--accent-cyan);
+        box-shadow: var(--shadow-primary);
+      }
+      .btn-primary:hover {
+        background: var(--accent-cyan-hover);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-primary-hover);
+      }
+      .btn-ghost {
+        color: var(--text-primary);
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+      }
+      .btn-ghost:hover {
+        background: var(--bg-surface-2);
+        border-color: var(--border-accent);
+        transform: translateY(-2px);
+      }
+
+      /* ---- footer ---- */
+      .site-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-subtle);
+        font-family: 'JetBrains Mono', 'Cairo', monospace;
+        font-size: 0.6875rem;
+        letter-spacing: 0.12em;
+        color: var(--text-muted);
+      }
+      html[dir='rtl'] .site-foot {
+        letter-spacing: 0;
+      }
+      .site-foot .sep {
+        width: 2.5rem;
+        height: 1px;
+        background: var(--border-accent);
+      }
+
+      /* ---- bilingual visibility ---- */
+      [lang='ar'] .en-only {
+        display: none;
+      }
+      [lang='en'] .ar-only {
+        display: none;
+      }
+
+      @media (max-width: 520px) {
+        .site-foot {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true">
+      <div class="glow-cyan"></div>
+      <div class="glow-emerald"></div>
+      <div class="grid"></div>
+      <div class="vignette"></div>
+    </div>
+
+    <div class="shell">
+      <header class="site-head">
+        <a class="brand" href="/" aria-label="ALHASSAN MOHAMED — Home">
+          <span class="mark">AM</span>
+          <span class="word">
+            <span class="name">ALHASSAN MOHAMED</span>
+            <span class="tag font-mono">FULL-STACK DEVELOPER</span>
+          </span>
+        </a>
+        <button class="lang-toggle" id="lang-toggle" type="button" aria-label="Toggle language">
+          <span>EN</span>
+          <span class="sep" aria-hidden="true"></span>
+          <span>عربي</span>
+        </button>
+      </header>
+
+      <main class="content">
+        <span class="code-chip"><span class="sq"></span><span class="en-only">Error 404</span><span class="ar-only">خطأ 404</span></span>
+
+        <h1 class="code-404" aria-label="404">404</h1>
+        <h2 class="page-title"><span class="en-only">Page Not Found</span><span class="ar-only">الصفحة غير موجودة</span></h2>
+        <p class="lead">
+          <span class="en-only">The page you are looking for doesn't exist — or it moved somewhere else. Head back home to explore the work, or reach out directly.</span>
+          <span class="ar-only">الصفحة التي تبحث عنها غير موجودة، أو أنها انتقلت إلى عنوان آخر. عُد إلى الرئيسية لاستكشاف الأعمال والمشاريع، أو تواصل معي مباشرة.</span>
+        </p>
+
+        <div class="path-strip" role="presentation">
+          <span aria-hidden="true">GET</span>
+          <span id="js-path">/</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span>404 NOT FOUND</span>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn-primary" href="/">
+            <span class="en-only">Back to Home</span>
+            <span class="ar-only">العودة إلى الرئيسية</span>
+          </a>
+          <a class="btn btn-ghost" href="mailto:sm4603097@gmail.com">
+            <span class="en-only">Contact Me</span>
+            <span class="ar-only">تواصل معي</span>
+          </a>
+        </div>
+      </main>
+
+      <footer class="site-foot">
+        <span>github.com/sm4603097-cmyk</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span>SALAMA_83_77 © 2026</span>
+      </footer>
+    </div>
+
+    <script src="/404.js"></script>
+  </body>
+</html>
