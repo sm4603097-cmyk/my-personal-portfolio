@@ -8,6 +8,49 @@ const RATE_LIMIT_WINDOW_SECONDS = 3600;
 const RATE_LIMIT_MAX_GLOBAL = 15;
 const RATE_LIMIT_GLOBAL_WINDOW_SECONDS = 86400;
 
+// File-like extensions never get served the branded 404 HTML; those requests
+// keep Cloudflare's plain 404 so a missing script/stylesheet stays a clean
+// network failure instead of an HTML page being sniffed as an asset.
+const STATIC_ASSET_EXTENSIONS = new Set([
+  'avif',
+  'css',
+  'gif',
+  'html',
+  'ico',
+  'jpeg',
+  'jpg',
+  'js',
+  'json',
+  'map',
+  'ogg',
+  'otf',
+  'pdf',
+  'png',
+  'svg',
+  'ttf',
+  'txt',
+  'webmanifest',
+  'webp',
+  'woff',
+  'woff2',
+  'xml',
+]);
+
+// Detects a top-level document navigation that wants HTML, so unknown routes
+// render the branded 404 page instead of Cloudflare's bare 404.
+function isHtmlNavigation(request: Request): boolean {
+  const accept = request.headers.get('accept') ?? '';
+  if (!accept.includes('text/html')) return false;
+  if (request.method !== 'GET' && request.method !== 'HEAD') return false;
+  const pathname = new URL(request.url).pathname;
+  const dot = pathname.lastIndexOf('.');
+  if (dot !== -1 && pathname.length - dot <= 10) {
+    const ext = pathname.slice(dot + 1).toLowerCase();
+    if (STATIC_ASSET_EXTENSIONS.has(ext)) return false;
+  }
+  return true;
+}
+
 const MAX_BODY_CHARS = 32768;
 const NAME_MAX = 100;
 const EMAIL_MAX = 254;
@@ -665,6 +708,39 @@ export default {
       }
 
       const assetResponse = await env.ASSETS.fetch(request);
+
+      if (assetResponse.status === 404 && isHtmlNavigation(request)) {
+        // Cloudflare Static Assets aggressively redirect `/x.html` to the
+        // extensionless pretty URL `/x`, so the branded page is fetched at the
+        // extensionless path and served back with a 404 status.
+        const notFoundTarget = new URL('/not-found', request.url);
+        const notFound = await env.ASSETS.fetch(
+          new Request(notFoundTarget.toString(), request),
+        );
+        const response = applySecurityHeaders(
+          notFound.status === 200
+            ? new Response(notFound.body, {
+                status: 404,
+                statusText: 'Not Found',
+                headers: notFound.headers,
+              })
+            : assetResponse,
+        );
+        logEvent(
+          'http.response_4xx',
+          {
+            reqId,
+            route: 'static',
+            method: ctx.method,
+            status: 404,
+            durationMs: Date.now() - ctx.startedAt,
+            category: 'not_found_html',
+          },
+          'warn',
+        );
+        return response;
+      }
+
       const response = applySecurityHeaders(assetResponse);
       if (response.status >= 500) {
         logEvent(

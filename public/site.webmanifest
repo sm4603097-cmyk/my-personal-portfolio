@@ -1,0 +1,24 @@
+{
+  "name": "ALHASSAN MOHAMED — Portfolio",
+  "short_name": "AM Portfolio",
+  "description": "Portfolio of ALHASSAN MOHAMED — Full-Stack Web Developer, Android Developer, and AI & Security engineer.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#050608",
+  "theme_color": "#050608",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
