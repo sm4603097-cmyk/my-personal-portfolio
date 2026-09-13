@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 
 import { CARD_STAGGER as GRID_STAGGER, SCALE_ITEM as GRID_ITEM, TRANSITION_EASE, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
 import { AnimatedProgress, SectionHeader } from '../motion';
@@ -48,7 +48,7 @@ export const TechnicalMatrix: React.FC = () => {
         />
 
         {/* Category Selector Tabs */}
-        <motion.div
+        <m.div
           variants={gridContainer}
           initial="hidden"
           whileInView="visible"
@@ -58,7 +58,7 @@ export const TechnicalMatrix: React.FC = () => {
           {t.engineering.categories.map((cat, idx) => {
             const isSelected = activeCategory === idx;
             return (
-              <motion.button
+              <m.button
                 key={idx}
                 variants={gridItem}
                 onClick={() => setActiveCategory(idx)}
@@ -78,13 +78,13 @@ export const TechnicalMatrix: React.FC = () => {
                 {isSelected && (
                   <div className="mt-3 w-6 h-0.5 bg-[var(--accent-cyan)] rounded" />
                 )}
-              </motion.button>
+              </m.button>
             );
           })}
-        </motion.div>
+        </m.div>
 
         {/* Skills Panel */}
-        <motion.div
+        <m.div
           key={activeCategory}
           initial={reducedMotion ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,7 +145,7 @@ export const TechnicalMatrix: React.FC = () => {
               );
             })}
           </div>
-        </motion.div>
+        </m.div>
 
       </div>
     </section>

@@ -1,22 +1,22 @@
-import { useMemo } from 'react';
+﻿import { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import type { TargetAndTransition, Transition, Variants } from 'framer-motion';
 import { createRevealVariants, FADE_ONLY, type RevealVariant } from './variants';
 import { DURATION } from './transitions';
 import { viewportOnce, viewportRepeat } from './presets';
 import { useIsMobile } from './hooks';
 
-// Pre-created motion tags (stable across renders, Fast-Refresh safe).
+// Pre-created m tags (stable across renders, Fast-Refresh safe).
 const REVEAL_TAGS = {
-  div: motion.create('div'),
-  h1: motion.create('h1'),
-  h2: motion.create('h2'),
-  h3: motion.create('h3'),
-  h4: motion.create('h4'),
-  p: motion.create('p'),
-  span: motion.create('span'),
-  section: motion.create('section'),
+  div: m.create('div'),
+  h1: m.create('h1'),
+  h2: m.create('h2'),
+  h3: m.create('h3'),
+  h4: m.create('h4'),
+  p: m.create('p'),
+  span: m.create('span'),
+  section: m.create('section'),
 };
 type RevealTagName = keyof typeof REVEAL_TAGS;
 
@@ -43,7 +43,7 @@ export interface RevealProps {
 /**
  * The single viewport-triggered reveal primitive. It encodes the site's
  * movement language — transforms + opacity only, no layout animation —
- * and degrades to a quick opacity fade for reduced-motion visitors.
+ * and degrades to a quick opacity fade for reduced-m visitors.
  */
 export const Reveal: React.FC<RevealProps> = ({
   children,
@@ -62,7 +62,7 @@ export const Reveal: React.FC<RevealProps> = ({
   const MotionTag = REVEAL_TAGS[as as RevealTagName] ?? REVEAL_TAGS.div;
 
   const variants = useMemo<Variants>(() => {
-    // Mobile and reduced-motion visitors get a plain opacity crossfade: no
+    // Mobile and reduced-m visitors get a plain opacity crossfade: no
     // transforms, springs, or per-frame style churn that small screens pay
     // for with main-thread time (measured in Lighthouse TBT / Style & Layout).
     const source =
@@ -118,7 +118,7 @@ export interface MaskRevealProps {
 /**
  * Mask reveal — content is clipped inside an overflow-hidden container and
  * translated up as the mask "opens". Ideal for headings and labels.
- * Degrades to a fast opacity fade for reduced-motion visitors.
+ * Degrades to a fast opacity fade for reduced-m visitors.
  */
 export const MaskReveal: React.FC<MaskRevealProps> = ({
   children,
@@ -153,7 +153,7 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
 
   return (
     <Outer className={`overflow-hidden ${className ?? ''}`}>
-      <motion.span
+      <m.span
         className={`block ${innerClassName ?? ''}`}
         initial="hidden"
         whileInView="visible"
@@ -161,7 +161,7 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
         variants={variants}
       >
         {children}
-      </motion.span>
+      </m.span>
     </Outer>
   );
 };

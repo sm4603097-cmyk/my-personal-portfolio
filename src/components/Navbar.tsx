@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useReducedMotion } from 'framer-motion';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Globe, Menu, X, Sun, Moon, PhoneCall } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
 import { scrollToSection } from '../utils/sectionReveal';
@@ -185,7 +185,7 @@ export const Navbar: React.FC = () => {
       {/* Mobile Drawer Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
+          <m.div
             initial={reducedMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
             animate={reducedMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
             exit={reducedMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
@@ -219,7 +219,7 @@ export const Navbar: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </header>

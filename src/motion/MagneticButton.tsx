@@ -1,11 +1,11 @@
-import { useEffect, useRef, type ReactNode } from 'react';
-import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
+﻿import { useEffect, useRef, type ReactNode } from 'react';
+import { m, useMotionValue, useReducedMotion, useSpring } from 'framer-motion';
 import { EASE_STANDARD } from './transitions';
 import { useIsFinePointer } from './hooks';
 
-// Pre-created motion tags (stable across renders, Fast-Refresh safe).
-const MotionA = motion.create('a');
-const MotionButton = motion.create('button');
+// Pre-created m tags (stable across renders, Fast-Refresh safe).
+const MotionA = m.create('a');
+const MotionButton = m.create('button');
 
 export interface MagneticButtonProps {
   children: ReactNode;
@@ -26,7 +26,7 @@ export interface MagneticButtonProps {
 /**
  * A subtle magnetic CTA. The element leans a fraction toward the pointer and
  * settles back on leave. Purely cosmetic (transform-only), disabled for
- * reduced-motion visitors and coarse-pointer devices, and deliberately capped
+ * reduced-m visitors and coarse-pointer devices, and deliberately capped
  * at a small travel so buttons never feel unstable.
  */
 export const MagneticButton: React.FC<MagneticButtonProps> = ({

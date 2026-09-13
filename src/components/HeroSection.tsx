@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { m, useScroll, useTransform, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowDown, Shield, Cpu, Smartphone, Code2, CheckCircle2, MessageCircle, Phone } from 'lucide-react';
 import { STAGGER_CONTAINER, ITEM_FADE_UP, MASK_REVEAL, TRANSITION_EASE, FADE_ONLY, NO_MOTION_CONTAINER } from '../motion/variants';
 import { MagneticButton } from '../motion';
@@ -23,7 +23,7 @@ export const HeroSection: React.FC = () => {
   // screens keep the transforms inert so the scroll handler stays idle work.
   const parallax = !reducedMotion && !isMobile;
 
-  // Parallax transforms for natural depth (disabled for reduced motion / mobile)
+  // Parallax transforms for natural depth (disabled for reduced m / mobile)
   const imageY = useTransform(scrollY, [0, 600], [0, parallax ? 60 : 0]);
   const textY = useTransform(scrollY, [0, 600], [0, parallax ? -30 : 0]);
 
@@ -77,7 +77,7 @@ export const HeroSection: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
           {/* ─── LEFT COLUMN: Value Proposition & Identity ─── */}
-          <motion.div
+          <m.div
             style={{ y: textY }}
             variants={staggerContainer}
             initial="hidden"
@@ -86,7 +86,7 @@ export const HeroSection: React.FC = () => {
             className="lg:col-span-7 flex flex-col items-start"
           >
             {/* Live System Availability Badge */}
-            <motion.div variants={itemFade} className="mb-6 sm:mb-8">
+            <m.div variants={itemFade} className="mb-6 sm:mb-8">
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[var(--border-accent)] bg-[var(--accent-cyan-dim)] backdrop-blur-none md:backdrop-blur-md text-[var(--accent-cyan)] text-[11px] font-mono tracking-[0.16em] uppercase">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -94,20 +94,20 @@ export const HeroSection: React.FC = () => {
                 </span>
                 <span className="font-semibold">{t.hero.systemStatus}</span>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* NAME Reveal */}
             <div className="mb-4 sm:mb-5">
               <div className="overflow-hidden">
-                <motion.h1
+                <m.h1
                   variants={nameReveal}
                   className="text-[clamp(2.5rem,7vw,5.5rem)] font-display font-black tracking-[-0.03em] leading-[0.95] text-[var(--text-heading)] uppercase"
                 >
                   {t.hero.nameFirstName}
-                </motion.h1>
+                </m.h1>
               </div>
               <div className="overflow-hidden mt-1">
-                <motion.h1
+                <m.h1
                   variants={nameReveal}
                   className="text-[clamp(2.5rem,7vw,5.5rem)] font-display font-black tracking-[-0.03em] leading-[0.95] uppercase"
                   style={{
@@ -118,17 +118,17 @@ export const HeroSection: React.FC = () => {
                   }}
                 >
                   {t.hero.nameLastName}
-                </motion.h1>
+                </m.h1>
               </div>
             </div>
 
             {/* Dynamic Role Rotator */}
-            <motion.div variants={itemFade} className="mb-6">
+            <m.div variants={itemFade} className="mb-6">
               <div className="flex items-center gap-3 text-sm sm:text-lg font-mono font-semibold text-[var(--text-secondary)]">
                 <span className="text-[var(--accent-cyan)] font-mono tracking-widest opacity-70">——</span>
                 <div className="relative overflow-hidden h-7 min-w-[260px] sm:min-w-[320px]">
                   <AnimatePresence mode="wait">
-                    <motion.span
+                    <m.span
                       key={activeRoleIndex}
                       initial={reducedMotion ? { opacity: 0 } : { y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
@@ -137,30 +137,30 @@ export const HeroSection: React.FC = () => {
                       className="absolute left-0 rtl:left-auto rtl:right-0 font-mono font-bold text-[var(--accent-cyan)] tracking-wider"
                     >
                       {t.hero.roles[activeRoleIndex]}
-                    </motion.span>
+                    </m.span>
                   </AnimatePresence>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Headline Statement */}
-            <motion.h2
+            <m.h2
               variants={itemFade}
               className="mb-4 text-lg sm:text-2xl font-display font-bold text-[var(--text-heading)] leading-snug max-w-xl"
             >
               {t.hero.headline}
-            </motion.h2>
+            </m.h2>
 
             {/* Subheadline Detail */}
-            <motion.p
+            <m.p
               variants={itemFade}
               className="mb-8 text-sm sm:text-base text-[var(--text-secondary)] max-w-xl leading-relaxed font-sans"
             >
               {t.hero.subheadline}
-            </motion.p>
+            </m.p>
 
             {/* Primary & Secondary Action CTAs */}
-            <motion.div variants={itemFade} className="mb-8 flex flex-wrap gap-3 sm:gap-4 items-center w-full sm:w-auto">
+            <m.div variants={itemFade} className="mb-8 flex flex-wrap gap-3 sm:gap-4 items-center w-full sm:w-auto">
               <MagneticButton
                 as="a"
                 href="#proof"
@@ -186,10 +186,10 @@ export const HeroSection: React.FC = () => {
               >
                 <span>{t.hero.ctaSecondary}</span>
               </a>
-            </motion.div>
+            </m.div>
 
             {/* Immediate Direct Contact Quick-Chips */}
-            <motion.div variants={itemFade} className="mb-8 flex flex-wrap gap-2 items-center">
+            <m.div variants={itemFade} className="mb-8 flex flex-wrap gap-2 items-center">
               <a
                 href={siteConfig.whatsappLink}
                 target="_blank"
@@ -206,10 +206,10 @@ export const HeroSection: React.FC = () => {
                 <Phone className="w-3.5 h-3.5 text-cyan-500" />
                 <span>{t.hero.callLabel}</span>
               </a>
-            </motion.div>
+            </m.div>
 
             {/* Engineering Capabilities Strip */}
-            <motion.div
+            <m.div
               variants={itemFade}
               className="w-full border-t border-[var(--border-subtle)] pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4"
             >
@@ -219,8 +219,8 @@ export const HeroSection: React.FC = () => {
                   <span className="leading-tight">{cap.label}</span>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           {/* ─── RIGHT COLUMN: Studio Portrait Integration ─── */}
           {/* The portrait is the LCP element on every form factor. It is eager
@@ -229,7 +229,7 @@ export const HeroSection: React.FC = () => {
               that delays its first paint and inflates element-render-delay.
               Parallax (desktop only) is preserved via the inert y transform,
               but visibility starts at 1, not 0. */}
-          <motion.div
+          <m.div
             style={{ y: imageY }}
             className="lg:col-span-5 relative flex justify-center items-center"
           >
@@ -333,12 +333,12 @@ export const HeroSection: React.FC = () => {
               </div>
 
             </div>
-          </motion.div>
+          </m.div>
 
         </div>
 
         {/* Scroll Hint indicator */}
-        <motion.div
+        <m.div
           initial={reducedMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.4, duration: 0.8 }}
@@ -346,7 +346,7 @@ export const HeroSection: React.FC = () => {
         >
           <span>{t.hero.scrollHint}</span>
           <ArrowDown className="w-3.5 h-3.5 text-[var(--accent-cyan)] animate-bounce" />
-        </motion.div>
+        </m.div>
 
       </div>
     </section>

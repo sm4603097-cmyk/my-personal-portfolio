@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { domAnimation, LazyMotion } from 'framer-motion';
 import { LanguageProvider } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
@@ -80,7 +81,8 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <div className="min-h-screen theme-bg-page text-[var(--text-primary)] font-sans selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200 transition-colors duration-300">
+        <LazyMotion features={domAnimation} strict>
+          <div className="min-h-screen theme-bg-page text-[var(--text-primary)] font-sans selection:bg-cyan-500/30 selection:text-cyan-600 dark:selection:text-cyan-200 transition-colors duration-300">
           {/* Main Navigation */}
           <Navbar />
 
@@ -141,6 +143,7 @@ export const App: React.FC = () => {
           {/* Footer */}
           <Footer />
         </div>
+        </LazyMotion>
       </LanguageProvider>
     </ThemeProvider>
   );

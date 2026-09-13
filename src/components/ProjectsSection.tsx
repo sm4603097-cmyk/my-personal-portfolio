@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { projectsData } from '../data/portfolioData';
 import type { Project } from '../data/portfolioData';
@@ -9,7 +9,7 @@ import {
 } from '../data/projectCategories';
 import type { ProjectFilter } from '../data/projectCategories';
 import { ProjectModal } from './ProjectModal';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Search } from 'lucide-react';
 
 import { CARD_STAGGER as GRID_STAGGER, CARD_ITEM as CARD_REVEAL, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
@@ -68,7 +68,7 @@ export const ProjectsSection: React.FC = () => {
         </div>
 
         {/* Projects Grid */}
-        <motion.div
+        <m.div
           key={filter}
           variants={gridContainer}
           initial="hidden"
@@ -96,10 +96,9 @@ export const ProjectsSection: React.FC = () => {
               const catMeta = getCategoryMeta(project.category);
 
               return (
-                <motion.div
+                <m.div
                   key={project.id}
                   variants={cardReveal}
-                  layout={reducedMotion ? false : true}
                   role="button"
                   tabIndex={0}
                   aria-haspopup="dialog"
@@ -166,11 +165,11 @@ export const ProjectsSection: React.FC = () => {
                       <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 rtl:group-hover:-translate-x-1 rtl:rotate-180 transition-transform" />
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })
           )}
-        </motion.div>
+        </m.div>
 
       </div>
 

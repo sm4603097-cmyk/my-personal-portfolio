@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 import { TRANSITION_EASE } from '../motion/variants';
@@ -41,7 +41,7 @@ export const BuildProcess: React.FC = () => {
                 reached={idx < activeStep}
                 className="mb-2"
               >
-                <motion.button
+                <m.button
                   onClick={() => setActiveStep(idx)}
                   id={`process-step-${idx}`}
                   className={`w-full p-3.5 sm:p-4 rounded-xl border text-left rtl:text-right transition-all duration-200 cursor-pointer flex items-center justify-between ${
@@ -59,13 +59,13 @@ export const BuildProcess: React.FC = () => {
                     </span>
                   </div>
                   <ArrowRight className={`w-3.5 h-3.5 shrink-0 rtl:rotate-180 transition-all duration-200 ${activeStep === idx ? 'text-[var(--accent-cyan)] translate-x-1 rtl:-translate-x-1' : 'opacity-30'}`} />
-                </motion.button>
+                </m.button>
               </TimelineNode>
             ))}
           </TimelineReveal>
 
           {/* Active Step Deliverable & Description Panel */}
-          <motion.div
+          <m.div
             key={activeStep}
             initial={reducedMotion ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -103,7 +103,7 @@ export const BuildProcess: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
         </div>
 
