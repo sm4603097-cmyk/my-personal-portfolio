@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MessageCircle, Send, Phone, Mail, X, ChevronUp } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { siteConfig } from '../data/siteConfig';
+import { subscribeSectionReveal } from '../utils/sectionReveal';
 
 export const FloatingContactDock: React.FC = () => {
   const { t } = useLanguage();
@@ -10,20 +11,34 @@ export const FloatingContactDock: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [nearFooter, setNearFooter] = useState(false);
 
-  // IntersectionObserver: hide dock when footer/CTA area is visible
+  // IntersectionObserver: hide dock when footer/CTA area is visible. The
+  // contact section is lazily gated, so the observer is (re)initialized once
+  // navigation or scrolling has actually mounted it.
   useEffect(() => {
-    const footer = document.getElementById('contact');
-    if (!footer) return;
+    let observer: IntersectionObserver | null = null;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setNearFooter(entry.isIntersecting);
-        if (entry.isIntersecting) setIsOpen(false);
-      },
-      { rootMargin: '0px 0px -60px 0px', threshold: 0 },
-    );
-    observer.observe(footer);
-    return () => observer.disconnect();
+    const init = () => {
+      const footer = document.getElementById('contact');
+      if (!footer || observer) return;
+
+      observer = new IntersectionObserver(
+        ([entry]) => {
+          setNearFooter(entry.isIntersecting);
+          if (entry.isIntersecting) setIsOpen(false);
+        },
+        { rootMargin: '0px 0px -60px 0px', threshold: 0 },
+      );
+      observer.observe(footer);
+    };
+
+    init();
+    const unsubscribe = subscribeSectionReveal((revealedId) => {
+      if (revealedId === 'contact') init();
+    });
+    return () => {
+      unsubscribe();
+      observer?.disconnect();
+    };
   }, []);
 
   const contactChannels = [

@@ -23,6 +23,29 @@ const applyLanguageToDocument = (lang: Language) => {
   root.classList.toggle('rtl-active', rtl);
 };
 
+// Cairo / Tajawal subsets are only required once the visitor is actually in
+// Arabic. Warming on an English initial load just burns ~241 KB of bandwidth
+// before LCP, so the warm is scoped to the language switch (and any direct
+// load-in-Arabic), handled in useLayoutEffect below by `language === 'ar'`.
+const ARABIC_FONT_SAMPLE = 'الأبجدية';
+const ARABIC_FONTS: ReadonlyArray<[family: string, weights: ReadonlyArray<number>]> = [
+  ['Cairo', [400, 500, 600, 700, 800, 900]],
+  ['Tajawal', [400, 500, 700, 800, 900]],
+];
+
+const warmArabicFonts = () => {
+  if (typeof document === 'undefined' || !('fonts' in document)) return;
+  for (const [family, weights] of ARABIC_FONTS) {
+    for (const weight of weights) {
+      try {
+        void document.fonts.load(`${weight} 16px "${family}"`, ARABIC_FONT_SAMPLE);
+      } catch {
+        // Weight/style variants not present in the local stylesheet.
+      }
+    }
+  }
+};
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem(LANG_STORAGE_KEY);
@@ -45,8 +68,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Pre-paint sync for the initial mount and any external state change. The
   // action handlers already applied the document attributes synchronously.
+  // Arabic only warms when the document is actually in Arabic (initial AR load
+  // or a real toggle) — never during an English first paint.
   useLayoutEffect(() => {
     applyLanguageToDocument(language);
+    if (language === 'ar') warmArabicFonts();
   }, [language]);
 
   return (

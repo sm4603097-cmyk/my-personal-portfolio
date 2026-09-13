@@ -5,6 +5,7 @@ import type { TargetAndTransition, Transition, Variants } from 'framer-motion';
 import { createRevealVariants, FADE_ONLY, type RevealVariant } from './variants';
 import { DURATION } from './transitions';
 import { viewportOnce, viewportRepeat } from './presets';
+import { useIsMobile } from './hooks';
 
 // Pre-created motion tags (stable across renders, Fast-Refresh safe).
 const REVEAL_TAGS = {
@@ -57,10 +58,15 @@ export const Reveal: React.FC<RevealProps> = ({
   as = 'div',
 }) => {
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
   const MotionTag = REVEAL_TAGS[as as RevealTagName] ?? REVEAL_TAGS.div;
 
   const variants = useMemo<Variants>(() => {
-    const source = reducedMotion ? FADE_ONLY : createRevealVariants(variant, { distance, duration });
+    // Mobile and reduced-motion visitors get a plain opacity crossfade: no
+    // transforms, springs, or per-frame style churn that small screens pay
+    // for with main-thread time (measured in Lighthouse TBT / Style & Layout).
+    const source =
+      reducedMotion || isMobile ? FADE_ONLY : createRevealVariants(variant, { distance, duration });
     const target = source.visible as TargetAndTransition;
     const baseTransition = target.transition as Transition | undefined;
 
@@ -70,7 +76,7 @@ export const Reveal: React.FC<RevealProps> = ({
     }
 
     return { hidden: source.hidden, visible };
-  }, [reducedMotion, variant, distance, duration, delay]);
+  }, [reducedMotion, isMobile, variant, distance, duration, delay]);
 
   const viewportPreset = useMemo(
     () => (once ? viewportOnce(amount) : viewportRepeat(amount)),
@@ -125,9 +131,10 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
   as = 'div',
 }) => {
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
 
   const variants = useMemo<Variants>(() => {
-    if (reducedMotion) return FADE_ONLY;
+    if (reducedMotion || isMobile) return FADE_ONLY;
     return {
       hidden: { y: '110%' },
       visible: {
@@ -135,7 +142,7 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
         transition: { duration, ease: [0.22, 1, 0.36, 1] as [number, number, number, number], delay },
       },
     };
-  }, [reducedMotion, duration, delay]);
+  }, [reducedMotion, isMobile, duration, delay]);
 
   const viewportPreset = useMemo(
     () => (once ? viewportOnce(amount) : viewportRepeat(amount)),

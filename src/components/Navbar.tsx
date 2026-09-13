@@ -5,6 +5,7 @@ import { useReducedMotion } from 'framer-motion';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe, Menu, X, Sun, Moon, PhoneCall } from 'lucide-react';
 import { siteConfig } from '../data/siteConfig';
+import { scrollToSection } from '../utils/sectionReveal';
 
 export const Navbar: React.FC = () => {
   const { t, toggleLanguage } = useLanguage();
@@ -15,34 +16,52 @@ export const Navbar: React.FC = () => {
   const [activeSection, setActiveSection] = useState('hero');
 
   useEffect(() => {
-    const sections = ['hero', 'proof', 'case-study', 'projects', 'engineering', 'education', 'security', 'process', 'trust', 'contact'];
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
-
-      requestAnimationFrame(() => {
-        ticking = false;
-
-        const nextScrolled = window.scrollY > 30;
-        setScrolled((prev) => (prev === nextScrolled ? prev : nextScrolled));
-
-        for (const section of [...sections].reverse()) {
-          const el = document.getElementById(section);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            if (rect.top <= 260) {
-              setActiveSection((prev) => (prev === section ? prev : section));
-              break;
-            }
-          }
-        }
-      });
+    const onScroll = () => {
+      // Cheap scroll-position read only — no forced layout.
+      const nextScrolled = window.scrollY > 30;
+      setScrolled((prev) => (prev === nextScrolled ? prev : nextScrolled));
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Active-section tracking via IntersectionObserver (not per-frame
+  // getBoundingClientRect reads, which forced synchronous layout during
+  // every scroll frame). Re-binds as lazy sections stream in.
+  useEffect(() => {
+    const sectionIds = ['hero', 'proof', 'case-study', 'projects', 'engineering', 'education', 'security', 'process', 'trust', 'contact'];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection((prev) => (prev === entry.target.id ? prev : entry.target.id));
+          }
+        }
+      },
+      // Middle band of the viewport decides the active section.
+      { rootMargin: '-35% 0px -55% 0px', threshold: 0 },
+    );
+
+    const bindSections = () => {
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el);
+      }
+    };
+    bindSections();
+
+    const main = document.querySelector('main');
+    let mutations: MutationObserver | null = null;
+    if (main) {
+      mutations = new MutationObserver(bindSections);
+      mutations.observe(main, { childList: true });
+    }
+
+    return () => {
+      observer.disconnect();
+      mutations?.disconnect();
+    };
   }, []);
 
   const navLinks = [
@@ -59,17 +78,14 @@ export const Navbar: React.FC = () => {
 
   const scrollTo = (id: string) => {
     setMobileMenuOpen(false);
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
-    }
+    scrollToSection(id, !reducedMotion);
   };
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-[var(--nav-bg)] backdrop-blur-lg border-b border-[var(--nav-border)] py-3 shadow-lg'
+          ? 'bg-[var(--nav-bg)] backdrop-blur-none md:backdrop-blur-lg border-b border-[var(--nav-border)] py-3 shadow-lg'
           : 'bg-transparent py-5'
       }`}
     >
@@ -83,7 +99,6 @@ export const Navbar: React.FC = () => {
               scrollTo('hero');
             }}
             className="group flex items-center gap-3 cursor-pointer"
-            aria-label={`${siteConfig.brandFirstName} ${siteConfig.brandLastName} - Home`}
           >
             <div className="w-8 h-8 rounded-lg border border-[var(--border-strong)] bg-[var(--accent-cyan-dim)] flex items-center justify-center text-[var(--accent-cyan)] font-mono text-xs font-bold group-hover:border-[var(--accent-cyan)] transition-all">
               {siteConfig.monogram}
@@ -97,6 +112,7 @@ export const Navbar: React.FC = () => {
                 {t.nav.brandStatus}
               </span>
             </div>
+            <span className="sr-only">{t.nav.home}</span>
           </a>
 
           {/* Desktop Navigation Links */}
@@ -139,7 +155,7 @@ export const Navbar: React.FC = () => {
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-1)] hover:bg-[var(--bg-surface-2)] text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
-              aria-label="Switch Language"
+              aria-label={`${t.nav.langBtn}, Switch Language`}
             >
               <Globe className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
               <span>{t.nav.langBtn}</span>

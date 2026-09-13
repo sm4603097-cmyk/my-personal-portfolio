@@ -100,10 +100,20 @@ export const ProjectsSection: React.FC = () => {
                   key={project.id}
                   variants={cardReveal}
                   layout={reducedMotion ? false : true}
+                  role="button"
+                  tabIndex={0}
+                  aria-haspopup="dialog"
+                  aria-label={`${title} — ${t.projects.viewCaseStudy}`}
                   onClick={() => setSelectedProject(project)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedProject(project);
+                    }
+                  }}
                   whileHover={canLift ? { y: -4, transition: { duration: 0.3, ease: EASE_STANDARD } } : undefined}
                   whileTap={canLift ? { scale: 0.985 } : undefined}
-                  className={`editorial-card p-6 sm:p-7 flex flex-col justify-between group cursor-pointer relative overflow-hidden ${catMeta.border}`}
+                  className={`editorial-card p-6 sm:p-7 flex flex-col justify-between group cursor-pointer relative overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-cyan)] ${catMeta.border}`}
                   id={`project-${project.id}`}
                 >
                   {/* Header Metadata */}

@@ -8,12 +8,9 @@ export * from './hooks';
 export * from './variants';
 
 export * from './Reveal';
-export * from './Stagger';
 export * from './AnimatedCounter';
 export * from './AnimatedProgress';
-export * from './DrawLine';
 export * from './TimelineReveal';
-export * from './ScrollParallax';
 export * from './HoverLift';
 export * from './MagneticButton';
 export * from './SectionTransition';

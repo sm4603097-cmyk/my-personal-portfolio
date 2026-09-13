@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://my-personal-portfolio.salama-8377.workers.dev/sitemap.xml

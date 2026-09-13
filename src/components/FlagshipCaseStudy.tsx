@@ -51,9 +51,9 @@ export const FlagshipCaseStudy: React.FC = () => {
     <section id="case-study" className="py-24 sm:py-28 theme-bg-page relative overflow-hidden">
       <div className="section-divider absolute top-0 left-0 right-0" />
 
-      {/* Atmospheric Ambient Glow */}
+      {/* Atmospheric Ambient Glow (desktop only) */}
       <div
-        className="absolute top-1/2 left-0 w-80 sm:w-[36rem] h-80 sm:h-[36rem] -translate-y-1/2 pointer-events-none"
+        className="hidden md:block absolute top-1/2 left-0 w-80 sm:w-[36rem] h-80 sm:h-[36rem] -translate-y-1/2 pointer-events-none"
         style={{
           background: 'radial-gradient(circle, var(--hero-glow-1) 0%, transparent 70%)',
           filter: 'blur(50px)',
@@ -133,9 +133,9 @@ export const FlagshipCaseStudy: React.FC = () => {
                   <div className="w-9 h-9 rounded-lg bg-[var(--accent-cyan-dim)] border border-[var(--border-accent)] flex items-center justify-center text-[var(--accent-cyan)] shrink-0">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h4 className="text-sm font-bold font-display uppercase tracking-wide text-[var(--text-heading)]">
+                  <h3 className="text-sm font-bold font-display uppercase tracking-wide text-[var(--text-heading)]">
                     {cap.title}
-                  </h4>
+                  </h3>
                 </div>
                 <ul className="space-y-2.5 mt-auto">
                   {cap.items.map((item, itemIdx) => (

@@ -8,9 +8,6 @@ export const Footer: React.FC = () => {
 
   const links = [
     { href: siteConfig.github, label: 'GitHub' },
-    { href: 'https://www.upwork.com', label: 'Upwork' },
-    { href: 'https://khamsat.com', label: 'Khamsat' },
-    { href: 'https://mostaql.com', label: 'Mostaql' },
   ];
 
   return (
@@ -56,7 +53,7 @@ export const Footer: React.FC = () => {
             © {new Date().getFullYear()} {t.footer.rights}
           </span>
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-2 text-[var(--text-muted)] opacity-60">
+            <span className="flex items-center gap-2 text-[var(--text-muted)]">
               <span>
                 صمم بواسطة <span className="text-[var(--accent-cyan)] font-semibold">SaLaMa_83_77</span>
               </span>

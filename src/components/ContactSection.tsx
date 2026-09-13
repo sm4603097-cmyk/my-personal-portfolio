@@ -265,8 +265,8 @@ export const ContactSection: React.FC = () => {
   return (
     <section id="contact" ref={turnstileSectionRef} className="py-24 sm:py-28 theme-bg-surface-1 border-t border-[var(--border-subtle)] relative overflow-hidden">
       
-      {/* Background Ambient Glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-80 sm:w-[35rem] h-80 sm:h-[35rem] bg-[var(--accent-cyan-dim)] rounded-full blur-[80px] pointer-events-none" />
+      {/* Background Ambient Glow (desktop only) */}
+      <div className="hidden md:block absolute bottom-0 left-1/2 -translate-x-1/2 w-80 sm:w-[35rem] h-80 sm:h-[35rem] bg-[var(--accent-cyan-dim)] rounded-full blur-[80px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -344,8 +344,8 @@ export const ContactSection: React.FC = () => {
                 </div>
 
                 {/* Step 1: Project Type Selection */}
-                <div>
-                  <label className="block text-xs font-mono text-[var(--accent-cyan)] uppercase tracking-wider font-bold mb-2.5">
+                <div role="group" aria-labelledby="contact-step-1">
+                  <label id="contact-step-1" className="block text-xs font-mono text-[var(--accent-cyan)] uppercase tracking-wider font-bold mb-2.5">
                     {t.contact.step1Title}
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -353,6 +353,7 @@ export const ContactSection: React.FC = () => {
                       <button
                         type="button"
                         key={idx}
+                        aria-pressed={selectedType === type}
                         onClick={() => setSelectedType(type)}
                         className={`px-3 py-2 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
                           selectedType === type
@@ -367,8 +368,8 @@ export const ContactSection: React.FC = () => {
                 </div>
 
                 {/* Step 2: Timeline Selection */}
-                <div>
-                  <label className="block text-xs font-mono text-[var(--accent-cyan)] uppercase tracking-wider font-bold mb-2.5">
+                <div role="group" aria-labelledby="contact-step-2">
+                  <label id="contact-step-2" className="block text-xs font-mono text-[var(--accent-cyan)] uppercase tracking-wider font-bold mb-2.5">
                     {t.contact.step2Title}
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -376,6 +377,7 @@ export const ContactSection: React.FC = () => {
                       <button
                         type="button"
                         key={idx}
+                        aria-pressed={selectedTimeline === time}
                         onClick={() => setSelectedTimeline(time)}
                         className={`px-3 py-2 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
                           selectedTimeline === time
@@ -392,10 +394,11 @@ export const ContactSection: React.FC = () => {
                 {/* Step 3: Direct Details */}
                 <div className="space-y-4 pt-2 border-t border-[var(--border-subtle)]">
                   <div>
-                    <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
+                    <label htmlFor="contact-name" className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
                       {t.contact.nameLabel}
                     </label>
                     <input
+                      id="contact-name"
                       type="text"
                       required
                       autoComplete="name"
@@ -407,10 +410,11 @@ export const ContactSection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
+                    <label htmlFor="contact-email" className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
                       {t.contact.emailLabel}
                     </label>
                     <input
+                      id="contact-email"
                       type="email"
                       required
                       autoComplete="email"
@@ -440,10 +444,11 @@ export const ContactSection: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
+                    <label htmlFor="contact-message" className="block text-xs font-mono text-[var(--text-secondary)] mb-1">
                       {t.contact.messageLabel}
                     </label>
                     <textarea
+                      id="contact-message"
                       rows={3}
                       required
                       value={message}

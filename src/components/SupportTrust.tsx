@@ -81,36 +81,51 @@ export const SupportTrust: React.FC = () => {
             viewport={{ once: false, amount: 0.1 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5"
           >
-            {t.trust.platforms.map((plat, idx) => (
-              <motion.a
-                key={idx}
-                variants={item}
-                href={plat.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={canLift ? { y: -3, transition: { duration: 0.25, ease: EASE_STANDARD } } : undefined}
-                whileTap={canLift ? { scale: 0.99 } : undefined}
-                className="editorial-card p-5 sm:p-6 hover:border-[var(--accent-cyan)] transition-all group flex flex-col justify-between"
-                id={`platform-${idx}`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <span className="text-base sm:text-lg font-bold font-display text-[var(--text-heading)] group-hover:text-[var(--accent-cyan)] transition-colors">
-                      {plat.name}
-                    </span>
-                    <ExternalLink className="w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--accent-cyan)] transition-colors" />
+            {t.trust.platforms.map((plat, idx) => {
+              const isLink = plat.link.length > 0;
+              const motionProps = {
+                variants: item,
+                className: `editorial-card p-5 sm:p-6 hover:border-[var(--accent-cyan)] transition-all group flex flex-col justify-between ${isLink ? 'cursor-pointer' : ''}`,
+                id: `platform-${idx}`,
+              };
+              const cardContent = (
+                <>
+                  <div>
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="text-base sm:text-lg font-bold font-display text-[var(--text-heading)] group-hover:text-[var(--accent-cyan)] transition-colors">
+                        {plat.name}
+                      </span>
+                      <ExternalLink className={`w-4 h-4 text-[var(--text-muted)] group-hover:text-[var(--accent-cyan)] transition-colors ${isLink ? '' : 'opacity-40'}`} />
+                    </div>
+                    <div className="text-xs text-[var(--text-secondary)] font-mono mb-4">
+                      {plat.role}
+                    </div>
                   </div>
-                  <div className="text-xs text-[var(--text-secondary)] font-mono mb-4">
-                    {plat.role}
-                  </div>
-                </div>
 
-                <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
-                  <span>{plat.badge}</span>
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                </div>
-              </motion.a>
-            ))}
+                  <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
+                    <span>{plat.badge}</span>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  </div>
+                </>
+              );
+              return isLink ? (
+                <motion.a
+                  key={idx}
+                  {...motionProps}
+                  href={plat.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={canLift ? { y: -3, transition: { duration: 0.25, ease: EASE_STANDARD } } : undefined}
+                  whileTap={canLift ? { scale: 0.99 } : undefined}
+                >
+                  {cardContent}
+                </motion.a>
+              ) : (
+                <motion.div key={idx} {...motionProps}>
+                  {cardContent}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
 

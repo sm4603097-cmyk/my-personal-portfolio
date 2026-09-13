@@ -17,9 +17,9 @@ export const EducationSection: React.FC = () => {
     <section id="education" className="py-24 sm:py-28 theme-bg-surface-1 relative overflow-hidden">
       <div className="section-divider absolute top-0 left-0 right-0" />
 
-      {/* Background Ambient */}
+      {/* Background Ambient (desktop only) */}
       <div
-        className="absolute top-1/2 left-1/4 w-80 sm:w-[32rem] h-80 sm:h-[32rem] -translate-y-1/2 pointer-events-none"
+        className="hidden md:block absolute top-1/2 left-1/4 w-80 sm:w-[32rem] h-80 sm:h-[32rem] -translate-y-1/2 pointer-events-none"
         style={{
           background: 'radial-gradient(circle, var(--hero-glow-1) 0%, transparent 70%)',
           filter: 'blur(50px)',

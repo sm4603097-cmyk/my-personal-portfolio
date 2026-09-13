@@ -35,7 +35,7 @@ export const siteConfig: SiteConfig = {
   telegramLink: 'https://t.me/+201070471954',
   email: 'sm4603097@gmail.com',
   emailLink: 'mailto:sm4603097@gmail.com',
-  github: 'https://github.com',
+  github: 'https://github.com/sm4603097-cmyk',
   turnstileSiteKey: '0x4AAAAAAExS4vnlmaeqF8pQ',
   socials: [
     {

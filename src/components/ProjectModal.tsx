@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Project } from '../data/portfolioData';
 import { useLanguage } from '../context/LanguageContext';
 import { splitMetricSegments } from '../utils/bidi';
-import { X, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, ArrowRight, ExternalLink, GitBranch } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { EASE_STANDARD } from '../motion';
 
@@ -14,21 +14,56 @@ interface ProjectModalProps {
 export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) => {
   const { t, isRtl } = useLanguage();
   const reducedMotion = useReducedMotion();
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
-  // Handle ESC key to close modal + preserve existing scroll lock state
+  // Dialog lifecycle: focus management (trap + restore), ESC to close,
+  // and scroll-lock with preservation of the previous scroll state.
   useEffect(() => {
+    if (!project) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    previouslyFocusedRef.current = previouslyFocused;
+
+    const root = dialogRef.current;
+    // Move focus into the dialog (tabIndex={-1} makes it focusable).
+    root?.focus();
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !root) return;
+
+      const focusables = Array.from(
+        root.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((el) => !el.hasAttribute('hidden'));
+
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
-    if (project) {
-      const previousOverflow = document.body.style.overflow;
-      window.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-      return () => {
-        window.removeEventListener('keydown', handleKeyDown);
-        document.body.style.overflow = previousOverflow;
-      };
-    }
+
+    const previousOverflow = document.body.style.overflow;
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocusedRef.current?.focus?.();
+    };
   }, [project, onClose]);
 
   if (!project) return null;
@@ -52,11 +87,16 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
       onClick={onClose}
     >
       <motion.div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="project-modal-title"
+        tabIndex={-1}
         initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.97, y: 12 }}
         animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
         exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 8 }}
         transition={{ duration: 0.3, ease: EASE_STANDARD }}
-        className="relative w-full max-w-4xl rounded-2xl bg-[var(--bg-card-solid)] border border-[var(--border-strong)] p-6 sm:p-10 shadow-2xl my-8"
+        className="relative w-full max-w-4xl rounded-2xl bg-[var(--bg-card-solid)] border border-[var(--border-strong)] p-6 sm:p-10 shadow-2xl my-8 outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -74,7 +114,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
         </div>
 
         {/* Title */}
-        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-[var(--text-heading)] mb-2">
+        <h3
+          id="project-modal-title"
+          className="text-2xl sm:text-3xl lg:text-4xl font-display font-extrabold text-[var(--text-heading)] mb-2"
+        >
           {title}
         </h3>
 
@@ -189,7 +232,34 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
         </div>
 
         {/* Modal Action Footer */}
-        <div className="mt-8 pt-6 border-t border-[var(--border-subtle)] flex justify-end">
+        <div className="mt-8 pt-6 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
+          {(project.liveUrl || project.githubUrl) && (
+            <div className="flex flex-wrap items-center gap-2">
+              {project.liveUrl && (
+                <a
+                  href={project.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{t.projects.liveDemo}</span>
+                </a>
+              )}
+              {project.githubUrl && (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse"
+                >
+                  <GitBranch className="w-3.5 h-3.5" />
+                  <span>{t.projects.sourceCode}</span>
+                </a>
+              )}
+            </div>
+          )}
+
           <button
             onClick={onClose}
             className="px-6 py-2.5 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"

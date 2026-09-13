@@ -77,15 +77,6 @@ export const SCALE_ITEM: Variants = {
   },
 };
 
-export const SLIDE_LEFT: Variants = {
-  hidden: { opacity: 0, x: -12 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: transitionFor(DURATION.base, EASE_STANDARD),
-  },
-};
-
 export const SLIDE_UP: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
@@ -166,12 +157,6 @@ export const createRevealVariants = (
       };
   }
 };
-
-/** Side-aware slide that respects RTL reading direction. */
-export const createSideReveal = (
-  side: 'left' | 'right',
-  options: RevealOptions = {},
-): Variants => createRevealVariants(side === 'left' ? 'slide-start' : 'slide-end', options);
 
 /** Stagger container factory. */
 export const createStaggerVariants = (
