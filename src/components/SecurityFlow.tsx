@@ -49,16 +49,16 @@ export const SecurityFlow: React.FC = () => {
     <section id="security" className="py-24 sm:py-28 theme-bg-page relative overflow-hidden">
       <div className="section-divider absolute top-0 left-0 right-0" />
 
-      {/* Atmospheric Ambient Glows */}
+      {/* Atmospheric Ambient Glows (desktop only) */}
       <div
-        className="absolute top-1/3 right-0 w-80 sm:w-[32rem] h-80 sm:h-[32rem] pointer-events-none"
+        className="hidden md:block absolute top-1/3 right-0 w-80 sm:w-[32rem] h-80 sm:h-[32rem] pointer-events-none"
         style={{
           background: 'radial-gradient(circle, var(--hero-glow-1) 0%, transparent 70%)',
           filter: 'blur(50px)',
         }}
       />
       <div
-        className="absolute bottom-1/4 left-0 w-72 sm:w-[26rem] h-72 sm:h-[26rem] pointer-events-none"
+        className="hidden md:block absolute bottom-1/4 left-0 w-72 sm:w-[26rem] h-72 sm:h-[26rem] pointer-events-none"
         style={{
           background: 'radial-gradient(circle, var(--hero-glow-2) 0%, transparent 70%)',
           filter: 'blur(50px)',

@@ -4,7 +4,9 @@ import { motion, useScroll, useTransform, AnimatePresence, useReducedMotion } fr
 import { ArrowDown, Shield, Cpu, Smartphone, Code2, CheckCircle2, MessageCircle, Phone } from 'lucide-react';
 import { STAGGER_CONTAINER, ITEM_FADE_UP, MASK_REVEAL, TRANSITION_EASE, FADE_ONLY, NO_MOTION_CONTAINER } from '../motion/variants';
 import { MagneticButton } from '../motion';
+import { useIsMobile } from '../motion/hooks';
 import { siteConfig } from '../data/siteConfig';
+import { scrollToSection } from '../utils/sectionReveal';
 
 const CAPABILITY_ICONS = [Code2, Smartphone, Cpu, Shield];
 const CAPABILITY_COLORS = ['text-cyan-500', 'text-emerald-500', 'text-amber-500', 'text-indigo-500'];
@@ -12,13 +14,18 @@ const CAPABILITY_COLORS = ['text-cyan-500', 'text-emerald-500', 'text-amber-500'
 export const HeroSection: React.FC = () => {
   const { t } = useLanguage();
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
   const [activeRoleIndex, setActiveRoleIndex] = useState(0);
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
 
-  // Parallax transforms for natural depth (disabled for reduced motion)
-  const imageY = useTransform(scrollY, [0, 600], [0, reducedMotion ? 0 : 60]);
-  const textY = useTransform(scrollY, [0, 600], [0, reducedMotion ? 0 : -30]);
+  // Parallax only pays for itself on fine pointers / larger viewports; smaller
+  // screens keep the transforms inert so the scroll handler stays idle work.
+  const parallax = !reducedMotion && !isMobile;
+
+  // Parallax transforms for natural depth (disabled for reduced motion / mobile)
+  const imageY = useTransform(scrollY, [0, 600], [0, parallax ? 60 : 0]);
+  const textY = useTransform(scrollY, [0, 600], [0, parallax ? -30 : 0]);
 
   useEffect(() => {
     if (!t.hero.roles?.length) return;
@@ -48,16 +55,17 @@ export const HeroSection: React.FC = () => {
       {/* Background Architectural Grid */}
       <div className="absolute inset-0 hero-grid pointer-events-none" />
 
-      {/* Atmospheric Ambient Glows */}
+      {/* Atmospheric Ambient Glows (desktop only — large blur filters are the
+          #1 Style & Layout cost on mobile) */}
       <div
-        className="absolute top-1/4 left-[8%] w-80 sm:w-[32rem] h-80 sm:h-[32rem] rounded-full pointer-events-none animate-pulse-subtle"
+        className="hidden md:block absolute top-1/4 left-[8%] w-80 sm:w-[32rem] h-80 sm:h-[32rem] rounded-full pointer-events-none animate-pulse-subtle"
         style={{
           background: 'radial-gradient(circle, var(--hero-glow-1) 0%, transparent 70%)',
           filter: 'blur(50px)',
         }}
       />
       <div
-        className="absolute bottom-1/4 right-[5%] w-72 sm:w-[28rem] h-72 sm:h-[28rem] rounded-full pointer-events-none animate-pulse-subtle"
+        className="hidden md:block absolute bottom-1/4 right-[5%] w-72 sm:w-[28rem] h-72 sm:h-[28rem] rounded-full pointer-events-none animate-pulse-subtle"
         style={{
           background: 'radial-gradient(circle, var(--hero-glow-2) 0%, transparent 70%)',
           filter: 'blur(50px)',
@@ -79,7 +87,7 @@ export const HeroSection: React.FC = () => {
           >
             {/* Live System Availability Badge */}
             <motion.div variants={itemFade} className="mb-6 sm:mb-8">
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[var(--border-accent)] bg-[var(--accent-cyan-dim)] backdrop-blur-md text-[var(--accent-cyan)] text-[11px] font-mono tracking-[0.16em] uppercase">
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[var(--border-accent)] bg-[var(--accent-cyan-dim)] backdrop-blur-none md:backdrop-blur-md text-[var(--accent-cyan)] text-[11px] font-mono tracking-[0.16em] uppercase">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -159,6 +167,10 @@ export const HeroSection: React.FC = () => {
                 id="hero-cta-primary"
                 strength={5}
                 className="btn-primary flex-1 sm:flex-initial text-center"
+                onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+                  event.preventDefault();
+                  scrollToSection('proof', !reducedMotion);
+                }}
               >
                 <span>{t.hero.ctaPrimary}</span>
                 <ArrowDown className="w-4 h-4 shrink-0" />
@@ -167,6 +179,10 @@ export const HeroSection: React.FC = () => {
                 href="#contact"
                 className="btn-ghost flex-1 sm:flex-initial text-center"
                 id="hero-cta-secondary"
+                onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+                  event.preventDefault();
+                  scrollToSection('contact', !reducedMotion);
+                }}
               >
                 <span>{t.hero.ctaSecondary}</span>
               </a>
@@ -207,19 +223,21 @@ export const HeroSection: React.FC = () => {
           </motion.div>
 
           {/* ─── RIGHT COLUMN: Studio Portrait Integration ─── */}
+          {/* The portrait is the LCP element on every form factor. It is eager
+              (fetchpriority="high", loading="eager" preloaded in <head>), so it
+              must NOT be gated behind an opacity/scale entrance animation —
+              that delays its first paint and inflates element-render-delay.
+              Parallax (desktop only) is preserved via the inert y transform,
+              but visibility starts at 1, not 0. */}
           <motion.div
             style={{ y: imageY }}
-            initial={reducedMotion ? false : { opacity: 0, scale: 0.96 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: false, amount: 0.1 }}
-            transition={{ duration: 1, ease: TRANSITION_EASE, delay: 0.2 }}
             className="lg:col-span-5 relative flex justify-center items-center"
           >
             {/* Seamless Composition: Backing Studio Glow */}
             <div className="relative w-full max-w-sm sm:max-w-md">
 
               {/* Top Status Pill Overlay (raised above the portrait, breathing room below) */}
-              <div className="absolute -top-2 sm:-top-3 left-3 rtl:left-auto rtl:right-3 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)]/80 border border-[var(--border-strong)] backdrop-blur-md shadow-md">
+              <div className="absolute -top-2 sm:-top-3 left-3 rtl:left-auto rtl:right-3 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)]/80 border border-[var(--border-strong)] backdrop-blur-none md:backdrop-blur-md shadow-md">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
@@ -229,9 +247,9 @@ export const HeroSection: React.FC = () => {
                 </span>
               </div>
 
-              {/* Backing Ambient Halo */}
+              {/* Backing Ambient Halo (desktop only) */}
               <div
-                className="absolute inset-0 rounded-full opacity-60 pointer-events-none"
+                className="hidden md:block absolute inset-0 rounded-full opacity-60 pointer-events-none"
                 style={{
                   background: 'radial-gradient(circle at 50% 40%, var(--hero-glow-1) 0%, var(--hero-glow-2) 45%, transparent 70%)',
                   filter: 'blur(24px)',
@@ -279,7 +297,7 @@ export const HeroSection: React.FC = () => {
                   />
 
                   {/* Bottom Integrated Identity Caption */}
-                  <div className="absolute bottom-3 left-3 right-3 z-20 p-3 rounded-xl bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] backdrop-blur-md shadow-lg flex items-center justify-between">
+                  <div className="absolute bottom-3 left-3 right-3 z-20 p-3 rounded-xl bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] backdrop-blur-none md:backdrop-blur-md shadow-lg flex items-center justify-between">
                     <div>
                       <p className="text-xs font-bold text-[var(--text-heading)] font-display tracking-wide">
                         {t.hero.portraitLabel}

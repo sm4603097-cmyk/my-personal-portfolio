@@ -10,32 +10,7 @@ export interface ViewportPreset {
 // element re-enters the viewport (and reverting to their initial state on
 // leave). Pass `viewportOnce(...)` explicitly for the rare one-shot case.
 
-/** Strict reveal: requires 25% visible — used for section headers. */
-export const VIEWPORT_HEADER: ViewportPreset = { once: false, amount: 0.25 };
-
-/** Standard reveal: 20% visible. */
-export const VIEWPORT_STANDARD: ViewportPreset = { once: false, amount: 0.2 };
-
-/** Laid-back reveal: 10% visible — used for grids and tall blocks. */
-export const VIEWPORT_LAIDBACK: ViewportPreset = { once: false, amount: 0.1 };
-
-/** Very permissive: 5% visible — used for cards that scroll lazily. */
-export const VIEWPORT_PERMISSIVE: ViewportPreset = { once: false, amount: 0.05 };
-
 export const viewportOnce = (amount: number): ViewportPreset => ({ once: true, amount });
 
 /** Viewport trigger that replays when re-entering (does NOT disconnect after first trigger). */
 export const viewportRepeat = (amount: number): ViewportPreset => ({ once: false, amount });
-
-/** Default reveal offsets by intent — desktop > tablet > mobile handled in primitives. */
-export const REVEAL_DISTANCE = {
-  eyebrow: 8,
-  heading: 22,
-  body: 16,
-  card: 24,
-} as const;
-
-/** Subtle, restrained parallax delta in pixels. */
-export const PARALLAX_DEFAULT = 24;
-export const PARALLAX_TABLET = 12;
-export const PARALLAX_MOBILE = 0;

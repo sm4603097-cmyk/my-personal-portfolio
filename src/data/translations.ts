@@ -13,6 +13,7 @@ export interface TranslationContent {
     contact: string;
     langBtn: string;
     brandStatus: string;
+    home: string;
   };
   hero: {
     systemStatus: string;
@@ -88,6 +89,8 @@ export interface TranslationContent {
     modalPipeline: string;
     modalHighlights: string;
     modalStack: string;
+    liveDemo: string;
+    sourceCode: string;
   };
   engineering: {
     badge: string;
@@ -233,6 +236,7 @@ export const translations: Record<Language, TranslationContent> = {
       contact: "Initiate",
       langBtn: "العربية",
       brandStatus: "FULL-STACK · SECURITY",
+      home: "Home",
     },
     hero: {
       systemStatus: "ENGINEERING PRODUCT PLATFORM · ACTIVE",
@@ -335,7 +339,9 @@ export const translations: Record<Language, TranslationContent> = {
       modalSolution: "THE ARCHITECTURAL SOLUTION",
       modalPipeline: "SYSTEM PIPELINE STEPS",
       modalHighlights: "ENGINEERING HIGHLIGHTS",
-      modalStack: "TECHNOLOGY STACK"
+      modalStack: "TECHNOLOGY STACK",
+      liveDemo: "View Live",
+      sourceCode: "Source Code"
     },
     engineering: {
       badge: "ENGINEERING MATRIX",
@@ -473,10 +479,10 @@ export const translations: Record<Language, TranslationContent> = {
       guaranteeDesc: "When a project is launched, I stand firmly behind the code delivered. Any issues related to agreed project scope are handled responsibly according to contract terms.",
       platformsTitle: "VERIFIED FREELANCE & ENGINEERING CREDENTIALS",
       platforms: [
-        { name: "Upwork", role: "Full-Stack & Android Developer", badge: "Verified Top Platform", link: "https://www.upwork.com" },
-        { name: "Khamsat", role: "Software Engineering Services", badge: "Verified Marketplace Provider", link: "https://khamsat.com" },
-        { name: "Mostaql", role: "Web & Mobile Developer", badge: "Verified Freelance Engineer", link: "https://mostaql.com" },
-        { name: "GitHub", role: "Engineering Repositories", badge: "Open Codebase & Contributions", link: "https://github.com" }
+        { name: "Upwork", role: "Full-Stack & Android Developer", badge: "Verified Top Platform", link: "" },
+        { name: "Khamsat", role: "Software Engineering Services", badge: "Verified Marketplace Provider", link: "" },
+        { name: "Mostaql", role: "Web & Mobile Developer", badge: "Verified Freelance Engineer", link: "" },
+        { name: "GitHub", role: "Engineering Repositories", badge: "Open Codebase & Contributions", link: "https://github.com/sm4603097-cmyk" }
       ],
       githubHeadline: "CODE IS PART OF THE PRODUCT.",
       githubSub: "Clean repository structures, commit history discipline, and maintainable codebase patterns.",
@@ -539,6 +545,7 @@ export const translations: Record<Language, TranslationContent> = {
       contact: "تواصل معي",
       langBtn: "English",
       brandStatus: "مطور متكامل · هندسة الأمان",
+      home: "الرئيسية",
     },
     hero: {
       systemStatus: "منصة تطوير المنتجات البرمجية · نشطة",
@@ -641,7 +648,9 @@ export const translations: Record<Language, TranslationContent> = {
       modalSolution: "الحل المعماري",
       modalPipeline: "خطوات مسار النظام",
       modalHighlights: "أبرز النقاط الهندسية",
-      modalStack: "التقنيات المستخدمة"
+      modalStack: "التقنيات المستخدمة",
+      liveDemo: "معاينة مباشرة",
+      sourceCode: "الكود المصدري"
     },
     engineering: {
       badge: "المصفوفة التقنية",
@@ -779,10 +788,10 @@ export const translations: Record<Language, TranslationContent> = {
       guaranteeDesc: "عند إطلاق المشروع، أقف تماماً خلف الكود والمخرجات التي تم تسليمها. أي استفسارات أو ملاحظات تتعلق بنطاق العمل المتفق عليه تُعالج بمسؤولية تامة وفقاً للشروط.",
       platformsTitle: "حسابات ومنصات العمل الحر المعتمدة",
       platforms: [
-        { name: "Upwork", role: "مطوِّر متكامل وأندرويد Full-Stack", badge: "منصة عالمية معتمدة", link: "https://www.upwork.com" },
-        { name: "خمسات Khamsat", role: "خدمات الهندسة والبرمجيات", badge: "بائع خدمات معتمد", link: "https://khamsat.com" },
-        { name: "مستقل Mostaql", role: "مطور تطبيقات ويب وهاتف", badge: "مهندس مستقل معتمد", link: "https://mostaql.com" },
-        { name: "GitHub", role: "مستودعات البرمجة والمشاريع", badge: "كود مفتوح ومساهمات فعلية", link: "https://github.com" }
+        { name: "Upwork", role: "مطوِّر متكامل وأندرويد Full-Stack", badge: "منصة عالمية معتمدة", link: "" },
+        { name: "خمسات Khamsat", role: "خدمات الهندسة والبرمجيات", badge: "بائع خدمات معتمد", link: "" },
+        { name: "مستقل Mostaql", role: "مطور تطبيقات ويب وهاتف", badge: "مهندس مستقل معتمد", link: "" },
+        { name: "GitHub", role: "مستودعات البرمجة والمشاريع", badge: "كود مفتوح ومساهمات فعلية", link: "https://github.com/sm4603097-cmyk" }
       ],
       githubHeadline: "الكود هو جزء أساسي من المنتج.",
       githubSub: "هيكلة مستودعات ناعمة، انضباط في سجل التغييرات Commits، وأنظمة قابلة للصيانة.",

@@ -5,6 +5,7 @@ import { ShieldCheck, Check, ArrowRight } from 'lucide-react';
 
 import { SECTION_REVEAL, CARD_STAGGER, CARD_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
 import { AnimatedCounter, SectionHeader, SectionTransition } from '../motion';
+import { scrollToSection } from '../utils/sectionReveal';
 
 type FilterKey = 'all' | 'auth' | 'android' | 'security';
 
@@ -166,6 +167,10 @@ export const ProofSection: React.FC = () => {
               <a
                 href="#case-study"
                 className="btn-primary w-full sm:w-auto text-center"
+                onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+                  event.preventDefault();
+                  scrollToSection('case-study', !reducedMotion);
+                }}
               >
                 <span>{t.nav.caseStudy}</span>
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" />

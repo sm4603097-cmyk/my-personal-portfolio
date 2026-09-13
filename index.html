@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -8,17 +8,91 @@
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8fafc" />
     <title>ALHASSAN MOHAMED — Full-Stack Web Developer · Android Developer · AI & Security</title>
     <meta name="description" content="Official portfolio of ALHASSAN MOHAMED. Engineering complete digital products: Web platforms, Android applications, AI systems, and secure architecture from idea to production." />
-    
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://my-personal-portfolio.salama-8377.workers.dev/" />
+
+    <!-- Preload the LCP element (hero portrait). The <img> is rendered by
+         React inside a <picture>, so without this the AVIF fetch would not
+         start until JS has mounted, delaying LCP. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/assets/alhassan_mohamed.avif"
+      imagesrcset="/assets/alhassan_mohamed.avif"
+      imagesizes="(max-width: 640px) 384px, 420px"
+      fetchpriority="high"
+    />
+
+    <!-- Pre-paint theme & language bootstrap: prevents a flash of the wrong
+         theme/direction before React mounts. Mirrors the initial-state logic
+         in ThemeContext / LanguageContext. -->
+    <script>
+      (function () {
+        try {
+          var root = document.documentElement;
+          var savedTheme = localStorage.getItem('portfolio-theme');
+          var theme = savedTheme === 'light' || savedTheme === 'dark'
+            ? savedTheme
+            : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          root.classList.add(theme);
+          root.setAttribute('data-theme', theme);
+          var savedLang = localStorage.getItem('portfolio_lang');
+          if (savedLang === 'ar' || savedLang === 'en') {
+            root.lang = savedLang;
+            root.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
+          }
+        } catch (e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://my-personal-portfolio.salama-8377.workers.dev/" />
+    <meta property="og:site_name" content="ALHASSAN MOHAMED — Portfolio" />
     <meta property="og:title" content="ALHASSAN MOHAMED — Full-Stack Web · Android · AI · Security Engineer" />
     <meta property="og:description" content="I build complete digital products — not just websites. Secure, scalable web platforms, Android applications, and intelligent systems." />
-    <meta property="og:image" content="/assets/alhassan_mohamed.jpg" />
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <meta property="og:image" content="https://my-personal-portfolio.salama-8377.workers.dev/assets/alhassan_mohamed.jpg" />
+    <meta property="og:image:width" content="768" />
+    <meta property="og:image:height" content="1024" />
+    <meta property="og:image:alt" content="ALHASSAN MOHAMED — Full-Stack Developer Portrait" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ALHASSAN MOHAMED — Full-Stack Web · Android · AI · Security Engineer" />
+    <meta name="twitter:description" content="I build complete digital products — not just websites. Secure, scalable web platforms, Android applications, and intelligent systems." />
+    <meta name="twitter:image" content="https://my-personal-portfolio.salama-8377.workers.dev/assets/alhassan_mohamed.jpg" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "ALHASSAN MOHAMED",
+        "alternateName": "SaLaMa_83_77",
+        "url": "https://my-personal-portfolio.salama-8377.workers.dev/",
+        "image": "https://my-personal-portfolio.salama-8377.workers.dev/assets/alhassan_mohamed.jpg",
+        "jobTitle": "Full-Stack Web Developer · Android Developer · AI & Security Engineer",
+        "email": "mailto:sm4603097@gmail.com",
+        "sameAs": [
+          "https://github.com/sm4603097-cmyk",
+          "https://www.facebook.com/share/1EnkoF1EQn/?mibextid=wwXIfr",
+          "https://www.instagram.com/sa_la_ma_83_77?stkn=MWh1ZTEzdWtlYXo2OA%3D%3D&utm_source=qr",
+          "https://www.tiktok.com/@salama_83_77?_r=1&_t=ZS-99dvDws4Pah",
+          "https://t.me/+201070471954"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "ALHASSAN MOHAMED — Portfolio",
+        "url": "https://my-personal-portfolio.salama-8377.workers.dev/",
+        "inLanguage": ["en", "ar"]
+      }
+    </script>
+
+    <!-- Fonts are self-hosted via @font-face in src/index.css (font-display: swap; latin + arabic subsets) -->
   </head>
   <body class="text-slate-100 antialiased selection:bg-cyan-500/30 selection:text-cyan-200 overflow-x-hidden">
     <div id="root"></div>
