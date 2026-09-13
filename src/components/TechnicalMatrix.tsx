@@ -70,7 +70,7 @@ export const TechnicalMatrix: React.FC = () => {
                 id={`matrix-tab-${idx}`}
               >
                 <div className="text-[10px] font-mono text-[var(--accent-cyan)] font-bold mb-1 tracking-[0.14em]">
-                  {t.engineering.module} 0{idx + 1}
+                  0{idx + 1}
                 </div>
                 <div className="text-sm font-bold font-display leading-tight text-[var(--text-heading)]">
                   {cat.name}
