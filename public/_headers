@@ -1,0 +1,6 @@
+# Content-hashed build output (JS/CSS bundles) and the immutable hero image
+# variants are safe to cache forever; a change always ships under a new name.
+# Everything else (index.html, fonts, icons, 404 page, ...) keeps Workers'
+# default revalidation behavior ({ max-age=0, must-revalidate } + ETag).
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
