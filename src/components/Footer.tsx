@@ -8,6 +8,7 @@ export const Footer: React.FC = () => {
 
   const links = [
     { href: siteConfig.github, label: 'GitHub' },
+    { href: siteConfig.linkedin, label: 'LinkedIn' },
   ];
 
   return (
