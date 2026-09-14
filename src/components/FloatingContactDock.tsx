@@ -108,7 +108,7 @@ export const FloatingContactDock: React.FC = () => {
                 </span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                  className="w-11 h-11 flex items-center justify-center p-0 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                   aria-label="Close"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -123,7 +123,7 @@ export const FloatingContactDock: React.FC = () => {
                     href={ch.href}
                     target={ch.id === 'phone' || ch.id === 'email' ? '_self' : '_blank'}
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2 rounded-xl hover:bg-[var(--bg-surface-2)] transition-colors group"
+                    className="min-h-11 py-1.5 px-2 flex items-center justify-between rounded-xl hover:bg-[var(--bg-surface-2)] transition-colors group"
                   >
                     <div className="flex items-center gap-2.5">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${ch.bgClass} shadow-md`}>
@@ -152,7 +152,7 @@ export const FloatingContactDock: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-label={t.contact.dockTitle}
-          className="group flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-[var(--dock-bg)] border border-[var(--border-subtle)] text-[var(--text-primary)] shadow-lg hover:border-[var(--accent-cyan)] transition-all cursor-pointer opacity-70 hover:opacity-100"
+          className="group flex items-center gap-2 px-3.5 py-1 min-h-11 sm:px-4 rounded-full bg-[var(--dock-bg)] border border-[var(--border-subtle)] text-[var(--text-primary)] shadow-lg hover:border-[var(--accent-cyan)] transition-all cursor-pointer opacity-70 hover:opacity-100"
         >
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />

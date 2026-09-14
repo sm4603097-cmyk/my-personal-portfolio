@@ -4,7 +4,7 @@ import { m, useReducedMotion } from 'framer-motion';
 import { GraduationCap, Award, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 import { CARD_STAGGER as STAGGER, CARD_ITEM as CERT_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { SectionHeader } from '../motion';
+import { SectionHeader, SectionEntrance } from '../motion';
 
 export const EducationSection: React.FC = () => {
   const { t } = useLanguage();
@@ -38,7 +38,7 @@ export const EducationSection: React.FC = () => {
         />
 
         {/* Academic Foundation + Commercial Mindset Banner */}
-        <m.div
+        <SectionEntrance
           variants={stagger}
           initial="hidden"
           whileInView="visible"
@@ -98,7 +98,7 @@ export const EducationSection: React.FC = () => {
               {t.education.marketingCert}
             </div>
           </m.div>
-        </m.div>
+        </SectionEntrance>
 
         {/* Certifications Grid */}
         <div className="space-y-5">
@@ -106,7 +106,7 @@ export const EducationSection: React.FC = () => {
             {t.education.certsTitle}
           </h3>
 
-          <m.div
+          <SectionEntrance
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -139,7 +139,7 @@ export const EducationSection: React.FC = () => {
                 </div>
               </m.div>
             ))}
-          </m.div>
+          </SectionEntrance>
         </div>
 
       </div>

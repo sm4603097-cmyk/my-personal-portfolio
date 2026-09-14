@@ -13,7 +13,7 @@ import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Search } from 'lucide-react';
 
 import { CARD_STAGGER as GRID_STAGGER, CARD_ITEM as CARD_REVEAL, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { SectionHeader, EASE_STANDARD, useIsFinePointer } from '../motion';
+import { SectionHeader, SectionEntrance, EASE_STANDARD, useIsFinePointer } from '../motion';
 
 export const ProjectsSection: React.FC = () => {
   const { t, isRtl } = useLanguage();
@@ -54,7 +54,7 @@ export const ProjectsSection: React.FC = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setFilter(tab.key)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-semibold flex items-center space-x-2 rtl:space-x-reverse transition-all cursor-pointer ${
+                className={`px-3.5 py-1 min-h-11 rounded-xl text-xs font-mono font-semibold flex items-center space-x-2 rtl:space-x-reverse transition-all cursor-pointer ${
                   isActive
                     ? 'bg-[var(--accent-cyan-dim)] text-[var(--accent-cyan)] border border-[var(--accent-cyan)] shadow-sm'
                     : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
@@ -68,13 +68,13 @@ export const ProjectsSection: React.FC = () => {
         </div>
 
         {/* Projects Grid */}
-        <m.div
+        <SectionEntrance
           key={filter}
           variants={gridContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, amount: 0.05 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg1152:grid-cols-3 gap-6"
         >
           {filteredProjects.length === 0 ? (
             <div className="col-span-full bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-10 sm:p-14 text-center">
@@ -169,7 +169,7 @@ export const ProjectsSection: React.FC = () => {
               );
             })
           )}
-        </m.div>
+        </SectionEntrance>
 
       </div>
 

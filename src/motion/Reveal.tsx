@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { m, useReducedMotion } from 'framer-motion';
 import type { TargetAndTransition, Transition, Variants } from 'framer-motion';
-import { createRevealVariants, FADE_ONLY, type RevealVariant } from './variants';
+import { createRevealVariants, type RevealVariant } from './variants';
 import { DURATION } from './transitions';
 import { viewportOnce, viewportRepeat } from './presets';
 import { useIsMobile } from './hooks';
@@ -60,13 +60,12 @@ export const Reveal: React.FC<RevealProps> = ({
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
   const MotionTag = REVEAL_TAGS[as as RevealTagName] ?? REVEAL_TAGS.div;
+  const staticReveal = reducedMotion || isMobile;
 
   const variants = useMemo<Variants>(() => {
-    // Mobile and reduced-m visitors get a plain opacity crossfade: no
-    // transforms, springs, or per-frame style churn that small screens pay
-    // for with main-thread time (measured in Lighthouse TBT / Style & Layout).
-    const source =
-      reducedMotion || isMobile ? FADE_ONLY : createRevealVariants(variant, { distance, duration });
+    // Phones and reduced-motion visitors render statically (see below), so the
+    // variants are only meaningful for desktop non-reduced rendering.
+    const source = createRevealVariants(variant, { distance, duration });
     const target = source.visible as TargetAndTransition;
     const baseTransition = target.transition as Transition | undefined;
 
@@ -76,12 +75,20 @@ export const Reveal: React.FC<RevealProps> = ({
     }
 
     return { hidden: source.hidden, visible };
-  }, [reducedMotion, isMobile, variant, distance, duration, delay]);
+  }, [variant, distance, duration, delay]);
 
   const viewportPreset = useMemo(
     () => (once ? viewportOnce(amount) : viewportRepeat(amount)),
     [once, amount],
   );
+
+  if (staticReveal) {
+    return (
+      <MotionTag className={className} style={style}>
+        {children}
+      </MotionTag>
+    );
+  }
 
   return (
     <MotionTag
@@ -132,9 +139,10 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
 }) => {
   const reducedMotion = useReducedMotion();
   const isMobile = useIsMobile();
+  const staticReveal = reducedMotion || isMobile;
 
   const variants = useMemo<Variants>(() => {
-    if (reducedMotion || isMobile) return FADE_ONLY;
+    if (staticReveal) return { hidden: {}, visible: {} };
     return {
       hidden: { y: '110%' },
       visible: {
@@ -142,7 +150,7 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
         transition: { duration, ease: [0.22, 1, 0.36, 1] as [number, number, number, number], delay },
       },
     };
-  }, [reducedMotion, isMobile, duration, delay]);
+  }, [staticReveal, duration, delay]);
 
   const viewportPreset = useMemo(
     () => (once ? viewportOnce(amount) : viewportRepeat(amount)),
@@ -150,6 +158,16 @@ export const MaskReveal: React.FC<MaskRevealProps> = ({
   );
 
   const Outer = as as 'div';
+
+  if (staticReveal) {
+    // On phones and reduced-motion, content is fully visible (no clipping
+    // animation state); phones skip the scroll-driven style writes entirely.
+    return (
+      <Outer className={`overflow-hidden ${className ?? ''}`}>
+        <span className={`block ${innerClassName ?? ''}`}>{children}</span>
+      </Outer>
+    );
+  }
 
   return (
     <Outer className={`overflow-hidden ${className ?? ''}`}>

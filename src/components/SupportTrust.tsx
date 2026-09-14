@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { m, useReducedMotion } from 'framer-motion';
 import { CheckCircle2, ExternalLink, BadgeCheck } from 'lucide-react';
 import { SECTION_REVEAL, CARD_STAGGER as STAGGER, SLIDE_UP as PLATFORM_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { SectionHeader, EASE_STANDARD, useIsFinePointer } from '../motion';
+import { SectionHeader, SectionEntrance, EASE_STANDARD, useIsFinePointer } from '../motion';
 import { siteConfig } from '../data/siteConfig';
 
 export const SupportTrust: React.FC = () => {
@@ -30,7 +30,7 @@ export const SupportTrust: React.FC = () => {
         />
 
         {/* Commitment Statement Card */}
-        <m.div
+        <SectionEntrance
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -66,7 +66,7 @@ export const SupportTrust: React.FC = () => {
             </div>
 
           </div>
-        </m.div>
+        </SectionEntrance>
 
         {/* Verified Freelance Platforms Grid */}
         <div className="mb-12">
@@ -74,7 +74,7 @@ export const SupportTrust: React.FC = () => {
             {t.trust.platformsTitle}
           </h3>
 
-          <m.div
+          <SectionEntrance
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -126,7 +126,7 @@ export const SupportTrust: React.FC = () => {
                 </m.div>
               );
             })}
-          </m.div>
+          </SectionEntrance>
         </div>
 
         {/* GitHub Engineering Statement */}
@@ -151,7 +151,7 @@ export const SupportTrust: React.FC = () => {
             href={siteConfig.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2.5 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-surface-2)] hover:bg-[var(--bg-surface-3)] text-xs font-mono text-[var(--text-heading)] font-bold transition-all flex items-center space-x-2 rtl:space-x-reverse cursor-pointer shrink-0"
+            className="px-4 py-1 min-h-11 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-surface-2)] hover:bg-[var(--bg-surface-3)] text-xs font-mono text-[var(--text-heading)] font-bold transition-all flex items-center space-x-2 rtl:space-x-reverse cursor-pointer shrink-0"
           >
             <span>{t.trust.exploreRepos}</span>
             <ExternalLink className="w-3.5 h-3.5" />

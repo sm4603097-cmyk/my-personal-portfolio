@@ -160,13 +160,13 @@ export const HeroSection: React.FC = () => {
             </m.p>
 
             {/* Primary & Secondary Action CTAs */}
-            <m.div variants={itemFade} className="mb-8 flex flex-wrap gap-3 sm:gap-4 items-center w-full sm:w-auto">
+            <m.div variants={itemFade} className="mb-8 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 items-stretch sm:items-center w-full sm:w-auto">
               <MagneticButton
                 as="a"
                 href="#proof"
                 id="hero-cta-primary"
                 strength={5}
-                className="btn-primary flex-1 sm:flex-initial text-center"
+                className="btn-primary w-full sm:w-auto sm:flex-initial text-center whitespace-nowrap"
                 onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
                   event.preventDefault();
                   scrollToSection('proof', !reducedMotion);
@@ -177,7 +177,7 @@ export const HeroSection: React.FC = () => {
               </MagneticButton>
               <a
                 href="#contact"
-                className="btn-ghost flex-1 sm:flex-initial text-center"
+                className="btn-ghost w-full sm:w-auto sm:flex-initial text-center whitespace-nowrap"
                 id="hero-cta-secondary"
                 onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
                   event.preventDefault();
@@ -194,14 +194,14 @@ export const HeroSection: React.FC = () => {
                 href={siteConfig.whatsappLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-emerald-500/50 hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-emerald-500 text-xs font-mono transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1 min-h-11 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-emerald-500/50 hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-emerald-500 text-xs font-mono transition-all"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
                 <span>{t.hero.whatsappLabel}: {siteConfig.phoneDisplay}</span>
               </a>
               <a
                 href={`tel:${siteConfig.phoneE164}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-cyan-500/50 hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-cyan-500 text-xs font-mono transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1 min-h-11 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-cyan-500/50 hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-cyan-500 text-xs font-mono transition-all"
               >
                 <Phone className="w-3.5 h-3.5 text-cyan-500" />
                 <span>{t.hero.callLabel}</span>
@@ -263,10 +263,20 @@ export const HeroSection: React.FC = () => {
                 {/* Image Viewport: Focused framing on torso/chest up */}
                 <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-[var(--bg-surface-2)]">
                   <picture>
-                    <source type="image/avif" srcSet="/assets/alhassan_mohamed.avif" />
-                    <source type="image/webp" srcSet="/assets/alhassan_mohamed.webp" />
+                    <source
+                      type="image/avif"
+                      srcSet="/assets/alhassan_mohamed_288.avif 288w, /assets/alhassan_mohamed_384.avif 384w, /assets/alhassan_mohamed_480.avif 480w, /assets/alhassan_mohamed_768.avif 768w"
+                      sizes="(max-width: 640px) 88vw, (max-width: 768px) 384px, 420px"
+                    />
+                    <source
+                      type="image/webp"
+                      srcSet="/assets/alhassan_mohamed_288.webp 288w, /assets/alhassan_mohamed_384.webp 384w, /assets/alhassan_mohamed_480.webp 480w, /assets/alhassan_mohamed_768.webp 768w"
+                      sizes="(max-width: 640px) 88vw, (max-width: 768px) 384px, 420px"
+                    />
                     <img
                       src="/assets/alhassan_mohamed.jpg"
+                      srcSet="/assets/alhassan_mohamed_288.jpg 288w, /assets/alhassan_mohamed_384.jpg 384w, /assets/alhassan_mohamed_480.jpg 480w, /assets/alhassan_mohamed_768.jpg 768w"
+                      sizes="(max-width: 640px) 88vw, (max-width: 768px) 384px, 420px"
                       alt="Alhassan Mohamed — Full-Stack & Security Engineer"
                       width="768"
                       height="1024"

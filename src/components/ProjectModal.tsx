@@ -83,7 +83,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.22 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-black/70 backdrop-blur-md overflow-y-auto"
+      className="fixed inset-0 z-50 flex justify-center p-4 sm:p-6 lg:p-8 bg-black/70 backdrop-blur-md overflow-y-auto"
       onClick={onClose}
     >
       <m.div
@@ -96,13 +96,13 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
         animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
         exit={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 8 }}
         transition={{ duration: 0.3, ease: EASE_STANDARD }}
-        className="relative w-full max-w-4xl rounded-2xl bg-[var(--bg-card-solid)] border border-[var(--border-strong)] p-6 sm:p-10 shadow-2xl my-8 outline-none"
+        className="relative w-full max-w-4xl rounded-2xl bg-[var(--bg-card-solid)] border border-[var(--border-strong)] p-6 sm:p-10 shadow-2xl my-auto outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 rtl:right-auto rtl:left-5 p-2 rounded-full bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
+          className="absolute top-5 right-5 rtl:right-auto rtl:left-5 w-11 h-11 flex items-center justify-center p-0 rounded-full bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
@@ -240,7 +240,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
                   href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse"
+                  className="px-4 py-1 min-h-11 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse whitespace-nowrap"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>{t.projects.liveDemo}</span>
@@ -251,7 +251,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
                   href={project.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse"
+                  className="px-4 py-1 min-h-11 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse whitespace-nowrap"
                 >
                   <GitBranch className="w-3.5 h-3.5" />
                   <span>{t.projects.sourceCode}</span>
@@ -262,7 +262,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
           <button
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+            className="px-6 py-1.5 min-h-11 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
           >
             {t.projects.closeModal}
           </button>

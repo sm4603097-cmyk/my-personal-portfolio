@@ -304,7 +304,7 @@ export const ContactSection: React.FC = () => {
                 <div className="pt-2 flex flex-wrap justify-center gap-3">
                   <button
                     onClick={triggerWhatsApp}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#050608] font-bold text-xs font-mono transition-all cursor-pointer flex items-center space-x-2 rtl:space-x-reverse shadow-md"
+                    className="px-5 py-1.5 min-h-11 flex items-center space-x-2 rtl:space-x-reverse rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#050608] font-bold text-xs font-mono transition-all cursor-pointer shadow-md"
                   >
                     <MessageSquare className="w-4 h-4" />
                     <span>{t.contact.ctaWhatsapp}</span>
@@ -313,14 +313,14 @@ export const ContactSection: React.FC = () => {
                     href={siteConfig.telegramLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-[#050608] font-bold text-xs font-mono transition-all cursor-pointer flex items-center space-x-2 rtl:space-x-reverse shadow-md"
+                    className="px-5 py-1.5 min-h-11 flex items-center space-x-2 rtl:space-x-reverse rounded-xl bg-sky-500 hover:bg-sky-400 text-[#050608] font-bold text-xs font-mono transition-all cursor-pointer shadow-md"
                   >
                     <Send className="w-4 h-4" />
                     <span>{t.contact.ctaTelegram}</span>
                   </a>
                   <button
                     onClick={triggerCall}
-                    className="px-5 py-2.5 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs font-mono transition-all cursor-pointer flex items-center space-x-2 rtl:space-x-reverse shadow-md"
+                    className="px-5 py-1.5 min-h-11 flex items-center space-x-2 rtl:space-x-reverse rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs font-mono transition-all cursor-pointer shadow-md"
                   >
                     <Phone className="w-4 h-4" />
                     <span>{t.contact.ctaCall}</span>
@@ -355,7 +355,7 @@ export const ContactSection: React.FC = () => {
                         key={idx}
                         aria-pressed={selectedType === type}
                         onClick={() => setSelectedType(type)}
-                        className={`px-3 py-2 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
+                        className={`px-3 py-1 min-h-11 inline-flex items-center rounded-lg text-xs font-mono transition-all cursor-pointer border ${
                           selectedType === type
                             ? 'bg-[var(--accent-cyan-dim)] border-[var(--accent-cyan)] text-[var(--accent-cyan)] font-bold shadow-sm'
                             : 'bg-[var(--bg-surface-2)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
@@ -379,7 +379,7 @@ export const ContactSection: React.FC = () => {
                         key={idx}
                         aria-pressed={selectedTimeline === time}
                         onClick={() => setSelectedTimeline(time)}
-                        className={`px-3 py-2 rounded-lg text-xs font-mono transition-all cursor-pointer border ${
+                        className={`px-3 py-1 min-h-11 inline-flex items-center rounded-lg text-xs font-mono transition-all cursor-pointer border ${
                           selectedTimeline === time
                             ? 'bg-[var(--accent-cyan-dim)] border-[var(--accent-cyan)] text-[var(--accent-cyan)] font-bold shadow-sm'
                             : 'bg-[var(--bg-surface-2)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
@@ -610,7 +610,7 @@ export const ContactSection: React.FC = () => {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`p-3 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] text-xs font-mono transition-all flex items-center justify-between group ${SOCIAL_COLORS[social.name] ?? ''}`}
+                    className={`p-3 min-h-11 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] text-xs font-mono transition-all flex items-center justify-between group ${SOCIAL_COLORS[social.name] ?? ''}`}
                   >
                     <span>{social.name.charAt(0).toUpperCase() + social.name.slice(1)}</span>
                     <ExternalLink className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 transition-opacity" />

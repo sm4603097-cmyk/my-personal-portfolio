@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { m, useReducedMotion } from 'framer-motion';
 
 import { CARD_STAGGER as GRID_STAGGER, SCALE_ITEM as GRID_ITEM, TRANSITION_EASE, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { AnimatedProgress, SectionHeader } from '../motion';
+import { AnimatedProgress, SectionHeader, SectionEntrance } from '../motion';
 
 // Skill level indicator mapping
 const LEVEL_COLORS: Record<string, { dot: string; bar: string; text: string }> = {
@@ -48,7 +48,7 @@ export const TechnicalMatrix: React.FC = () => {
         />
 
         {/* Category Selector Tabs */}
-        <m.div
+        <SectionEntrance
           variants={gridContainer}
           initial="hidden"
           whileInView="visible"
@@ -81,7 +81,7 @@ export const TechnicalMatrix: React.FC = () => {
               </m.button>
             );
           })}
-        </m.div>
+        </SectionEntrance>
 
         {/* Skills Panel */}
         <m.div
