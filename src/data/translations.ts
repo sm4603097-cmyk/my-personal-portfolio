@@ -3,7 +3,7 @@ export type Language = 'en' | 'ar';
 export interface TranslationContent {
   nav: {
     work: string;
-    proof: string;
+    portfolio: string;
     caseStudy: string;
     engineering: string;
     education: string;
@@ -89,8 +89,6 @@ export interface TranslationContent {
     modalPipeline: string;
     modalHighlights: string;
     modalStack: string;
-    liveDemo: string;
-    sourceCode: string;
   };
   engineering: {
     badge: string;
@@ -228,7 +226,7 @@ export const translations: Record<Language, TranslationContent> = {
   en: {
     nav: {
       work: "Proof",
-      proof: "Evidence",
+      portfolio: "Portfolio",
       caseStudy: "Flagship",
       engineering: "Stack",
       education: "Profile",
@@ -342,8 +340,6 @@ export const translations: Record<Language, TranslationContent> = {
       modalPipeline: "HOW IT WORKS",
       modalHighlights: "ENGINEERING HIGHLIGHTS",
       modalStack: "TECHNOLOGY STACK",
-      liveDemo: "View Live",
-      sourceCode: "Source Code"
     },
     engineering: {
       badge: "TECHNICAL SKILLS",
@@ -540,7 +536,7 @@ export const translations: Record<Language, TranslationContent> = {
   ar: {
     nav: {
       work: "إثبات العمل",
-      proof: "الأدلة",
+      portfolio: "المعرض",
       caseStudy: "المشروع الرئيسي",
       engineering: "التقنيات",
       education: "الملف المهني",
@@ -654,8 +650,6 @@ export const translations: Record<Language, TranslationContent> = {
       modalPipeline: "كيف يعمل النظام",
       modalHighlights: "أبرز النقاط الهندسية",
       modalStack: "التقنيات المستخدمة",
-      liveDemo: "معاينة مباشرة",
-      sourceCode: "الكود المصدري"
     },
     engineering: {
       badge: "المهارات التقنية",

@@ -35,8 +35,6 @@ export interface Project {
   featuresEn?: string[];
   featuresAr?: string[];
   imagePath?: string;
-  githubUrl?: string;
-  liveUrl?: string;
   /** Verified figures rendered as animated counters in the flagship case study. */
   statsEn?: { value: number; label: string; icon?: CaseStudyIcon }[];
   statsAr?: { value: number; label: string; icon?: CaseStudyIcon }[];
