@@ -514,7 +514,7 @@ export const ContactSection: React.FC = () => {
                         <div className="text-sm font-bold font-display text-[var(--text-heading)]">
                           {t.contact.whatsappInstant}
                         </div>
-                        <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                        <div className="text-xs font-mono text-emerald-600 dark:text-emerald-400" dir="ltr">
                           {siteConfig.phoneDisplay}
                         </div>
                       </div>
@@ -538,7 +538,7 @@ export const ContactSection: React.FC = () => {
                         <div className="text-sm font-bold font-display text-[var(--text-heading)]">
                           {t.contact.telegramDirect}
                         </div>
-                        <div className="text-xs font-mono text-sky-600 dark:text-sky-400">
+                        <div className="text-xs font-mono text-sky-600 dark:text-sky-400" dir="ltr">
                           {siteConfig.telegramDisplay}
                         </div>
                       </div>
@@ -560,7 +560,7 @@ export const ContactSection: React.FC = () => {
                         <div className="text-sm font-bold font-display text-[var(--text-heading)]">
                           {t.contact.directCall}
                         </div>
-                        <div className="text-xs font-mono text-[var(--accent-cyan)]">
+                        <div className="text-xs font-mono text-[var(--accent-cyan)]" dir="ltr">
                           {siteConfig.phoneDisplay}
                         </div>
                       </div>
@@ -594,7 +594,7 @@ export const ContactSection: React.FC = () => {
 
               <div className="pt-4 border-t border-[var(--border-subtle)] text-xs text-[var(--text-muted)] font-mono space-y-1">
                 <div>{t.contact.availability}</div>
-                <div>{t.contact.phoneAndWhatsapp}</div>
+                <div>{t.contact.phoneAndWhatsapp} <span dir="ltr">{siteConfig.phoneDisplay}</span></div>
               </div>
             </div>
 

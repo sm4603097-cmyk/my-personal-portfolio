@@ -99,7 +99,7 @@ export const FloatingContactDock: React.FC = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="mb-3 flex flex-col gap-2 p-2 rounded-2xl bg-[var(--dock-bg)] border border-[var(--border-strong)] shadow-2xl w-60 sm:w-64"
+              className="mb-3 flex flex-col gap-2 p-2 rounded-2xl bg-[var(--dock-bg)] backdrop-blur-xl border border-[var(--border-strong)] shadow-2xl w-60 sm:w-64"
             >
               <div className="px-3 py-2 border-b border-[var(--border-subtle)] flex items-center justify-between">
                 <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[var(--accent-cyan)] flex items-center gap-1.5">
@@ -133,7 +133,7 @@ export const FloatingContactDock: React.FC = () => {
                         <span className="text-xs font-semibold text-[var(--text-primary)] group-hover:text-[var(--accent-cyan)] transition-colors">
                           {ch.label}
                         </span>
-                        <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                        <span className="text-[10px] font-mono text-[var(--text-muted)]" dir="ltr">
                           {ch.badge}
                         </span>
                       </div>
@@ -152,7 +152,7 @@ export const FloatingContactDock: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-label={t.contact.dockTitle}
-          className="group flex items-center gap-2 px-3.5 py-1 min-h-11 sm:px-4 rounded-full bg-[var(--dock-bg)] border border-[var(--border-subtle)] text-[var(--text-primary)] shadow-lg hover:border-[var(--accent-cyan)] transition-all cursor-pointer opacity-70 hover:opacity-100"
+          className="group flex items-center gap-2 px-3.5 py-1 min-h-11 sm:px-4 rounded-full bg-[var(--dock-bg)] backdrop-blur-xl border border-[var(--border-subtle)] text-[var(--text-primary)] shadow-lg hover:border-[var(--accent-cyan)] transition-all cursor-pointer opacity-70 hover:opacity-100"
         >
           <span className="relative flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
