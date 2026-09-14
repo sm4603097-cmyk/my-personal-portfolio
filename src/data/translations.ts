@@ -174,9 +174,12 @@ export interface TranslationContent {
     }[];
     githubHeadline: string;
     githubSub: string;
+    linkedinHeadline: string;
+    linkedinSub: string;
     engineeringBacking: string;
     postDeliverySupport: string;
     exploreRepos: string;
+    viewProfile: string;
   };
   contact: {
     badge: string;
@@ -480,13 +483,17 @@ export const translations: Record<Language, TranslationContent> = {
         { name: "Upwork", role: "Full-Stack & Android Developer", badge: "Verified Top Platform", link: "" },
         { name: "Khamsat", role: "Software Engineering Services", badge: "Verified Marketplace Provider", link: "" },
         { name: "Mostaql", role: "Web & Mobile Developer", badge: "Verified Freelance Engineer", link: "" },
-        { name: "GitHub", role: "Engineering Repositories", badge: "Open Codebase & Contributions", link: "https://github.com/sm4603097-cmyk" }
+        { name: "GitHub", role: "Engineering Repositories", badge: "Open Codebase & Contributions", link: "https://github.com/sm4603097-cmyk" },
+        { name: "LinkedIn", role: "Professional Network", badge: "Verified Professional Profile", link: "https://www.linkedin.com/in/alhassan-mohamed-91b50b264" }
       ],
       githubHeadline: "CODE IS PART OF THE PRODUCT.",
       githubSub: "Clean repository structures, commit history discipline, and maintainable codebase patterns.",
+      linkedinHeadline: "ENGINEERING, IN PUBLIC.",
+      linkedinSub: "A verified LinkedIn profile documenting experience, skills, and the network behind the work.",
       engineeringBacking: "ENGINEERING BACKING",
       postDeliverySupport: "Responsible Post-Delivery Support",
-      exploreRepos: "Explore Repositories"
+      exploreRepos: "Explore Repositories",
+      viewProfile: "View Profile"
     },
     contact: {
       badge: "START A CONVERSATION",
@@ -788,13 +795,17 @@ export const translations: Record<Language, TranslationContent> = {
         { name: "Upwork", role: "مطوِّر متكامل وأندرويد Full-Stack", badge: "منصة عالمية معتمدة", link: "" },
         { name: "خمسات Khamsat", role: "خدمات الهندسة والبرمجيات", badge: "بائع خدمات معتمد", link: "" },
         { name: "مستقل Mostaql", role: "مطور تطبيقات ويب وهاتف", badge: "مهندس مستقل معتمد", link: "" },
-        { name: "GitHub", role: "مستودعات البرمجة والمشاريع", badge: "كود مفتوح ومساهمات فعلية", link: "https://github.com/sm4603097-cmyk" }
+        { name: "GitHub", role: "مستودعات البرمجة والمشاريع", badge: "كود مفتوح ومساهمات فعلية", link: "https://github.com/sm4603097-cmyk" },
+        { name: "LinkedIn", role: "الشبكة المهنية", badge: "ملف مهني موثّق", link: "https://www.linkedin.com/in/alhassan-mohamed-91b50b264" }
       ],
       githubHeadline: "الكود هو جزء أساسي من المنتج.",
       githubSub: "هيكلة مستودعات ناعمة، انضباط في سجل التغييرات Commits، وأنظمة قابلة للصيانة.",
+      linkedinHeadline: "الهندسة، بعِلم الجميع.",
+      linkedinSub: "ملف LinkedIn موثّق يوثّق الخبرات والمهارات والشبكة المهنية خلف العمل.",
       engineeringBacking: "ضمان هندسي",
       postDeliverySupport: "دعم مسؤول بعد التسليم",
-      exploreRepos: "استكشف المستودعات"
+      exploreRepos: "استكشف المستودعات",
+      viewProfile: "عرض الملف المهني"
     },
     contact: {
       badge: "تواصل مباشر",
