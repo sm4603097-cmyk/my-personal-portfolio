@@ -524,7 +524,7 @@ export const translations: Record<Language, TranslationContent> = {
       directCall: "Direct Phone Call",
       directEmail: "Direct Email",
       availability: "Status: Available for production projects",
-      phoneAndWhatsapp: "Direct Phone & WhatsApp: +20 107 047 1954",
+      phoneAndWhatsapp: "Direct Phone & WhatsApp:",
       dockTitle: "Direct Channels"
     },
     footer: {
@@ -834,7 +834,7 @@ export const translations: Record<Language, TranslationContent> = {
       directCall: "اتصال هاتفي مباشر",
       directEmail: "بريد إلكتروني مباشر",
       availability: "الحالة: متاح لمشاريع الإنتاج الجديدة",
-      phoneAndWhatsapp: "الهاتف والواتساب المباشر: +20 107 047 1954",
+      phoneAndWhatsapp: "الهاتف والواتساب المباشر:",
       dockTitle: "تواصل فوري ومباشر"
     },
     footer: {

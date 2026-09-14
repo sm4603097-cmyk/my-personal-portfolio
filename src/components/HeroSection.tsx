@@ -197,7 +197,7 @@ export const HeroSection: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1 min-h-11 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-card)] hover:border-emerald-500/50 hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-emerald-500 text-xs font-mono transition-all"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-500" />
-                <span>{t.hero.whatsappLabel}: {siteConfig.phoneDisplay}</span>
+                <span>{t.hero.whatsappLabel}: <span dir="ltr">{siteConfig.phoneDisplay}</span></span>
               </a>
               <a
                 href={`tel:${siteConfig.phoneE164}`}
