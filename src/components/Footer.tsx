@@ -39,7 +39,7 @@ export const Footer: React.FC = () => {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--text-secondary)] hover:text-[var(--accent-cyan)] transition-colors duration-200 text-[11px] tracking-wider"
+                className="inline-flex items-center min-h-11 py-1 text-[var(--text-secondary)] hover:text-[var(--accent-cyan)] transition-colors duration-200 text-[11px] tracking-wider"
               >
                 {link.label}
               </a>
@@ -63,7 +63,7 @@ export const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 aria-label={t.contact.ctaWhatsapp}
                 title={t.contact.ctaWhatsapp}
-                className="inline-flex items-center justify-center text-[var(--text-muted)] hover:text-emerald-400 transition-colors duration-200"
+                className="inline-flex items-center justify-center w-11 h-11 shrink-0 text-[var(--text-muted)] hover:text-emerald-400 transition-colors duration-200"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
               </a>

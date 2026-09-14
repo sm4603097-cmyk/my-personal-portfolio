@@ -17,7 +17,7 @@ import {
 
 import { projectsData, type CaseStudyIcon } from '../data/portfolioData';
 import { SECTION_REVEAL, CARD_STAGGER as STAGGER_ITEMS, SLIDE_UP as CHILD_REVEAL, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { AnimatedCounter, SectionHeader, useIsRtl } from '../motion';
+import { AnimatedCounter, SectionHeader, SectionEntrance, useIsRtl } from '../motion';
 
 const ICON_MAP: Record<CaseStudyIcon, LucideIcon> = {
   Database,
@@ -73,7 +73,7 @@ export const FlagshipCaseStudy: React.FC = () => {
         />
 
         {/* Verified Platform Stats */}
-        <m.div
+        <SectionEntrance
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -111,10 +111,10 @@ export const FlagshipCaseStudy: React.FC = () => {
               </m.div>
             );
           })}
-        </m.div>
+        </SectionEntrance>
 
         {/* Capability Matrix */}
-        <m.div
+        <SectionEntrance
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -150,10 +150,10 @@ export const FlagshipCaseStudy: React.FC = () => {
               </m.div>
             );
           })}
-        </m.div>
+        </SectionEntrance>
 
         {/* Architecture Flow Chain */}
-        <m.div
+        <SectionEntrance
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -192,10 +192,10 @@ export const FlagshipCaseStudy: React.FC = () => {
               </React.Fragment>
             ))}
           </div>
-        </m.div>
+        </SectionEntrance>
 
         {/* Security Engineering */}
-        <m.div
+        <SectionEntrance
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -229,10 +229,10 @@ export const FlagshipCaseStudy: React.FC = () => {
               </div>
             ))}
           </div>
-        </m.div>
+        </SectionEntrance>
 
         {/* Impact & Tech Stack */}
-        <m.div
+        <SectionEntrance
           variants={container}
           initial="hidden"
           whileInView="visible"
@@ -265,7 +265,7 @@ export const FlagshipCaseStudy: React.FC = () => {
               ))}
             </div>
           </m.div>
-        </m.div>
+        </SectionEntrance>
 
       </div>
     </section>

@@ -4,7 +4,7 @@ import { m, useReducedMotion } from 'framer-motion';
 import { ShieldCheck, Check, ArrowRight } from 'lucide-react';
 
 import { SECTION_REVEAL, CARD_STAGGER, CARD_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { AnimatedCounter, SectionHeader, SectionTransition } from '../motion';
+import { AnimatedCounter, SectionHeader, SectionEntrance, SectionTransition } from '../motion';
 import { scrollToSection } from '../utils/sectionReveal';
 
 type FilterKey = 'all' | 'auth' | 'android' | 'security';
@@ -52,7 +52,7 @@ export const ProofSection: React.FC = () => {
         />
 
         {/* Filter Navigation Tabs */}
-        <m.div
+        <SectionEntrance
           variants={reducedMotion ? NO_MOTION_CONTAINER : SECTION_REVEAL}
           initial="hidden"
           whileInView="visible"
@@ -66,7 +66,7 @@ export const ProofSection: React.FC = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as FilterKey)}
                 aria-pressed={isActive}
-                className={`px-3.5 py-2 rounded-lg text-xs font-mono font-medium transition-all duration-200 cursor-pointer ${
+                className={`px-3.5 py-1 min-h-11 rounded-lg text-xs font-mono font-medium transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'bg-[var(--accent-cyan-dim)] text-[var(--accent-cyan)] border border-[var(--accent-cyan)] shadow-sm'
                     : 'bg-[var(--bg-card)] text-[var(--text-secondary)] border border-[var(--border-subtle)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
@@ -76,10 +76,10 @@ export const ProofSection: React.FC = () => {
               </button>
             );
           })}
-        </m.div>
+        </SectionEntrance>
 
         {/* Proof Cards Grid */}
-        <m.div
+        <SectionEntrance
           key={activeTab}
           variants={container}
           initial="hidden"
@@ -137,7 +137,7 @@ export const ProofSection: React.FC = () => {
               </div>
             </m.div>
           ))}
-        </m.div>
+        </SectionEntrance>
 
         {/* Deep Architectural Highlight Box */}
         <SectionTransition once={false} className="mt-12 rounded-2xl border border-[var(--border-accent)] p-6 sm:p-8 relative overflow-hidden bg-[var(--bg-card)] shadow-lg">

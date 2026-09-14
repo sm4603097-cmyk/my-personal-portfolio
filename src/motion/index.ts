@@ -8,6 +8,7 @@ export * from './hooks';
 export * from './variants';
 
 export * from './Reveal';
+export * from './SectionEntrance';
 export * from './AnimatedCounter';
 export * from './AnimatedProgress';
 export * from './TimelineReveal';

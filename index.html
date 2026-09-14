@@ -19,11 +19,18 @@
     <link
       rel="preload"
       as="image"
-      href="/assets/alhassan_mohamed.avif"
-      imagesrcset="/assets/alhassan_mohamed.avif"
-      imagesizes="(max-width: 640px) 384px, 420px"
+      href="/assets/alhassan_mohamed_768.avif"
+      imagesrcset="/assets/alhassan_mohamed_288.avif 288w, /assets/alhassan_mohamed_384.avif 384w, /assets/alhassan_mohamed_480.avif 480w, /assets/alhassan_mohamed_768.avif 768w"
+      imagesizes="(max-width: 640px) 88vw, (max-width: 768px) 384px, 420px"
       fetchpriority="high"
     />
+
+    <!-- Preload the two latin font subsets used above the fold (display + body).
+         font-display: swap means text still paints with a system fallback, but
+         the swap to the intended face happens immediately. The Arabic faces
+         (Cairo/Tajawal) are warmed only when the visitor switches language. -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/space-grotesk/space-grotesk-400-latin.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/outfit/outfit-400-latin.woff2" />
 
     <!-- Pre-paint theme & language bootstrap: prevents a flash of the wrong
          theme/direction before React mounts. Mirrors the initial-state logic

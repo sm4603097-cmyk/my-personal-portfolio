@@ -1,10 +1,10 @@
 ﻿import { Children, useMemo } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { m, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
 import { createStaggerVariants, NO_MOTION_CONTAINER } from './variants';
-import { useIsRtl } from './hooks';
+import { useIsMobile, useIsRtl } from './hooks';
 import { viewportOnce, viewportRepeat } from './presets';
 
 const ACCENT_MARKER = {
@@ -45,16 +45,56 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
   once = false,
 }) => {
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  const staticReveal = reducedMotion || isMobile;
   const isRtl = useIsRtl();
   const count = useMemo(() => Children.count(children), [children]);
 
   const containerVariants = useMemo<Variants>(
-    () => (reducedMotion ? NO_MOTION_CONTAINER : createStaggerVariants(0.13, 0.15)),
-    [reducedMotion],
+    () => (staticReveal ? NO_MOTION_CONTAINER : createStaggerVariants(0.13, 0.15)),
+    [staticReveal],
   );
 
   const progress =
     activeIndex === null || count <= 1 ? 1 : Math.min(1, Math.max(0, activeIndex / (count - 1)));
+
+  const fillStyle: CSSProperties = {
+    transformOrigin: direction === 'vertical' ? 'top center' : isRtl ? 'right center' : 'left center',
+    ...(staticReveal
+      ? { transform: direction === 'vertical' ? `scaleY(${progress})` : `scaleX(${progress})` }
+      : {}),
+  };
+
+  if (staticReveal) {
+    // Static timeline on phones / reduced-motion: the connector is drawn in
+    // full and the accent fill hold its current progress — no per-frame
+    // transform animation while scrolling.
+    return (
+      <div className={`relative ${className ?? ''}`}>
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute ${
+            direction === 'vertical'
+              ? 'inset-y-0 start-[4px] w-[2px]'
+              : 'inset-x-0 top-[4px] h-[2px]'
+          } ${lineClassName ?? 'bg-[var(--border-subtle)]'}`}
+          style={{ transformOrigin: 'top center' }}
+        />
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute ${
+            direction === 'vertical'
+              ? 'inset-y-0 start-[4px] w-[2px]'
+              : 'inset-x-0 top-[4px] h-[2px]'
+          } bg-[var(--accent-cyan)]/70`}
+          style={fillStyle}
+        />
+        <div className={direction === 'vertical' ? 'flex flex-col' : 'flex'}>
+          {children}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <m.div
@@ -75,14 +115,8 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
         style={{
           transformOrigin: direction === 'vertical' ? 'top center' : isRtl ? 'right center' : 'left center',
         }}
-        initial={reducedMotion ? { scaleX: 1, scaleY: 1 } : direction === 'vertical' ? { scaleY: 0 } : { scaleX: 0 }}
-        whileInView={
-          reducedMotion
-            ? { scaleX: 1, scaleY: 1 }
-            : direction === 'vertical'
-              ? { scaleY: 1 }
-              : { scaleX: 1 }
-        }
+        initial={direction === 'vertical' ? { scaleY: 0 } : { scaleX: 0 }}
+        whileInView={direction === 'vertical' ? { scaleY: 1 } : { scaleX: 1 }}
         viewport={once ? viewportOnce(amount) : viewportRepeat(amount)}
         transition={{ duration: DURATION.medium, ease: EASE_PREMIUM }}
       />
@@ -95,9 +129,7 @@ export const TimelineReveal: React.FC<TimelineRevealProps> = ({
             ? 'inset-y-0 start-[4px] w-[2px]'
             : 'inset-x-0 top-[4px] h-[2px]'
         } bg-[var(--accent-cyan)]/70`}
-        style={{
-          transformOrigin: direction === 'vertical' ? 'top center' : isRtl ? 'right center' : 'left center',
-        }}
+        style={fillStyle}
         animate={{
           ...(direction === 'vertical' ? { scaleY: progress } : { scaleX: progress }),
         }}
@@ -138,16 +170,30 @@ export const TimelineNode: React.FC<TimelineNodeProps> = ({
   children,
 }) => {
   const reducedMotion = useReducedMotion();
+  const isMobile = useIsMobile();
+  const staticReveal = reducedMotion || isMobile;
 
   const itemVariants = useMemo<Variants>(() => {
-    if (reducedMotion) return NO_MOTION_CONTAINER;
+    if (staticReveal) return NO_MOTION_CONTAINER;
     return {
       hidden: { opacity: 0, y: 14 },
       visible: { opacity: 1, y: 0, transition: { duration: DURATION.base, ease: EASE_PREMIUM } },
     };
-  }, [reducedMotion]);
+  }, [staticReveal]);
 
   const markerState = active ? ACCENT_MARKER.active : reached ? ACCENT_MARKER.reached : ACCENT_MARKER.default;
+
+  if (staticReveal) {
+    return (
+      <div data-index={index} className={`relative ${className ?? ''}`}>
+        <span
+          aria-hidden="true"
+          className={`absolute start-0 top-1 z-10 size-[10px] rounded-full ${markerState} ${markerClassName ?? ''}`}
+        />
+        <div className="min-w-0 ps-7">{children}</div>
+      </div>
+    );
+  }
 
   return (
     <m.div variants={itemVariants} data-index={index} className={`relative ${className ?? ''}`}>
@@ -155,10 +201,10 @@ export const TimelineNode: React.FC<TimelineNodeProps> = ({
       <m.span
         aria-hidden="true"
         className={`absolute start-0 top-1 z-10 size-[10px] rounded-full ${markerState} ${markerClassName ?? ''}`}
-        animate={reducedMotion ? { scale: 1 } : { scale: active ? 1.2 : 1 }}
+        animate={{ scale: active ? 1.2 : 1 }}
         transition={{ duration: 0.3, ease: EASE_PREMIUM }}
         style={{
-          boxShadow: active && !reducedMotion ? '0 0 14px -2px var(--accent-cyan)' : undefined,
+          boxShadow: active ? '0 0 14px -2px var(--accent-cyan)' : undefined,
         }}
       />
       <div className="min-w-0 ps-7">{children}</div>

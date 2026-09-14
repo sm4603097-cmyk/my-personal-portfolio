@@ -4,7 +4,7 @@ import { m, useReducedMotion, useSpring, useTransform } from 'framer-motion';
 import { Shield, Play, Check } from 'lucide-react';
 
 import { SECTION_REVEAL, CARD_STAGGER as STAGGER, SCALE_ITEM as STEP_ITEM, NO_MOTION_CONTAINER, FADE_ONLY } from '../motion/variants';
-import { SectionHeader, useIsRtl } from '../motion';
+import { SectionHeader, SectionEntrance, useIsRtl } from '../motion';
 
 export const SecurityFlow: React.FC = () => {
   const { t } = useLanguage();
@@ -77,7 +77,7 @@ export const SecurityFlow: React.FC = () => {
         />
 
         {/* Zero-Trust Principle Banner & Live Simulator Trigger */}
-        <m.div
+        <SectionEntrance
           variants={reveal}
           initial="hidden"
           whileInView="visible"
@@ -115,10 +115,10 @@ export const SecurityFlow: React.FC = () => {
               </button>
             </div>
           </div>
-        </m.div>
+        </SectionEntrance>
 
         {/* Interactive Flow Pipeline */}
-        <m.div
+        <SectionEntrance
             variants={reveal}
             initial="hidden"
             whileInView="visible"
@@ -172,7 +172,7 @@ export const SecurityFlow: React.FC = () => {
           </div>
 
           {/* Steps Grid */}
-          <m.div
+          <SectionEntrance
             variants={stagger}
             initial="hidden"
             whileInView="visible"
@@ -223,9 +223,9 @@ export const SecurityFlow: React.FC = () => {
                     </div>
                   </div>
                 </m.button>
-              );
-            })}
-          </m.div>
+                );
+              })}
+          </SectionEntrance>
 
           {/* Active Step Details */}
           <m.div
@@ -248,7 +248,7 @@ export const SecurityFlow: React.FC = () => {
             </div>
           </m.div>
 
-        </m.div>
+        </SectionEntrance>
 
       </div>
     </section>

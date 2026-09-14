@@ -140,7 +140,7 @@ export const Navbar: React.FC = () => {
             {/* Theme Toggle (Dark / Light) */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-1)] hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center p-0 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-1)] hover:bg-[var(--bg-surface-2)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
               title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
@@ -154,7 +154,7 @@ export const Navbar: React.FC = () => {
             {/* Language Switch */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-1)] hover:bg-[var(--bg-surface-2)] text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 min-h-11 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface-1)] hover:bg-[var(--bg-surface-2)] text-xs font-mono text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
               aria-label={`${t.nav.langBtn}, Switch Language`}
             >
               <Globe className="w-3.5 h-3.5 text-[var(--accent-cyan)]" />
@@ -164,7 +164,7 @@ export const Navbar: React.FC = () => {
             {/* Primary CTA (Contact) */}
             <button
               onClick={() => scrollTo('contact')}
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-[#050608] bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] transition-all shadow-md cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-1 min-h-11 rounded-full text-xs font-bold text-[#050608] bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] transition-all shadow-md cursor-pointer"
             >
               <span>{t.nav.contact}</span>
             </button>
@@ -172,7 +172,7 @@ export const Navbar: React.FC = () => {
             {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-surface-1)] cursor-pointer"
+              className="xl:hidden w-11 h-11 flex items-center justify-center p-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] rounded-lg bg-[var(--bg-surface-1)] cursor-pointer"
               aria-label="Toggle Navigation Menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -198,7 +198,7 @@ export const Navbar: React.FC = () => {
                   <button
                     key={link.id}
                     onClick={() => scrollTo(link.id)}
-                    className={`text-start px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    className={`text-start px-4 min-h-11 py-1.5 flex items-center rounded-xl text-sm font-medium transition-all ${
                       activeSection === link.id
                         ? 'bg-[var(--accent-cyan-dim)] text-[var(--accent-cyan)] border border-[var(--accent-cyan)]'
                         : 'text-[var(--text-secondary)] hover:bg-[var(--bg-surface-2)] hover:text-[var(--text-primary)]'

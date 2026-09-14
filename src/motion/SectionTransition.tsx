@@ -1,9 +1,8 @@
 ﻿import { useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { m, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { DURATION, EASE_PREMIUM } from './transitions';
-import { NO_MOTION_CONTAINER } from './variants';
+import { SectionEntrance } from './SectionEntrance';
 import { viewportOnce, viewportRepeat } from './presets';
 
 export interface SectionTransitionProps {
@@ -20,7 +19,8 @@ export interface SectionTransitionProps {
 /**
  * A soft, shared "arrival" wrapper used between connected moments of a page.
  * Deliberately subtle (opacity + small translation) so sections feel like one
- * continuous journey rather than a series of independent entrances.
+ * continuous journey rather than a series of independent entrances. Renders
+ * statically on phones and for reduced-motion visitors (SectionEntrance).
  */
 export const SectionTransition: React.FC<SectionTransitionProps> = ({
   children,
@@ -29,17 +29,12 @@ export const SectionTransition: React.FC<SectionTransitionProps> = ({
   once = false,
   className,
 }) => {
-  const reducedMotion = useReducedMotion();
-
   const variants = useMemo<Variants>(
-    () =>
-      reducedMotion
-        ? NO_MOTION_CONTAINER
-        : {
-            hidden: { opacity: 0, y: distance },
-            visible: { opacity: 1, y: 0, transition: { duration: DURATION.medium, ease: EASE_PREMIUM } },
-          },
-    [reducedMotion, distance],
+    () => ({
+      hidden: { opacity: 0, y: distance },
+      visible: { opacity: 1, y: 0, transition: { duration: DURATION.medium, ease: EASE_PREMIUM } },
+    }),
+    [distance],
   );
 
   const viewportPreset = useMemo(
@@ -48,7 +43,7 @@ export const SectionTransition: React.FC<SectionTransitionProps> = ({
   );
 
   return (
-    <m.div
+    <SectionEntrance
       initial="hidden"
       whileInView="visible"
       viewport={viewportPreset}
@@ -56,6 +51,6 @@ export const SectionTransition: React.FC<SectionTransitionProps> = ({
       className={className}
     >
       {children}
-    </m.div>
+    </SectionEntrance>
   );
 };
