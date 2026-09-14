@@ -67,7 +67,7 @@ export const Navbar: React.FC = () => {
   const navLinks = [
     { id: 'proof', label: t.nav.work },
     { id: 'case-study', label: t.nav.caseStudy },
-    { id: 'projects', label: t.nav.proof },
+    { id: 'projects', label: t.nav.portfolio },
     { id: 'engineering', label: t.nav.engineering },
     { id: 'education', label: t.nav.education },
     { id: 'security', label: t.nav.security },

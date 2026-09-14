@@ -29,8 +29,7 @@ export const siteConfig: SiteConfig = {
   phoneDisplay: '+20 107 047 1954',
   phoneE164: '+201070471954',
   whatsappNumber: '201070471954',
-  whatsappLink:
-    'https://wa.me/201070471954?text=Hello%20Alhassan,%20I%20would%20like%20to%20discuss%20a%20project',
+  whatsappLink: 'https://wa.me/201070471954',
   telegramHandle: '@salama_83_77',
   telegramDisplay: '@salama_83_77 / +20 107 047 1954',
   telegramLink: 'https://t.me/+201070471954',

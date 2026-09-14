@@ -2,7 +2,7 @@
 import type { Project } from '../data/portfolioData';
 import { useLanguage } from '../context/LanguageContext';
 import { splitMetricSegments } from '../utils/bidi';
-import { X, CheckCircle2, ArrowRight, ExternalLink, GitBranch } from 'lucide-react';
+import { X, CheckCircle2, ArrowRight } from 'lucide-react';
 import { m, useReducedMotion } from 'framer-motion';
 import { EASE_STANDARD } from '../motion';
 
@@ -233,33 +233,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ project, onClose }) 
 
         {/* Modal Action Footer */}
         <div className="mt-8 pt-6 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3">
-          {(project.liveUrl || project.githubUrl) && (
-            <div className="flex flex-wrap items-center gap-2">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-1 min-h-11 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse whitespace-nowrap"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>{t.projects.liveDemo}</span>
-                </a>
-              )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-1 min-h-11 rounded-xl bg-[var(--bg-surface-2)] border border-[var(--border-subtle)] text-xs font-mono font-bold text-[var(--text-heading)] hover:text-[var(--accent-cyan)] hover:border-[var(--accent-cyan)] transition-all cursor-pointer flex items-center space-x-1.5 rtl:space-x-reverse whitespace-nowrap"
-                >
-                  <GitBranch className="w-3.5 h-3.5" />
-                  <span>{t.projects.sourceCode}</span>
-                </a>
-              )}
-            </div>
-          )}
-
           <button
             onClick={onClose}
             className="px-6 py-1.5 min-h-11 rounded-xl bg-[var(--accent-cyan)] hover:bg-[var(--accent-cyan-hover)] text-[#050608] font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
